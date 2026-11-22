@@ -16,6 +16,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm sim:run [n] [easy|normal|hard] [ascension]` — bot roguelike runs per hero, fully unlocked profile (win rate, nodes cleared)
 - `pnpm sim:balance [n] [--out path]` — M8 balance report (all 10 faction pairs, Normal vs Normal, n per seat, default 1000) written to `docs/balance.md`; multi-threaded, reproducible; exits 1 if an out-of-target faction/card has no reason in `tools/sim/balance-exceptions.json`
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/engine/text.ts`)
+- `pnpm content:text:next` — the same for Spellfall's cards, `src/content/next/cards.json` (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
 - `pnpm build` — production build (`VITE_BASE=/spellfall/` for GitHub Pages; CI sets it)
 
@@ -28,6 +29,16 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `src/save/` — profile schema (Zod), two-slot saves over IndexedDB, migrations (`tests/fixtures/save-v*.json`), save codes.
 - `src/ui/` — React screens. Only sends actions to the engine and animates returned events; never computes results.
 - `tools/sim/` — CLI simulator. `tests/unit`, `tests/e2e` — tests.
+
+## Rules notes (Spellfall, `src/rules/`)
+
+- Public API is `src/rules/index.ts`: `initMatch`, `legalActions(state)` (for the player with priority), `applyAction(state, action) → { state, events }`, `viewFor`, `eventsFor`.
+- Actions: `mulligan`, `playUnit` (with a board position and On Play targets), `castSpell`, `attack`, `pass` (empty stack: end
+  turn; otherwise resolve the whole stack). Burst resolves at once; Fast/Slow spells and attacks go on `state.stack`.
+- Cards are `src/content/next/cards.json` until V2 (schema `src/rules/schema.ts`: `speed`, `targets[]`, `target`/`target2`
+  selectors). Run `pnpm content:text:next` after editing one.
+- Tests: `tests/unit/rules/` (helpers `setup`, `place`, `give`, `cast`, `play`, `attack`, `pass`); bulk and determinism in
+  `tests/sim/rules-bulk.test.ts` with the random bot in `tools/sim/rules-bot.ts`.
 
 ## Engine notes
 

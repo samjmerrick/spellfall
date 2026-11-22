@@ -28,7 +28,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 - Each hero starts on 20 HP.
 - Decks are 30 cards in Quick Play; run decks start at 12 and grow.
-- The match seed decides who goes first. The first player draws 3, the second draws 4 and also gets **the Spark** (a 0-cost Burst spell: gain 1 mana this turn).
+- The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana this turn).
 - One mulligan: replace any number of your starting cards once.
 - Hand limit is 10; a draw past 10 is burned (discarded).
 - Each side of the board holds up to 6 units in one row. A unit is played into any position in the row; units to its right move over. When a unit dies, the gap closes.
@@ -64,8 +64,8 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 **Units**
 
-- Playing a unit costs its mana and can only happen in your main phase with an empty stack. It does not use the stack: the unit enters at once and its On Play effect resolves at once. Targets for an On Play effect are chosen as the unit is played.
-- A unit can attack once per turn, but not on the turn it entered unless it has **Quick**.
+- Playing a unit costs its mana and can only happen in your main phase with an empty stack. It does not use the stack: the unit enters at once and its On Play effect resolves at once. Targets for an On Play effect are chosen as the unit is played; if no legal target exists, the unit can still be played and that effect does nothing. Spells always need all their targets.
+- A unit can attack once per turn, but not on the turn it entered unless it has **Quick**. Units with 0 Power cannot attack. Summoned units count as entering when summoned.
 
 **Combat**
 
@@ -82,7 +82,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 **Winning**
 
 - A hero on 0 HP or less loses, checked after each item resolves. If both reach 0 at the same check, the match is a draw.
-- If turn 40 is reached (20 each), the match is a draw. This exists so simulations always end; it should almost never happen.
+- If turn 40 (20 each) ends with no winner, the match is a draw. This exists so simulations always end; it should almost never happen.
 - In a run, a draw counts as a loss.
 
 **Card types**
@@ -110,8 +110,8 @@ About 150 cards: 30 per faction across 5 factions, with no colourless cards. Eve
 | ----------- | ------------------------------------------------------------------------------------- |
 | Guard       | While you have a Guard unit, enemies can only attack Guard units.                     |
 | Barrier     | Prevents the next damage this unit would take, then is removed.                       |
-| Overwhelm   | When this unit attacks a unit, damage beyond the target's remaining Health hits the enemy hero. |
-| Lifesteal   | Damage this unit deals heals your hero by the same amount.                            |
+| Overwhelm   | When this unit attacks a unit, the target takes damage only up to its remaining Health and the rest hits the enemy hero (Barrier still blocks the target's share). |
+| Lifesteal   | Damage this unit deals in combat (attacking or defending, including Overwhelm) heals your hero by the same amount. |
 | Quick       | Can attack the turn it enters.                                                        |
 | Elusive     | Cannot be targeted by enemy spells or effects until it attacks. It can still be attacked. |
 | Rally       | On Play: other friendly units get +1 Power this turn.                                 |
