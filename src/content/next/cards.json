@@ -1,0 +1,817 @@
+[
+  {
+    "id": "neutral-spark",
+    "name": "The Spark",
+    "faction": "neutral",
+    "type": "spell",
+    "cost": 0,
+    "speed": "burst",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "gainMana",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "Gain 1 mana this turn.",
+    "rarity": "common",
+    "unlock": "starter",
+    "token": true
+  },
+  {
+    "id": "ember-spark-imp",
+    "name": "Spark Imp",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 1,
+    "power": 2,
+    "health": 1,
+    "text": "",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-cinder-scout",
+    "name": "Cinder Scout",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 1,
+    "power": 1,
+    "health": 1,
+    "keywords": ["quick"],
+    "text": "Quick.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-flame-dancer",
+    "name": "Flame Dancer",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 1,
+    "power": 3,
+    "health": 1,
+    "keywords": ["quick", "ephemeral"],
+    "text": "Quick. Ephemeral.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-ash-raider",
+    "name": "Ash Raider",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 2,
+    "power": 3,
+    "health": 1,
+    "keywords": ["quick"],
+    "text": "Quick.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-ember-hound",
+    "name": "Ember Hound",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 2,
+    "power": 2,
+    "health": 1,
+    "keywords": ["overwhelm"],
+    "text": "Overwhelm.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-torchbearer",
+    "name": "Torchbearer",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 2,
+    "power": 2,
+    "health": 2,
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "On Play: deal 1 damage to an enemy unit.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-blaze-runner",
+    "name": "Blaze Runner",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 3,
+    "power": 4,
+    "health": 2,
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "On Play: deal 1 damage to the enemy hero.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-skyfire-archer",
+    "name": "Skyfire Archer",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 3,
+    "power": 3,
+    "health": 2,
+    "targets": [
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "On Play: deal 1 damage to an enemy.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-pyre-zealot",
+    "name": "Pyre Zealot",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 3,
+    "power": 5,
+    "health": 3,
+    "keywords": ["quick", "ephemeral"],
+    "text": "Quick. Ephemeral.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-magma-brute",
+    "name": "Magma Brute",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 4,
+    "power": 5,
+    "health": 4,
+    "text": "",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-war-drummer",
+    "name": "War Drummer",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 4,
+    "power": 3,
+    "health": 4,
+    "effects": [
+      {
+        "trigger": "ongoing",
+        "action": {
+          "op": "buff",
+          "target": "adjacentUnits",
+          "power": 1,
+          "health": 0,
+          "duration": "permanent"
+        }
+      }
+    ],
+    "text": "Ongoing: adjacent units have +1 Power.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-inferno-titan",
+    "name": "Inferno Titan",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 5,
+    "power": 5,
+    "health": 5,
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "Last Breath: deal 2 damage to the enemy hero.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-phoenix",
+    "name": "Phoenix",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 6,
+    "power": 6,
+    "health": 5,
+    "keywords": ["overwhelm"],
+    "text": "Overwhelm.",
+    "rarity": "rare",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-volcano-lord",
+    "name": "Volcano Lord",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 7,
+    "power": 7,
+    "health": 6,
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "allEnemyUnits",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "On Play: deal 2 damage to all enemy units.",
+    "rarity": "legendary",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-cinder-bolt",
+    "name": "Cinder Bolt",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 1,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "Deal 2 damage to an enemy unit.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-kindle",
+    "name": "Kindle",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 1,
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 2,
+          "health": 0,
+          "duration": "turn"
+        }
+      }
+    ],
+    "text": "Give a friendly unit +2 Power this turn.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-fireball",
+    "name": "Fireball",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 3,
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 4
+        }
+      }
+    ],
+    "text": "Deal 4 damage to an enemy.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-reckless-charge",
+    "name": "Reckless Charge",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 3,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "allFriendlyUnits",
+          "power": 2,
+          "health": 0,
+          "duration": "turn"
+        }
+      }
+    ],
+    "text": "Give all friendly units +2 Power this turn.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-flame-wave",
+    "name": "Flame Wave",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 4,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "allEnemyUnits",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "Deal 2 damage to all enemy units.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "ember-meteor",
+    "name": "Meteor",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 5,
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      },
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 5
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target2",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "Deal 5 damage to an enemy unit and deal 2 damage to an enemy.",
+    "rarity": "rare",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-recruit",
+    "name": "Recruit",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 1,
+    "power": 1,
+    "health": 2,
+    "text": "",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-shieldbearer",
+    "name": "Shieldbearer",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 1,
+    "power": 1,
+    "health": 2,
+    "keywords": ["guard"],
+    "text": "Guard.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-squire",
+    "name": "Squire",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 1,
+    "power": 1,
+    "health": 1,
+    "keywords": ["rally"],
+    "text": "Rally.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-militia",
+    "name": "Militia",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 2,
+    "power": 2,
+    "health": 3,
+    "text": "",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-banner-knight",
+    "name": "Banner Knight",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 2,
+    "power": 2,
+    "health": 2,
+    "keywords": ["rally"],
+    "text": "Rally.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-field-medic",
+    "name": "Field Medic",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 2,
+    "power": 2,
+    "health": 3,
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "On Play: heal your hero by 2.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-wall-warden",
+    "name": "Wall Warden",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 3,
+    "power": 2,
+    "health": 5,
+    "keywords": ["guard"],
+    "text": "Guard.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-muster-captain",
+    "name": "Muster Captain",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 3,
+    "power": 2,
+    "health": 3,
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 1
+        }
+      }
+    ],
+    "text": "On Play: summon a 1/1 Levy.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-paladin",
+    "name": "Paladin",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 3,
+    "power": 3,
+    "health": 3,
+    "keywords": ["barrier"],
+    "text": "Barrier.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-standard-bearer",
+    "name": "Standard Bearer",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 4,
+    "power": 3,
+    "health": 4,
+    "effects": [
+      {
+        "trigger": "ongoing",
+        "action": {
+          "op": "buff",
+          "target": "adjacentUnits",
+          "power": 0,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ],
+    "text": "Ongoing: adjacent units have +1 Health.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-shield-sergeant",
+    "name": "Shield Sergeant",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 4,
+    "power": 3,
+    "health": 5,
+    "keywords": ["guard"],
+    "text": "Guard.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-cathedral-guard",
+    "name": "Cathedral Guard",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 5,
+    "power": 4,
+    "health": 6,
+    "keywords": ["guard"],
+    "text": "Guard.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-high-cleric",
+    "name": "High Cleric",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 5,
+    "power": 4,
+    "health": 5,
+    "effects": [
+      {
+        "trigger": "endOfTurn",
+        "action": {
+          "op": "heal",
+          "target": "allFriendlyUnits",
+          "amount": 2
+        }
+      },
+      {
+        "trigger": "endOfTurn",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "End of Turn: heal all friendly units by 2 and heal your hero by 1.",
+    "rarity": "rare",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-lionheart",
+    "name": "Lionheart",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 6,
+    "power": 5,
+    "health": 6,
+    "keywords": ["guard", "rally"],
+    "text": "Guard. Rally.",
+    "rarity": "rare",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-grand-marshal",
+    "name": "Grand Marshal",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 7,
+    "power": 6,
+    "health": 6,
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "buff",
+          "target": "otherFriendlyUnits",
+          "power": 1,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ],
+    "text": "On Play: give other friendly units +1/+1.",
+    "rarity": "legendary",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-rally-cry",
+    "name": "Rally Cry",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 1,
+    "speed": "fast",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "allFriendlyUnits",
+          "power": 1,
+          "health": 0,
+          "duration": "turn"
+        }
+      }
+    ],
+    "text": "Give all friendly units +1 Power this turn.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-mend",
+    "name": "Mend",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 1,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "heal",
+          "target": "target",
+          "amount": 4
+        }
+      }
+    ],
+    "text": "Heal a friendly character by 4.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-divine-shield",
+    "name": "Divine Shield",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 1,
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "grantKeyword",
+          "target": "target",
+          "keyword": "barrier"
+        }
+      }
+    ],
+    "text": "Give a friendly unit Barrier.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-blessing",
+    "name": "Blessing",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 2,
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 2,
+          "health": 2,
+          "duration": "permanent"
+        }
+      }
+    ],
+    "text": "Give a friendly unit +2/+2.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-call-to-arms",
+    "name": "Call to Arms",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 2,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 2
+        }
+      }
+    ],
+    "text": "Summon two 1/1 Levies.",
+    "rarity": "uncommon",
+    "unlock": "track"
+  },
+  {
+    "id": "bastion-levy",
+    "name": "Levy",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 1,
+    "power": 1,
+    "health": 1,
+    "text": "",
+    "rarity": "common",
+    "unlock": "track",
+    "token": true
+  }
+]
