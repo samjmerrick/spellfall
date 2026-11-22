@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { keepHand, openMenu, playOneCard, savedJson, watchErrors } from './helpers';
+import { playCard, playDuel, waitForPlayer } from './duel';
+import { keepHand, openMenu, savedJson, watchErrors } from './helpers';
 import { VIEWPORTS } from './viewports';
 
 async function noOverflow(page: Page) {
@@ -44,36 +45,32 @@ test.describe('run', () => {
     await expect(page.getByRole('main', { name: 'Match' })).toBeVisible();
     await keepHand(page);
 
-    // Play one round, then close the page mid-match.
-    await playOneCard(page);
-    await page.getByRole('button', { name: 'End Turn' }).click();
-    await expect(page.locator('.hero-bar__round')).toHaveText('R2/8', { timeout: 30_000 });
-    await expect(page.locator('.end-turn:enabled')).toBeVisible();
-    const hand = await page
-      .locator('.hand .card')
-      .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-    const hpLabels = () =>
-      page.locator('.hero-bar__hp').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-    const hp = await hpLabels();
-    await expect.poll(() => savedJson(page)).toContain('\\"round\\":2');
+    // Play a card, end the turn, then close the page mid-match once the opponent has played.
+    await waitForPlayer(page);
+    await playCard(page);
+    await page.locator('.end-turn').click();
+    await waitForPlayer(page);
+    const turn = await page.evaluate(() => document.querySelector('.end-turn')?.textContent);
+    expect(turn).toBe('End Turn');
+    const handLabels = () =>
+      page.locator('.hand .hand__slot').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+    const heroLabels = () =>
+      page.locator('.duel-bar__hero').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+    const hand = await handLabels();
+    const hp = await heroLabels();
+    await expect.poll(() => savedJson(page)).toContain('\\"turn\\":3');
 
     await page.reload();
     await expect(page.getByRole('main', { name: 'Main menu' })).toBeVisible();
     await page.getByRole('button', { name: /Continue run · Pyra/ }).click();
     await expect(page.getByRole('main', { name: 'Match' })).toBeVisible();
-    await expect(page.locator('.hero-bar__round')).toHaveText('R2/8');
-    expect(
-      await page.locator('.hand .card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label'))),
-    ).toEqual(hand);
-    expect(await hpLabels()).toEqual(hp);
+    await waitForPlayer(page);
+    expect(await handLabels()).toEqual(hand);
+    expect(await heroLabels()).toEqual(hp);
 
     // Finish the match.
     const result = page.getByRole('dialog', { name: 'Match result' });
-    for (let round = 2; round <= 8 && !(await result.isVisible()); round++) {
-      for (let i = 0; i < 6 && (await playOneCard(page)); i++);
-      await page.getByRole('button', { name: 'End Turn' }).click();
-      await expect(page.locator('.end-turn:enabled').or(result)).toBeVisible({ timeout: 30_000 });
-    }
+    await playDuel(page);
     await expect(result).toBeVisible();
     const won = (await result.getByRole('heading').textContent()) === 'Victory';
     await result.getByRole('button', { name: 'Continue' }).click();

@@ -4,12 +4,16 @@
     "name": "Pyra",
     "title": "Ashborn Duelist",
     "faction": "ember",
-    "passive": "At the start of rounds 3 and 6, deal 2 damage to the enemy hero.",
+    "passive": "At the start of your 3rd and 6th turns, deal 2 damage to the enemy hero.",
     "modifiers": [
       {
-        "kind": "roundStart",
-        "rounds": [3, 6],
-        "action": { "op": "damage", "target": "enemyHero", "amount": 2 }
+        "kind": "turnStart",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 2
+        },
+        "turns": [3, 6]
       }
     ],
     "unlock": "starter",
@@ -33,16 +37,16 @@
     "name": "Kael",
     "title": "Flamecaller",
     "faction": "ember",
-    "passive": "At the start of each round, a random friendly unit gets +1 Power this round.",
+    "passive": "At the start of each of your turns, a random friendly unit gets +1 Power this turn.",
     "modifiers": [
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "buff",
           "target": "randomFriendlyUnit",
           "power": 1,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
@@ -68,7 +72,12 @@
     "title": "Warden of the Gate",
     "faction": "bastion",
     "passive": "Your hero has +4 HP.",
-    "modifiers": [{ "kind": "heroHp", "amount": 4 }],
+    "modifiers": [
+      {
+        "kind": "heroHp",
+        "amount": 4
+      }
+    ],
     "unlock": "starter",
     "starterDeck": [
       "bastion-recruit",
@@ -90,12 +99,16 @@
     "name": "Brenna",
     "title": "Shieldwall Captain",
     "faction": "bastion",
-    "passive": "At the start of rounds 2, 4 and 6, give a random friendly unit Barrier.",
+    "passive": "At the start of your 2nd, 4th and 6th turns, give a random friendly unit Barrier.",
     "modifiers": [
       {
-        "kind": "roundStart",
-        "rounds": [2, 4, 6],
-        "action": { "op": "grantKeyword", "target": "randomFriendlyUnit", "keyword": "barrier" }
+        "kind": "turnStart",
+        "action": {
+          "op": "grantKeyword",
+          "target": "randomFriendlyUnit",
+          "keyword": "barrier"
+        },
+        "turns": [2, 4, 6]
       }
     ],
     "unlock": "track",
@@ -119,10 +132,20 @@
     "name": "Marin",
     "title": "Tide Sage",
     "faction": "tide",
-    "passive": "Start each match with 1 extra card. At the start of rounds 3 and 6, draw a card.",
+    "passive": "Start each match with 1 extra card. At the start of your 3rd and 6th turns, draw a card.",
     "modifiers": [
-      { "kind": "startHand", "amount": 1 },
-      { "kind": "roundStart", "rounds": [3, 6], "action": { "op": "draw", "count": 1 } }
+      {
+        "kind": "startHand",
+        "amount": 1
+      },
+      {
+        "kind": "turnStart",
+        "action": {
+          "op": "draw",
+          "count": 1
+        },
+        "turns": [3, 6]
+      }
     ],
     "unlock": "track",
     "starterDeck": [
@@ -145,12 +168,18 @@
     "name": "Corin",
     "title": "Frostwarden",
     "faction": "tide",
-    "passive": "At the start of rounds 2, 4 and 6, give all enemy units -1 Power this round.",
+    "passive": "At the start of your 2nd, 4th and 6th turns, give all enemy units -1 Power this turn.",
     "modifiers": [
       {
-        "kind": "roundStart",
-        "rounds": [2, 4, 6],
-        "action": { "op": "buff", "target": "allEnemyUnits", "power": -1, "health": 0, "duration": "round" }
+        "kind": "turnStart",
+        "action": {
+          "op": "buff",
+          "target": "allEnemyUnits",
+          "power": -1,
+          "health": 0,
+          "duration": "turn"
+        },
+        "turns": [2, 4, 6]
       }
     ],
     "unlock": "track",
@@ -174,10 +203,10 @@
     "name": "Sylva",
     "title": "Wildwood Druid",
     "faction": "grove",
-    "passive": "At the start of each round, give a random friendly unit +1 Health.",
+    "passive": "At the start of each of your turns, give a random friendly unit +1 Health.",
     "modifiers": [
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "buff",
           "target": "randomFriendlyUnit",
@@ -208,19 +237,26 @@
     "name": "Oren",
     "title": "Barkskin Warden",
     "faction": "grove",
-    "passive": "At the start of each round, heal all friendly units by 1. At the start of round 3, give all friendly units +2 Health.",
+    "passive": "At the start of each of your turns, heal all friendly units by 1. At the start of your 3rd turn, give all friendly units +2 Health.",
     "modifiers": [
-      { "kind": "roundStart", "action": { "op": "heal", "target": "allFriendlyUnits", "amount": 1 } },
       {
-        "kind": "roundStart",
-        "rounds": [3],
+        "kind": "turnStart",
+        "action": {
+          "op": "heal",
+          "target": "allFriendlyUnits",
+          "amount": 1
+        }
+      },
+      {
+        "kind": "turnStart",
         "action": {
           "op": "buff",
           "target": "allFriendlyUnits",
           "power": 0,
           "health": 2,
           "duration": "permanent"
-        }
+        },
+        "turns": [3]
       }
     ],
     "unlock": "track",
@@ -244,12 +280,16 @@
     "name": "Vesper",
     "title": "Night Huntress",
     "faction": "dusk",
-    "passive": "At the start of rounds 2, 4 and 6, deal 2 damage to a random enemy unit.",
+    "passive": "At the start of your 2nd, 4th and 6th turns, deal 2 damage to a random enemy unit.",
     "modifiers": [
       {
-        "kind": "roundStart",
-        "rounds": [2, 4, 6],
-        "action": { "op": "damage", "target": "randomEnemyUnit", "amount": 2 }
+        "kind": "turnStart",
+        "action": {
+          "op": "damage",
+          "target": "randomEnemyUnit",
+          "amount": 2
+        },
+        "turns": [2, 4, 6]
       }
     ],
     "unlock": "track",
@@ -273,17 +313,25 @@
     "name": "Morrow",
     "title": "Gravebinder",
     "faction": "dusk",
-    "passive": "At the start of rounds 2, 4, 6 and 8, deal 1 damage to the enemy hero and heal your hero by 1.",
+    "passive": "At the start of your 2nd, 4th, 6th and 8th turns, deal 1 damage to the enemy hero and heal your hero by 1.",
     "modifiers": [
       {
-        "kind": "roundStart",
-        "rounds": [2, 4, 6, 8],
-        "action": { "op": "damage", "target": "enemyHero", "amount": 1 }
+        "kind": "turnStart",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 1
+        },
+        "turns": [2, 4, 6, 8]
       },
       {
-        "kind": "roundStart",
-        "rounds": [2, 4, 6, 8],
-        "action": { "op": "heal", "target": "friendlyHero", "amount": 1 }
+        "kind": "turnStart",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 1
+        },
+        "turns": [2, 4, 6, 8]
       }
     ],
     "unlock": "track",

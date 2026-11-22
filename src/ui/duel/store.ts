@@ -18,11 +18,13 @@ import {
   type TargetRef,
 } from '../../rules';
 import { seedRng } from '../../rules/rng';
+import { matchAiRng, type AiHooks, type RunMatch } from '../../run';
 import { useApp } from '../app';
 import { haptic, sfx } from '../feedback';
 import { currentScale } from '../motion';
 import { randomSeed, urlSeed } from '../settings';
 import { runDuelAi } from './aiClient';
+import { useRun } from '../runStore';
 
 export const HUMAN: PlayerId = 0;
 export const AI: PlayerId = 1;
@@ -50,6 +52,11 @@ export type Pick =
   | { kind: 'spellTargets'; uid: number; chosen: TargetRef[] };
 
 interface DuelStore {
+  /** Quick Play, or a run node's match (autosaved whenever the player gets priority). */
+  mode: 'quick' | 'run';
+  hooks: AiHooks;
+  /** Run mode: the enemy being fought. */
+  enemyId: string | null;
   deck: DeckDef | null;
   opponentDeck: DeckDef | null;
   difficulty: Difficulty;
@@ -67,6 +74,8 @@ interface DuelStore {
   error: string | null;
 
   start(deck: DeckDef, difficulty: Difficulty): Promise<void>;
+  /** Starts a run node's match, or resumes the saved one. */
+  startRun(m: RunMatch, saved: { game: GameState; aiRng: number } | null): Promise<void>;
   toggleMulligan(uid: number): void;
   confirmMulligan(): Promise<void>;
   perform(action: Action): Promise<void>;
@@ -177,7 +186,7 @@ export const useDuel = create<DuelStore>((set, get) => {
     }
     const outcome = winner === null ? 'draw' : winner === HUMAN ? 'win' : 'loss';
     const deck = get().deck;
-    if (deck) useApp.getState().recordQuickPlay(deck.id, outcome);
+    if (get().mode === 'quick' && deck) useApp.getState().recordQuickPlay(deck.id, outcome);
   }
 
   function describe(a: Action, s: GameState): string | null {
@@ -201,7 +210,7 @@ export const useDuel = create<DuelStore>((set, get) => {
       if (!s || s.phase === 'over') break;
       if (s.phase === 'mulligan') {
         if (!s.players[AI].mulliganed) {
-          const { action, rng } = await runDuelAi(get().difficulty, viewFor(s, AI), get().aiRng);
+          const { action, rng } = await runDuelAi(get().difficulty, aiView(s), get().aiRng);
           set({ aiRng: rng });
           await step(action);
           continue;
@@ -210,7 +219,7 @@ export const useDuel = create<DuelStore>((set, get) => {
       }
       if (s.priority === AI) {
         set({ busy: true });
-        const { action, rng } = await runDuelAi(get().difficulty, viewFor(s, AI), get().aiRng);
+        const { action, rng } = await runDuelAi(get().difficulty, aiView(s), get().aiRng);
         set({ aiRng: rng });
         const text = describe(action, s);
         if (text) set({ banner: { id: fxId++, text } });
@@ -230,6 +239,18 @@ export const useDuel = create<DuelStore>((set, get) => {
       break;
     }
     set({ busy: false });
+    autosave();
+  }
+
+  /** The AI's view: a boss that "sees your hand" gets your real hand. */
+  function aiView(s: GameState) {
+    return viewFor(s, AI, { seeHand: get().hooks.seesHand });
+  }
+
+  /** Run mode: save the match whenever the player is about to act (and when it ends). */
+  function autosave() {
+    const { mode, game, aiRng } = get();
+    if (mode === 'run' && game) useRun.getState().saveMatch(game, aiRng);
   }
 
   function guard(f: () => void): boolean {
@@ -243,6 +264,9 @@ export const useDuel = create<DuelStore>((set, get) => {
   }
 
   return {
+    mode: 'quick',
+    hooks: {},
+    enemyId: null,
     deck: null,
     opponentDeck: null,
     difficulty: 'normal',
@@ -266,6 +290,9 @@ export const useDuel = create<DuelStore>((set, get) => {
       const game = initMatch({ decks: [deck.cards, opponent.cards] }, seed);
       useApp.getState().go('duel');
       set({
+        mode: 'quick',
+        hooks: {},
+        enemyId: null,
         deck,
         opponentDeck: opponent,
         difficulty,
@@ -273,6 +300,30 @@ export const useDuel = create<DuelStore>((set, get) => {
         game,
         busy: true,
         aiRng: seedRng((seed ^ 0x5bd1e995) >>> 0),
+        mulligan: [],
+        pick: null,
+        fx: [],
+        banner: null,
+        attacking: null,
+        error: null,
+      });
+      await loop();
+    },
+
+    async startRun(m, saved) {
+      const game = saved?.game ?? initMatch(m.config, m.seed);
+      useApp.getState().go('duel');
+      set({
+        mode: 'run',
+        hooks: m.hooks,
+        enemyId: m.enemyId,
+        deck: null,
+        opponentDeck: null,
+        difficulty: m.difficulty,
+        seed: m.seed,
+        game,
+        busy: true,
+        aiRng: saved?.aiRng ?? matchAiRng(m.seed),
         mulligan: [],
         pick: null,
         fx: [],
@@ -322,8 +373,10 @@ export const useDuel = create<DuelStore>((set, get) => {
     setPick: (pick) => set({ pick }),
     showDetail: (detail) => set({ detail }),
     leave() {
+      const { mode } = get();
       set({ game: null, busy: false, pick: null });
-      useApp.getState().go('quickplay');
+      // A run match stays saved; the run screen offers to resume it.
+      useApp.getState().go(mode === 'run' ? 'run' : 'quickplay');
     },
   };
 });

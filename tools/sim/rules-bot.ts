@@ -9,6 +9,7 @@ import {
   type Action,
   type GameEvent,
   type GameState,
+  type MatchConfig,
   viewFor,
 } from '../../src/rules';
 import { act, type Difficulty } from '../../src/ai/next';
@@ -68,7 +69,19 @@ export function aiMatch(
   onDecision?: (ms: number, level: Difficulty) => void,
   clock: () => number = () => 0,
 ): BotMatch {
-  let s = initMatch({ decks }, seed);
+  return configMatch({ decks }, levels, seed, [{}, {}], onDecision, clock);
+}
+
+/** As `aiMatch`, from a full match config (modifiers) and per-player AI hooks (`seesHand`). */
+export function configMatch(
+  config: MatchConfig,
+  levels: [Difficulty, Difficulty],
+  seed: number,
+  hooks: [{ seesHand?: boolean }, { seesHand?: boolean }] = [{}, {}],
+  onDecision?: (ms: number, level: Difficulty) => void,
+  clock: () => number = () => 0,
+): BotMatch {
+  let s = initMatch(config, seed);
   const rngs: [number, number] = [(seed * 31 + 1) >>> 0, (seed * 37 + 2) >>> 0];
   const actions: Action[] = [];
   const events: GameEvent[] = [];
@@ -76,7 +89,8 @@ export function aiMatch(
     if (step > 5000) throw new Error(`match ${seed} did not end`);
     const player = s.phase === 'mulligan' ? (s.players[0].mulliganed ? 1 : 0) : s.priority;
     const t0 = clock();
-    const { action, rng } = act(levels[player], viewFor(s, player), rngs[player]);
+    const view = viewFor(s, player, { seeHand: hooks[player].seesHand });
+    const { action, rng } = act(levels[player], view, rngs[player]);
     onDecision?.(clock() - t0, levels[player]);
     rngs[player] = rng;
     const r = applyAction(s, action);

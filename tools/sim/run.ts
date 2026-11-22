@@ -1,6 +1,6 @@
 // Bot runs: a simple policy plays a whole roguelike run through the public run API.
-import type { Difficulty } from '../../src/ai';
-import { nextInt, seedRng, type RngState } from '../../src/engine/rng';
+import type { Difficulty } from '../../src/ai/next';
+import { nextInt, seedRng, type RngState } from '../../src/rules/rng';
 import { getEvent } from '../../src/run/content';
 import {
   removePrice,
@@ -15,7 +15,7 @@ import {
   type RunConfig,
   type RunState,
 } from '../../src/run';
-import { playBotMatch } from './runner';
+import { configMatch } from './rules-bot';
 
 export interface RunRecord {
   config: RunConfig;
@@ -81,9 +81,9 @@ export function playBotRun(config: RunConfig, player: Difficulty = 'easy'): RunR
     if (guard > 500) throw new Error(`Run ${config.seed} did not end`);
     if (r.phase.kind === 'match') {
       const m = runMatch(r);
-      const { final } = playBotMatch(m.config, m.seed, [player, m.difficulty], [{}, m.hooks]);
+      const { state } = configMatch(m.config, [player, m.difficulty], m.seed, [{}, m.hooks]);
       matches++;
-      apply({ t: 'matchEnd', won: final.result?.winner === 0 });
+      apply({ t: 'matchEnd', won: state.result?.winner === 0 });
     } else {
       let c: RunChoice;
       [c, rng] = botChoice(r, rng);

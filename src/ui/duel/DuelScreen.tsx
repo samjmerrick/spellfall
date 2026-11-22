@@ -13,6 +13,7 @@ import {
   type TargetRef,
 } from '../../rules';
 import { useApp } from '../app';
+import { useRun } from '../runStore';
 import { FADE_SECONDS, useDurationScale } from '../motion';
 import { useReduceMotion } from '../useReduceMotion';
 import { DuelCard, UnitFace } from './Card';
@@ -580,6 +581,8 @@ function ResultOverlay() {
   const difficulty = useDuel((s) => s.difficulty);
   const start = useDuel((s) => s.start);
   const leave = useDuel((s) => s.leave);
+  const mode = useDuel((s) => s.mode);
+  const finishMatch = useRun((s) => s.finishMatch);
   const go = useApp((s) => s.go);
   if (!game.result || busy) return null;
   const { winner } = game.result;
@@ -590,17 +593,28 @@ function ResultOverlay() {
       <p className="overlay__hint">
         {game.result.reason === 'turns' ? 'Turn 40 ended with both heroes standing.' : `Turn ${game.turn}`}
       </p>
-      {deck && (
-        <button type="button" className="primary" onClick={() => void start(deck, difficulty)}>
-          Play again
-        </button>
+      {mode === 'run' ? (
+        <>
+          <p className="result__xp">{winner === HUMAN ? 'The way ahead is clear' : 'You lose 1 Heart'}</p>
+          <button type="button" className="primary" onClick={() => finishMatch(winner === HUMAN)}>
+            Continue
+          </button>
+        </>
+      ) : (
+        <>
+          {deck && (
+            <button type="button" className="primary" onClick={() => void start(deck, difficulty)}>
+              Play again
+            </button>
+          )}
+          <button type="button" className="secondary" onClick={leave}>
+            Quick Play
+          </button>
+          <button type="button" className="secondary" onClick={() => go('menu')}>
+            Menu
+          </button>
+        </>
       )}
-      <button type="button" className="secondary" onClick={leave}>
-        Quick Play
-      </button>
-      <button type="button" className="secondary" onClick={() => go('menu')}>
-        Menu
-      </button>
     </div>
   );
 }

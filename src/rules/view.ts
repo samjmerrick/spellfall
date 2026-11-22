@@ -10,11 +10,12 @@ export type PlayerView = GameState & { viewer: PlayerId };
  * A copy of the state as `viewer` sees it: the opponent's hand and deck are hidden, the viewer's own deck
  * order is hidden (sorted), and the RNG is replaced so future random results cannot be read.
  */
-export function viewFor(s: GameState, viewer: PlayerId): PlayerView {
+export function viewFor(s: GameState, viewer: PlayerId, opts: { seeHand?: boolean } = {}): PlayerView {
   const v = structuredClone(s) as PlayerView;
   v.viewer = viewer;
   const opp = v.players[other(viewer)];
-  opp.hand = opp.hand.map((c) => ({ uid: c.uid, cardId: HIDDEN }));
+  // A boss rule ("sees your hand") can reveal the opponent's hand; their deck stays hidden.
+  if (!opts.seeHand) opp.hand = opp.hand.map((c) => ({ uid: c.uid, cardId: HIDDEN }));
   opp.deck = opp.deck.map(() => HIDDEN);
   v.players[viewer].deck.sort();
   v.rng = (0x9e3779b9 ^ (s.turn * 2654435761)) >>> 0;

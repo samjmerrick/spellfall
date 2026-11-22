@@ -1,9 +1,9 @@
 // Roguelike run state. A run is its config (seed, hero, card pool) plus the list of choices made;
 // `replayRun` rebuilds the state from those, so saves stay small and every bug is reproducible.
-import { getCard, isUpgraded, UPGRADED, type Faction, type MatchConfig } from '../engine';
-import { FACTIONS } from '../engine/schema';
-import { nextInt, seedRng, shuffle, type RngState } from '../engine/rng';
-import type { AiHooks, Difficulty } from '../ai';
+import { getCard, isUpgraded, UPGRADED, type Faction, type MatchConfig } from '../rules';
+import { FACTIONS } from '../rules/schema';
+import { nextInt, seedRng, shuffle, type RngState } from '../rules/rng';
+import type { Difficulty } from '../ai/next';
 import { ENEMIES, EVENTS, getEnemy, getEvent, getHero, getRelic, type EventOutcome } from './content';
 import type { RunChoice, RunConfig } from './schema';
 import { MAP_ROWS, generateMap, type MapNode, type RunMap } from './map';
@@ -123,7 +123,7 @@ export function cardPool(r: RunState): string[] {
   const factions = [getHero(r.config.heroId).faction, r.secondFaction];
   return r.config.pool.filter((id) => {
     const c = getCard(id);
-    return !c.token && factions.includes(c.faction);
+    return !c.token && c.faction !== 'neutral' && factions.includes(c.faction);
   });
 }
 
@@ -421,6 +421,11 @@ export function replayRun(config: RunConfig, choices: readonly RunChoice[]): Run
 export function runXp(r: RunState): number {
   const xp = r.nodesCleared * NODE_XP + r.bossesBeaten * BOSS_XP;
   return r.phase.kind === 'over' && r.phase.won ? xp * 2 : xp;
+}
+
+/** Boss overrides for the AI (see `ai` in enemies.json). */
+export interface AiHooks {
+  seesHand?: boolean;
 }
 
 export interface RunMatch {

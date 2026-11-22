@@ -4,6 +4,7 @@ import fixtureV2 from '../fixtures/save-v2.json';
 import fixtureV3 from '../fixtures/save-v3.json';
 import fixtureV4 from '../fixtures/save-v4.json';
 import fixtureV5 from '../fixtures/save-v5.json';
+import fixtureV6 from '../fixtures/save-v6.json';
 import {
   CURRENT_SCHEMA,
   exportSaveCode,
@@ -98,10 +99,20 @@ describe('schema and migrations', () => {
 
   it('migrates the stored v5 sample save to v6: Auto-pass on, everything else kept', () => {
     const p = migrate(fixtureV5);
-    expect(p.schemaVersion).toBe(6);
+    expect(p.schemaVersion).toBe(CURRENT_SCHEMA);
     expect(p.settings).toEqual({ ...fixtureV5.settings, autoPass: true });
     expect(p.tutorialDone).toBe(true);
     expect(p.iosTipSeen).toBe(true);
+  });
+
+  it('migrates the stored v6 sample save to v7: a Lanefall match in progress is dropped, the run kept', () => {
+    expect(fixtureV6.activeRun!.match).not.toBeNull();
+    const p = migrate(fixtureV6);
+    expect(p.schemaVersion).toBe(7);
+    expect(p.activeRun!.match).toBeNull();
+    expect(p.activeRun!.choices).toEqual(fixtureV6.activeRun!.choices);
+    expect(p.settings.autoPass).toBe(false);
+    expect(migrate({ ...fixtureV6, activeRun: null }).activeRun).toBeNull();
   });
 
   it('the v4 migration marks the tutorial done only when the profile has XP or results', () => {

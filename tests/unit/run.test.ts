@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getCard, starterCollection } from '../../src/engine';
-import { seedRng } from '../../src/engine/rng';
+import { getCard, starterCollection } from '../../src/rules';
+import { seedRng } from '../../src/rules/rng';
 import {
   BOSS_XP,
   ENEMIES,

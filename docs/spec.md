@@ -156,7 +156,8 @@ As in Lanefall (`docs/v1/spec.md`, Roguelike run): heroes with a faction, a pass
 
 Changes for Spellfall:
 
-- Relics, hero passives and boss rules that refer to lanes, rounds, Reserve or simultaneous planning are rewritten for turns, spell mana and the stack. Examples: "Start each match with 1 spell mana"; boss rule "The boss sees your hand".
+- Relics, hero passives and boss rules that refer to lanes, rounds, Reserve or simultaneous planning are rewritten for turns, spell mana and the stack: "round n" becomes the owner's n-th turn, Reserve becomes spell mana, Pierce becomes Overwhelm, and "sees your planned cards" becomes "sees your hand". Examples: "Start each match with 1 spell mana"; "At the start of your 3rd and 6th turns, draw a card".
+- A run match is autosaved whenever the player gets priority, and resumes from that point.
 - Lanefall's lane effects are removed. Ideas worth keeping become boss rules or relics (for example "Your first unit each turn has Barrier").
 
 ## Meta progression
