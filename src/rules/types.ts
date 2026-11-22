@@ -4,7 +4,6 @@ export type PlayerId = 0 | 1;
 
 export const BOARD_LIMIT = 6;
 export const MAX_MANA = 10;
-export const SPELL_MANA_CAP = 3;
 export const HAND_LIMIT = 10;
 export const FIRST_HAND = 3;
 export const SECOND_HAND = 4;
@@ -55,8 +54,8 @@ export interface PlayerState {
   hp: number;
   maxHp: number;
   maxMana: number;
+  /** Unspent mana stays until the start of this player's next turn (Fast and Burst spells can use it meanwhile). */
   mana: number;
-  spellMana: number;
   /** Top of deck is the last element. */
   deck: string[];
   hand: HandCard[];
@@ -120,7 +119,7 @@ export type GameEvent =
   | { type: 'CardDrawn'; player: PlayerId; uid: number; cardId: string }
   | { type: 'CardBurned'; player: PlayerId; cardId: string }
   | { type: 'Fatigue'; player: PlayerId; amount: number }
-  | { type: 'ManaSpent'; player: PlayerId; mana: number; spellMana: number }
+  | { type: 'ManaSpent'; player: PlayerId; mana: number }
   | { type: 'ManaGained'; player: PlayerId; amount: number; max: boolean }
   | {
       type: 'UnitPlayed';
@@ -153,7 +152,6 @@ export type GameEvent =
   | { type: 'HeroWarded'; player: PlayerId }
   | { type: 'UnitControlled'; uid: number; from: PlayerId; to: PlayerId; position: number }
   | { type: 'ExtraTurn'; player: PlayerId }
-  | { type: 'SpellManaBanked'; player: PlayerId; spellMana: number }
   | { type: 'TurnEnded'; turn: number; player: PlayerId }
   | { type: 'MatchEnded'; winner: PlayerId | null; reason: 'hp' | 'turns' };
 

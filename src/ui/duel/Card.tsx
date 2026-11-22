@@ -88,15 +88,17 @@ function CardName({ name }: { name: string }) {
 export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'hand' | 'large' }) {
   const card = getCard(cardId);
   const isUnit = card.type === 'unit';
+  const legendary = card.rarity === 'legendary';
   return (
     <div
-      className={`card card--${size} faction-${card.faction}`}
+      className={`card card--${size} card--${card.type}${legendary ? ' card--legendary' : ''} faction-${card.faction}`}
       aria-label={card.name}
       data-card-id={cardId}
     >
       <span className="card__cost" aria-label={`Cost ${card.cost}`}>
         {card.cost}
       </span>
+      {legendary && <span className="card__crest" aria-label="Legendary" />}
       <div className="card__art">
         <CardArt id={card.id} faction={card.faction} />
       </div>
@@ -128,7 +130,6 @@ export function UnitFace({ s, unit }: { s: GameState; unit: Unit }) {
       <div className="unit__art">
         <CardArt id={card.id} faction={card.faction} />
       </div>
-      <span className="unit__name">{card.name}</span>
       <Icons
         keywords={unit.keywords}
         effects={unit.silenced ? [] : card.effects}

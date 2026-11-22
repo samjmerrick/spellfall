@@ -47,8 +47,8 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - UI screens: `src/ui/app.ts` (navigation + profile + autosave). Bump `CURRENT_SCHEMA` and add a migration + fixture whenever
   the profile shape changes.
 - Runs (`src/run/`) are config (seed, hero, card pool) + a list of choices; `replayRun` rebuilds the state, and `applyChoice` is
-  the only way to change it. Hero passives, relics and boss rules become `MatchConfig.modifiers` (`turnStart`, `startSpellMana`,
-  `startHand`, `heroHp`); a boss's `ai.seesHand` reveals your hand to its planner. Run content is `heroes.json`, `relics.json`,
+  the only way to change it. Hero passives, relics and boss rules become `MatchConfig.modifiers` (`turnStart`, `startHand`,
+  `heroHp`); a boss's `ai.seesHand` reveals your hand to its planner. Run content is `heroes.json`, `relics.json`,
   `enemies.json`, `events.json` (schemas in `src/run/content.ts`); run phases are map, match, reward, shop, rest, treasure,
   event, actCleared, over.
 - Meta progression is `src/run/meta.ts` (`ascension.json`, `recordRunResult`, `statsSummary`). There are no levels, XP, unlocks or tutorial: all cards, heroes and relics are available from the start. The `unlock` field left in `cards.json` and `heroes.json` is unused..

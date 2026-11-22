@@ -127,7 +127,7 @@ export function cardText(card: CardDef, ctx: TextContext): string {
         return `summon ${COUNT_WORD[a.count] ?? a.count} ${t.power}/${t.health} ${name}`;
       }
       case 'gainMana':
-        return `gain ${a.amount} mana this turn`;
+        return `gain ${a.amount} mana`;
       case 'gainMaxMana':
         return a.amount === 1 ? 'gain an empty mana slot' : `gain ${a.amount} empty mana slots`;
       case 'grantKeyword':

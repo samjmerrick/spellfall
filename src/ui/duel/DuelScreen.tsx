@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   canAttack,
   getCard,
+  HIDDEN,
   legalActions,
   sameTarget,
-  SPELL_MANA_CAP,
+  viewFor,
   type Action,
   type GameState,
   type PlayerId,
@@ -14,6 +15,7 @@ import {
 } from '../../rules';
 import { useApp } from '../app';
 import { useRun } from '../runStore';
+import { CardArt } from '../CardView';
 import { FADE_SECONDS, useDurationScale } from '../motion';
 import { useReduceMotion } from '../useReduceMotion';
 import { DuelCard, UnitFace } from './Card';
@@ -68,19 +70,16 @@ function actionsFor(legal: Action[], src: Pick | Source): Action[] {
   }
 }
 
-/** Where the source can be dropped next. */
+/** Where the source can be dropped next. A spell card always goes to the field first (then to the stack). */
 function dropKeys(legal: Action[], src: Pick | Source): Set<DropKey> {
   const out = new Set<DropKey>();
   for (const a of actionsFor(legal, src)) {
     if (a.type === 'attack') out.add(refKey(a.target));
-    else if (src.kind === 'placeTargets') {
-      const t = (a as { targets: TargetRef[] }).targets[src.chosen.length];
-      if (t) out.add(refKey(t));
-    } else if (src.kind === 'spellTargets') {
+    else if (src.kind === 'placeTargets' || src.kind === 'spellTargets') {
       const t = (a as { targets: TargetRef[] }).targets[src.chosen.length];
       if (t) out.add(refKey(t));
     } else if (a.type === 'playUnit') out.add('board');
-    else if (a.type === 'castSpell') out.add(a.targets.length === 0 ? 'cast' : refKey(a.targets[0]!));
+    else if (a.type === 'castSpell') out.add('cast');
   }
   return out;
 }
@@ -98,6 +97,13 @@ function positionAt(x: number): number {
 function dropAt(x: number, y: number): DropKey | null {
   const el = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-drop]');
   return el?.dataset.drop ?? null;
+}
+
+/** Whether a screen point is above the hand: a card released there is played (units) or cast (spells). */
+function aboveHand(y: number): boolean {
+  const hand = document.querySelector('[data-zone="hand"]');
+  if (!hand) return false;
+  return y < hand.getBoundingClientRect().top + 8;
 }
 
 // ---------- Screen ----------
@@ -118,7 +124,7 @@ export function DuelScreen() {
   const setPick = useDuel((s) => s.setPick);
   const perform = useDuel((s) => s.perform);
   const [drag, setDrag] = useState<Drag | null>(null);
-  /** The hand card being held to read, and the hold in progress. */
+  /** The card being held to read, and the hold in progress. */
   const [reading, setReading] = useState<string | null>(null);
   const holdRef = useRef<{ timer: number; x0: number; y0: number } | null>(null);
   /** Set when a hold opened the reader, so the click that follows the release is ignored. */
@@ -131,32 +137,47 @@ export function DuelScreen() {
   const active: Pick | Source | null = drag?.moved ? drag.src : pick;
   const valid = useMemo(() => (active ? dropKeys(legal, active) : new Set<DropKey>()), [legal, active]);
 
-  /** Completes (or advances) a choice by dropping `src` on `key` at screen x. */
+  const cardOf = (uid: number) => {
+    const c = game?.players[HUMAN].hand.find((h) => h.uid === uid);
+    return c ? getCard(c.cardId) : null;
+  };
+
+  /** A spell card put on the field: cast at once if it takes no targets, else it waits on the stack for them. */
+  function castOrPend(uid: number) {
+    const options = actionsFor(legal, { kind: 'card', uid });
+    const now = options.find((o) => o.type === 'castSpell' && o.targets.length === 0);
+    if (now) return void perform(now);
+    if (options.length === 0) return setPick(null);
+    setPick({ kind: 'spellTargets', uid, chosen: [] });
+  }
+
+  /** A unit card put on your board at screen x: played there, or waiting for its On Play targets. */
+  function place(uid: number, x: number) {
+    const position = positionAt(x);
+    const here = actionsFor(legal, { kind: 'card', uid }).filter(
+      (o) => o.type === 'playUnit' && o.position === position,
+    );
+    if (here.length === 0) return setPick(null);
+    if (here.length === 1 && (here[0] as { targets: TargetRef[] }).targets.length === 0)
+      return void perform(here[0]!);
+    setPick({ kind: 'placeTargets', uid, position, chosen: [] });
+  }
+
+  /** Completes (or advances) a choice by dropping or tapping `src` onto `key` at screen x. */
   function choose(src: Pick | Source, key: DropKey, x: number) {
-    const options = actionsFor(legal, src);
     if (src.kind === 'unit') {
       const ref = keyRef(key);
-      const a = ref && options.find((o) => o.type === 'attack' && sameTarget(o.target, ref));
+      const a = ref && actionsFor(legal, src).find((o) => o.type === 'attack' && sameTarget(o.target, ref));
       if (a) void perform(a);
       else setPick(null);
       return;
     }
     if (src.kind === 'card') {
-      const card = getCard(game!.players[HUMAN].hand.find((c) => c.uid === src.uid)!.cardId);
-      if (card.type === 'unit') {
-        if (key !== 'board' && !key.startsWith('unit:')) return setPick(null);
-        const position = positionAt(x);
-        const here = options.filter((o) => o.type === 'playUnit' && o.position === position);
-        if (here.length === 0) return setPick(null);
-        if (here.length === 1 && (here[0] as { targets: TargetRef[] }).targets.length === 0)
-          return void perform(here[0]!);
-        return setPick({ kind: 'placeTargets', uid: src.uid, position, chosen: [] });
-      }
-      if (key === 'cast') {
-        const a = options.find((o) => o.type === 'castSpell' && o.targets.length === 0);
-        return a ? void perform(a) : setPick(null);
-      }
-      return advance({ kind: 'spellTargets', uid: src.uid, chosen: [] }, key);
+      const card = cardOf(src.uid);
+      if (!card) return setPick(null);
+      if (card.type === 'unit')
+        return key === 'board' || key.startsWith('unit:') ? place(src.uid, x) : setPick(null);
+      return castOrPend(src.uid);
     }
     advance(src as Extract<Pick, { chosen: TargetRef[] }>, key);
   }
@@ -189,7 +210,7 @@ export function DuelScreen() {
       if (h && Math.hypot(e.clientX - h.x0, e.clientY - h.y0) > HOLD_SLOP) cancelHold();
       const d = dragRef.current;
       if (!d) return;
-      const moved = d.moved || Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 8;
+      const moved = d.moved || Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > HOLD_SLOP;
       updateDrag({ ...d, x: e.clientX, y: e.clientY, moved });
     }
     function up(e: PointerEvent) {
@@ -199,6 +220,14 @@ export function DuelScreen() {
       if (!d) return;
       updateDrag(null);
       if (!d.moved) return; // A tap: handled by onClick.
+      if (d.src.kind === 'card') {
+        // Cards are played by letting go anywhere above the hand.
+        const card = cardOf(d.src.uid);
+        if (!card || !aboveHand(e.clientY)) return;
+        if (card.type === 'unit') place(d.src.uid, e.clientX);
+        else castOrPend(d.src.uid);
+        return;
+      }
       const key = dropAt(e.clientX, e.clientY);
       if (key) choose(d.src, key, e.clientX);
     }
@@ -212,7 +241,7 @@ export function DuelScreen() {
     };
   });
 
-  /** Starts a hold on a hand card: after HOLD_MS without moving, the card opens enlarged for reading. */
+  /** Starts a hold on a card, unit or stack item: after HOLD_MS without moving, it opens enlarged for reading. */
   function startHold(e: React.PointerEvent, cardId: string) {
     heldRef.current = false;
     if (holdRef.current) window.clearTimeout(holdRef.current.timer);
@@ -225,15 +254,27 @@ export function DuelScreen() {
     holdRef.current = { timer, x0: e.clientX, y0: e.clientY };
   }
 
+  /** True (once) if the click being handled is the release of a hold, which must do nothing else. */
+  function consumeHold(): boolean {
+    if (!heldRef.current) return false;
+    heldRef.current = false;
+    return true;
+  }
+
   function startDrag(e: React.PointerEvent, src: Source) {
     if (actionsFor(legal, src).length === 0) return;
     updateDrag({ src, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, moved: false });
   }
 
-  /** A tap on a source: pick it (or unpick). */
+  /** A tap on a source: pick it (or unpick). A targeted spell goes straight to the stack to wait for targets. */
   function tapSource(src: Source) {
+    if (pick && pick.kind !== 'unit' && src.kind === 'card' && pick.uid === src.uid) return setPick(null);
     if (pick && pick.kind === src.kind && pick.uid === src.uid) return setPick(null);
-    if (actionsFor(legal, src).length === 0) return setPick(null);
+    const options = actionsFor(legal, src);
+    if (options.length === 0) return setPick(null);
+    const card = src.kind === 'card' ? cardOf(src.uid) : null;
+    if (card?.type === 'spell' && !options.some((o) => (o as { targets: TargetRef[] }).targets.length === 0))
+      return setPick({ kind: 'spellTargets', uid: src.uid, chosen: [] });
     setPick(src);
   }
 
@@ -245,13 +286,24 @@ export function DuelScreen() {
   }
 
   if (!game) return null;
-  const input = { legal, valid, active, startDrag, startHold, heldRef, tapSource, tapTarget };
+  const input: Input = {
+    legal,
+    valid,
+    active,
+    startDrag,
+    startHold,
+    consumeHold,
+    held: () => heldRef.current,
+    tapSource,
+    tapTarget,
+  };
   const prompt =
     pick?.kind === 'placeTargets' || pick?.kind === 'spellTargets'
       ? 'Choose a target'
       : pick?.kind === 'unit'
         ? 'Choose what to attack'
         : null;
+  const draggingSpell = drag?.moved && drag.src.kind === 'card' && cardOf(drag.src.uid)?.type === 'spell';
 
   return (
     <main
@@ -262,21 +314,22 @@ export function DuelScreen() {
         if (!(e.target as HTMLElement).closest('[data-drop],[data-source],button')) setPick(null);
       }}
     >
-      <HeroBar side={AI} input={input} />
+      <OpponentTop />
       <div
-        className={`duel__field${valid.has('cast') ? ' drop--valid' : ''}`}
+        className={`duel__field${valid.has('cast') || (draggingSpell && aboveHand(drag.y)) ? ' drop--valid' : ''}`}
         data-drop="cast"
         onClick={(e) => {
-          if ((e.target as HTMLElement).closest('[data-drop]') === e.currentTarget)
-            tapTarget('cast', e.clientX);
+          if ((e.target as HTMLElement).closest('[data-drop]') !== e.currentTarget) return;
+          if (!tapTarget('cast', e.clientX)) setPick(null);
         }}
       >
         <BoardRow side={AI} input={input} />
         <StackStrip prompt={prompt} input={input} />
         <BoardRow side={HUMAN} input={input} />
       </div>
-      <HeroBar side={HUMAN} input={input} />
+      <HeroBar input={input} />
       <HandRow input={input} dragging={drag?.moved ? drag.src : null} />
+      <Connectors />
       {drag?.moved && <DragGhost drag={drag} game={game} />}
       {reading && <HoldReader cardId={reading} />}
       <MulliganOverlay />
@@ -292,7 +345,8 @@ interface Input {
   active: Pick | Source | null;
   startDrag(e: React.PointerEvent, src: Source): void;
   startHold(e: React.PointerEvent, cardId: string): void;
-  heldRef: { current: boolean };
+  consumeHold(): boolean;
+  held(): boolean;
   tapSource(src: Source): void;
   tapTarget(key: DropKey, x: number): boolean;
 }
@@ -329,15 +383,61 @@ function targetedKeys(stack: StackItem[]): Set<DropKey> {
   return out;
 }
 
-function HeroBar({ side, input }: { side: PlayerId; input: Input }) {
+/**
+ * The top of the screen: leave, the opponent's hand as card backs peeking from the top edge (faces only for
+ * cards you are allowed to see), and the opponent's mana and deck.
+ */
+function OpponentTop() {
+  const game = useDuel((s) => s.game)!;
+  const leave = useDuel((s) => s.leave);
+  const p = game.players[AI];
+  // Read through your own view, so only what you may know is shown.
+  const hand = useMemo(() => viewFor(game, HUMAN).players[AI].hand, [game]);
+  const gaps = Math.max(1, hand.length - 1);
+  return (
+    <div className="opp-top" data-zone="opponent-bar">
+      <button type="button" className="icon-button" aria-label="Leave match" onClick={leave}>
+        ✕
+      </button>
+      <div className="opp-hand" aria-label={`Opponent hand, ${hand.length} cards`}>
+        {hand.map((c, i) => {
+          const offset = i - (hand.length - 1) / 2;
+          return (
+            <span
+              key={c.uid}
+              className="opp-hand__card"
+              style={
+                {
+                  '--offset': offset,
+                  '--abs-offset': Math.abs(offset),
+                  '--gaps': gaps,
+                } as React.CSSProperties
+              }
+            >
+              {c.cardId === HIDDEN ? <span className="card-back" /> : <DuelCard cardId={c.cardId} />}
+            </span>
+          );
+        })}
+      </div>
+      <div className="opp-top__stats">
+        <span className="duel-bar__mana" aria-label={`Opponent mana ${p.mana} of ${p.maxMana}`}>
+          ◆ {p.mana}/{p.maxMana}
+        </span>
+        <span className="duel-bar__stat" aria-label="Opponent deck">
+          ▤ {p.deck.length}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function HeroBar({ input }: { input: Input }) {
   const game = useDuel((s) => s.game)!;
   const busy = useDuel((s) => s.busy);
   const pass = useDuel((s) => s.pass);
-  const leave = useDuel((s) => s.leave);
-  const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === side);
-  const p = game.players[side];
-  const mine = side === HUMAN;
-  const key = `hero:${side}`;
+  const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === HUMAN);
+  const p = game.players[HUMAN];
+  const key = `hero:${HUMAN}`;
   const valid = input.valid.has(key);
   const targeted = targetedKeys(game.stack).has(key);
   let label = "Opponent's turn";
@@ -347,49 +447,25 @@ function HeroBar({ side, input }: { side: PlayerId; input: Input }) {
     label = game.stack.length > 0 ? 'Resolve' : 'End Turn';
   } else if (busy && game.priority === HUMAN) label = '…';
   return (
-    <div
-      className={`duel-bar duel-bar--${mine ? 'player' : 'opponent'}`}
-      data-zone={`${mine ? 'player' : 'opponent'}-bar`}
-    >
-      {!mine && (
-        <button type="button" className="icon-button" aria-label="Leave match" onClick={leave}>
-          ✕
-        </button>
-      )}
-      {mine ? (
-        <button
-          type="button"
-          className={`duel-bar__hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
-          data-drop={key}
-          aria-label={`Your hero, ${p.hp} HP`}
-          onClick={(e) => input.tapTarget(key, e.clientX)}
-        >
-          <span className="duel-bar__hp">♥ {p.hp}</span>
-          <FxLayer fx={fx} />
-        </button>
-      ) : (
-        // The opponent's hero is targeted from the middle strip, near the thumb; this is just its readout.
-        <span className="duel-bar__hero duel-bar__hero--static" aria-label={`Opponent hero, ${p.hp} HP`}>
-          <span className="duel-bar__hp">♥ {p.hp}</span>
-        </span>
-      )}
+    <div className="duel-bar duel-bar--player" data-zone="player-bar">
+      <button
+        type="button"
+        className={`duel-bar__hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
+        data-drop={key}
+        data-ref={key}
+        aria-label={`Your hero, ${p.hp} HP`}
+        onClick={(e) => input.tapTarget(key, e.clientX)}
+      >
+        <span className="duel-bar__hp">♥ {p.hp}</span>
+        <FxLayer fx={fx} />
+      </button>
       <span className="duel-bar__mana" aria-label={`Mana ${p.mana} of ${p.maxMana}`}>
         ◆ {p.mana}/{p.maxMana}
       </span>
-      <span className="duel-bar__spell" aria-label={`Spell mana ${p.spellMana}`}>
-        {Array.from({ length: SPELL_MANA_CAP }, (_, i) => (
-          <span key={i} className={`pip${i < p.spellMana ? ' pip--on' : ''}`} />
-        ))}
-      </span>
-      {!mine && (
-        <span className="duel-bar__stat" aria-label="Opponent cards in hand">
-          ✋ {p.hand.length}
-        </span>
-      )}
-      <span className="duel-bar__stat" aria-label={`${mine ? 'Your' : 'Opponent'} deck`}>
+      <span className="duel-bar__stat" aria-label="Your deck">
         ▤ {p.deck.length}
       </span>
-      {mine && game.phase !== 'mulligan' && game.phase !== 'over' && (
+      {game.phase !== 'mulligan' && game.phase !== 'over' && (
         <button
           type="button"
           className={`end-turn${label === 'Resolve' ? ' end-turn--resolve' : ''}`}
@@ -436,11 +512,13 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
             key={u.uid}
             type="button"
             data-unit={u.uid}
+            data-ref={key}
             data-drop={input.valid.has(key) || (boardValid && side === HUMAN) ? key : undefined}
             data-source={ready ? 'unit' : undefined}
             className={[
               'unit',
               `faction-${card.faction}`,
+              card.rarity === 'legendary' ? 'unit--legendary' : '',
               u.keywords.includes('guard') ? 'unit--guard' : '',
               u.barrier ? 'unit--barrier' : '',
               ready ? 'unit--ready' : '',
@@ -452,12 +530,13 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
               canAttack(game, u) ? '' : 'unit--spent',
             ].join(' ')}
             aria-label={`${side === HUMAN ? 'Your' : 'Enemy'} ${card.name}`}
-            onPointerDown={(e) => ready && input.startDrag(e, src)}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              showDetail(u.cardId);
+            onPointerDown={(e) => {
+              input.startHold(e, u.cardId);
+              if (ready) input.startDrag(e, src);
             }}
+            onContextMenu={(e) => e.preventDefault()}
             onClick={(e) => {
+              if (input.consumeHold()) return;
               if (input.tapTarget(key, e.clientX)) return;
               if (boardValid && input.tapTarget('board', e.clientX)) return;
               if (ready) input.tapSource(src);
@@ -500,7 +579,7 @@ function stackLabel(s: GameState, item: StackItem): string {
   return item.targets.length ? `${name} → ${item.targets.map(target).join(', ')}` : name;
 }
 
-/** The opponent hero as a target, at the top of the middle strip where a thumb reaches it. */
+/** The opponent hero as a target, at the left of the middle strip where a thumb reaches it. */
 function EnemyHeroTarget({ input }: { input: Input }) {
   const game = useDuel((s) => s.game)!;
   const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === AI);
@@ -512,7 +591,8 @@ function EnemyHeroTarget({ input }: { input: Input }) {
       type="button"
       className={`strip-hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
       data-drop={key}
-      aria-label={`Opponent hero target, ${game.players[AI].hp} HP`}
+      data-ref={key}
+      aria-label={`Opponent hero, ${game.players[AI].hp} HP`}
       onClick={(e) => input.tapTarget(key, e.clientX)}
     >
       <span className="strip-hero__icon" aria-hidden="true">
@@ -524,9 +604,28 @@ function EnemyHeroTarget({ input }: { input: Input }) {
   );
 }
 
+/** A stack item as a round token with its card art (an attack shows the attacker, with a sword badge). */
+function Orb({ cardId, attack }: { cardId: string; attack?: boolean }) {
+  const card = getCard(cardId);
+  return (
+    <>
+      <span className={`orb__art faction-${card.faction}`}>
+        <CardArt id={card.id} faction={card.faction} />
+      </span>
+      {attack && (
+        <span className="orb__badge" aria-hidden="true">
+          ⚔
+        </span>
+      )}
+    </>
+  );
+}
+
 function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) {
   const game = useDuel((s) => s.game)!;
   const banner = useDuel((s) => s.banner);
+  const pick = useDuel((s) => s.pick);
+  const setPick = useDuel((s) => s.setPick);
   const showDetail = useDuel((s) => s.showDetail);
   const yourTurn = game.activePlayer === HUMAN;
   // Always derived from the current state: the stack, else whose turn it is and who has priority.
@@ -540,35 +639,156 @@ function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) 
         : yourTurn
           ? 'Opponent responds'
           : "Opponent's turn";
+  const pending =
+    pick?.kind === 'spellTargets' ? game.players[HUMAN].hand.find((c) => c.uid === pick.uid) : undefined;
+  const hasItems = game.stack.length > 0 || pending;
   return (
     <div className="stack-strip" aria-label="Stack" aria-live="polite" data-zone="stack">
       <EnemyHeroTarget input={input} />
       <div className="stack-strip__body">
-        {game.stack.length > 0 ? (
+        {hasItems && (
           <ol className="stack-strip__items">
-            {game.stack.map((item, i) => (
+            {game.stack.map((item, i) => {
+              const key = `stack:${item.id}`;
+              const cardId =
+                item.kind === 'spell'
+                  ? item.cardId
+                  : game.boards[item.owner].find((u) => u.uid === item.attacker)?.cardId;
+              return (
+                <li
+                  key={item.id}
+                  className={[
+                    'stack-item',
+                    `stack-item--${item.owner === HUMAN ? 'player' : 'opponent'}`,
+                    i === game.stack.length - 1 && !pending ? 'stack-item--top' : '',
+                    input.valid.has(key) ? 'drop--valid' : '',
+                  ].join(' ')}
+                  data-drop={key}
+                  data-ref={key}
+                  data-orb={item.id}
+                  aria-label={stackLabel(game, item)}
+                  onPointerDown={(e) => cardId && input.startHold(e, cardId)}
+                  onContextMenu={(e) => e.preventDefault()}
+                  onClick={(e) => {
+                    if (input.consumeHold()) return;
+                    if (input.tapTarget(key, e.clientX)) return;
+                    if (item.kind === 'spell') showDetail(item.cardId);
+                  }}
+                >
+                  {cardId ? <Orb cardId={cardId} attack={item.kind === 'attack'} /> : '⚔'}
+                </li>
+              );
+            })}
+            {pending && (
               <li
-                key={item.id}
-                className={`stack-item stack-item--${item.owner === HUMAN ? 'player' : 'opponent'}${i === game.stack.length - 1 ? ' stack-item--top' : ''}`}
-                data-drop={`stack:${item.id}`}
-                onClick={() => item.kind === 'spell' && showDetail(item.cardId)}
+                className="stack-item stack-item--player stack-item--pending"
+                data-orb="pending"
+                data-source="pending"
+                aria-label={`${getCard(pending.cardId).name}: choose a target (tap to cancel)`}
+                onClick={() => setPick(null)}
               >
-                <span className="stack-item__kind">{item.kind === 'attack' ? '⚔' : '✦'}</span>
-                {stackLabel(game, item)}
+                <Orb cardId={pending.cardId} />
               </li>
-            ))}
+            )}
           </ol>
-        ) : (
-          <p className="stack-strip__turn">{prompt ?? banner?.text ?? turnText}</p>
         )}
-        {game.stack.length > 0 && prompt && <p className="stack-strip__prompt">{prompt}</p>}
+        {!hasItems && <p className="stack-strip__turn">{prompt ?? banner?.text ?? turnText}</p>}
+        {hasItems && <p className="stack-strip__prompt">{prompt ?? banner?.text ?? turnText}</p>}
       </div>
     </div>
   );
 }
 
+interface Line {
+  id: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  owner: 'player' | 'opponent' | 'pending';
+}
+
+/**
+ * Connectors from each stack item (and a spell waiting for targets) to what it targets, measured from the
+ * DOM every frame while there is something to connect, so they follow units as they move.
+ */
+function Connectors() {
+  const game = useDuel((s) => s.game)!;
+  const pick = useDuel((s) => s.pick);
+  const [lines, setLines] = useState<Line[]>([]);
+  const ref = useRef<SVGSVGElement>(null);
+  const links = useMemo(() => {
+    const out: { id: string; from: string; to: string; owner: Line['owner'] }[] = [];
+    for (const item of game.stack) {
+      const owner = item.owner === HUMAN ? 'player' : 'opponent';
+      const targets = item.kind === 'attack' ? [item.target] : item.targets;
+      targets.forEach((t, i) =>
+        out.push({ id: `${item.id}-${i}`, from: String(item.id), to: refKey(t), owner }),
+      );
+    }
+    if (pick?.kind === 'spellTargets')
+      pick.chosen.forEach((t, i) =>
+        out.push({ id: `p-${i}`, from: 'pending', to: refKey(t), owner: 'pending' }),
+      );
+    return out;
+  }, [game, pick]);
+
+  useLayoutEffect(() => {
+    if (links.length === 0) return;
+    let frame = 0;
+    let last = '';
+    const measure = () => {
+      const root = ref.current?.getBoundingClientRect();
+      if (root) {
+        const next: Line[] = [];
+        for (const l of links) {
+          const a = document.querySelector(`[data-orb="${l.from}"]`)?.getBoundingClientRect();
+          const b = document.querySelector(`[data-ref="${l.to}"]`)?.getBoundingClientRect();
+          if (!a || !b) continue;
+          // From the token's centre to the near edge of the target, so the target's numbers stay readable.
+          const y1 = a.top + a.height / 2;
+          const below = b.top + b.height / 2 > y1;
+          next.push({
+            id: l.id,
+            owner: l.owner,
+            x1: a.left + a.width / 2 - root.left,
+            y1: y1 - root.top,
+            x2: b.left + b.width / 2 - root.left,
+            y2: (below ? b.top + 4 : b.bottom - 4) - root.top,
+          });
+        }
+        const key = JSON.stringify(next);
+        if (key !== last) {
+          last = key;
+          setLines(next);
+        }
+      }
+      frame = requestAnimationFrame(measure);
+    };
+    measure();
+    return () => cancelAnimationFrame(frame);
+  }, [links]);
+
+  return (
+    <svg className="connectors" ref={ref} aria-hidden="true">
+      {(links.length > 0 ? lines : []).map((l) => {
+        // A curve that bows sideways, so lines to targets straight above or below stay visible.
+        const mx = (l.x1 + l.x2) / 2 + (l.y2 - l.y1) * 0.25;
+        const my = (l.y1 + l.y2) / 2 - Math.abs(l.x2 - l.x1) * 0.15;
+        return (
+          <g key={l.id} className={`connector connector--${l.owner}`}>
+            <path d={`M${l.x1},${l.y1} Q${mx},${my} ${l.x2},${l.y2}`} />
+            <circle cx={l.x2} cy={l.y2} r="5" />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 function HandRow({ input, dragging }: { input: Input; dragging: Source | null }) {
   const game = useDuel((s) => s.game)!;
+  const pick = useDuel((s) => s.pick);
   const showDetail = useDuel((s) => s.showDetail);
   const hand = game.players[HUMAN].hand;
   const gaps = Math.max(1, hand.length - 1);
@@ -579,13 +799,15 @@ function HandRow({ input, dragging }: { input: Input; dragging: Source | null })
         const playable = input.legal.some((a) => 'uid' in a && a.uid === c.uid);
         const picked =
           input.active && 'uid' in input.active && input.active.uid === c.uid && input.active.kind !== 'unit';
+        // A spell waiting on the stack for its targets has left the hand, for now.
+        const onStack = pick?.kind === 'spellTargets' && pick.uid === c.uid;
         const offset = i - (hand.length - 1) / 2;
         return (
           <button
             key={c.uid}
             type="button"
             data-source={playable ? 'card' : undefined}
-            className={`hand__slot${playable ? ' hand__slot--playable' : ''}${picked ? ' hand__slot--picked' : ''}${dragging?.uid === c.uid ? ' hand__slot--dragging' : ''}`}
+            className={`hand__slot${playable ? ' hand__slot--playable' : ''}${picked && !onStack ? ' hand__slot--picked' : ''}${dragging?.uid === c.uid || onStack ? ' hand__slot--dragging' : ''}`}
             style={
               {
                 '--offset': offset,
@@ -602,13 +824,10 @@ function HandRow({ input, dragging }: { input: Input; dragging: Source | null })
             onContextMenu={(e) => {
               e.preventDefault();
               // Right-click opens the detail; the long-press context menu of a touch screen does not.
-              if (!input.heldRef.current) showDetail(c.cardId);
+              if (!input.held()) showDetail(c.cardId);
             }}
             onClick={() => {
-              if (input.heldRef.current) {
-                input.heldRef.current = false;
-                return;
-              }
+              if (input.consumeHold()) return;
               if (playable) input.tapSource(src);
               else showDetail(c.cardId);
             }}
@@ -621,7 +840,7 @@ function HandRow({ input, dragging }: { input: Input; dragging: Source | null })
   );
 }
 
-/** The enlarged card shown while a hand card is held. It ignores pointer events, so releasing closes it. */
+/** The enlarged card shown while a card, unit or stack item is held. It ignores pointer events, so releasing closes it. */
 function HoldReader({ cardId }: { cardId: string }) {
   const card = getCard(cardId);
   return (
@@ -654,6 +873,16 @@ function DragGhost({ drag, game }: { drag: Drag; game: GameState }) {
   }
   const card = game.players[HUMAN].hand.find((c) => c.uid === drag.src.uid);
   if (!card) return null;
+  // A spell over the field shrinks to the round token it becomes on the stack.
+  if (getCard(card.cardId).type === 'spell' && aboveHand(drag.y)) {
+    return (
+      <div className="drag-ghost drag-ghost--orb" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
+        <span className="stack-item stack-item--player stack-item--pending">
+          <Orb cardId={card.cardId} />
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="drag-ghost" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
       <DuelCard cardId={card.cardId} />

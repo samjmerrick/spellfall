@@ -2,13 +2,8 @@
   {
     "id": "relic-ember-coal",
     "name": "Ember Coal",
-    "text": "Start each match with 1 spell mana.",
-    "modifiers": [
-      {
-        "kind": "startSpellMana",
-        "amount": 1
-      }
-    ]
+    "text": "Gain 1 extra mana on your first turn.",
+    "modifiers": [{ "kind": "turnStart", "turns": [1], "action": { "op": "gainMana", "amount": 1 } }]
   },
   {
     "id": "relic-iron-heart",
@@ -169,13 +164,8 @@
   {
     "id": "relic-mana-crystal",
     "name": "Mana Crystal",
-    "text": "Start each match with 2 spell mana.",
-    "modifiers": [
-      {
-        "kind": "startSpellMana",
-        "amount": 2
-      }
-    ]
+    "text": "Gain 2 extra mana on your first turn.",
+    "modifiers": [{ "kind": "turnStart", "turns": [1], "action": { "op": "gainMana", "amount": 2 } }]
   },
   {
     "id": "relic-heart-locket",

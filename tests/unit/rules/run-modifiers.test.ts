@@ -48,7 +48,7 @@ function play(mods: MatchModifier[]): GameState[] {
 }
 
 const sig = (s: GameState) =>
-  JSON.stringify([s.players.map((p) => [p.hp, p.maxHp, p.hand.length, p.spellMana, p.maxMana]), s.boards]);
+  JSON.stringify([s.players.map((p) => [p.hp, p.maxHp, p.hand.length, p.mana, p.maxMana]), s.boards]);
 
 describe('run content modifiers change the match as their text says', () => {
   const base = play([]);
