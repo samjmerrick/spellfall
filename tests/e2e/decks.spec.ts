@@ -16,8 +16,8 @@ test('build a deck, reload the page, and the deck is still there', async ({ page
   await expect(save).toBeDisabled();
   await expect(page.locator('.deck-strip__problem')).toHaveText(/exactly 30/);
 
-  // Tap each unlocked Ember card three times until the deck has 30 cards.
-  const cards = page.locator('.grid-card:not(.grid-card--locked)');
+  // Tap each Ember card three times until the deck has 30 cards.
+  const cards = page.locator('.grid-card');
   const count = await cards.count();
   for (let i = 0; i < count && !(await save.isEnabled()); i++) {
     for (let k = 0; k < 3; k++) await cards.nth(i).click();

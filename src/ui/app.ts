@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import type { Difficulty } from '../ai';
 import { PREBUILT_DECKS, type DeckDef } from '../rules';
-import { grantXp, ownedCardIds, type UnlockBundle } from '../run/meta';
 import {
   idbStore,
   importSaveCode,
@@ -59,8 +58,6 @@ interface AppStore {
   corruptRaw: unknown;
   draft: Draft | null;
   quickPlay: { deckId: string; difficulty: Difficulty };
-  /** Bundles unlocked since the UI last cleared them (for the level-up overlay), in level order. */
-  lastUnlocks: UnlockBundle[];
 
   boot(): Promise<void>;
   go(screen: Screen): void;
@@ -69,11 +66,6 @@ interface AppStore {
   setSettings(change: Partial<Profile['settings']>): void;
   /** Marks the iOS home-screen tip as seen. Autosaves. */
   dismissIosTip(): void;
-  /** Marks the tutorial as done (finished or skipped). Autosaves. */
-  completeTutorial(): void;
-  /** Applies `change` (if any), then adds XP: level, unlocks and `lastUnlocks` follow. Autosaves. */
-  awardXp(xp: number, change?: (p: Profile) => Profile): void;
-  clearUnlocks(): void;
   newDraft(from?: DeckChoice): void;
   editDeck(id: string): void;
   setDraft(d: Draft): void;
@@ -108,14 +100,6 @@ export function deckChoices(profile: Profile): DeckChoice[] {
   ];
 }
 
-/** Cards the player owns: the starter collection plus unlocked cards. */
-export function ownedCards(profile: Profile): Set<string> {
-  return ownedCardIds(profile);
-}
-
-export const XP_WIN = 50;
-export const XP_LOSS = 20;
-
 export const useApp = create<AppStore>((set, get) => ({
   screen: 'loading',
   profile: newProfile(),
@@ -125,7 +109,6 @@ export const useApp = create<AppStore>((set, get) => ({
   corruptRaw: null,
   draft: null,
   quickPlay: { deckId: PREBUILT_DECKS[0]!.id, difficulty: 'normal' },
-  lastUnlocks: [],
 
   async boot() {
     let result;
@@ -164,19 +147,6 @@ export const useApp = create<AppStore>((set, get) => ({
   dismissIosTip() {
     get().update((p) => ({ ...p, iosTipSeen: true }));
   },
-
-  completeTutorial() {
-    get().update((p) => ({ ...p, tutorialDone: true }));
-  },
-
-  awardXp(xp, change) {
-    const base = change ? change(get().profile) : get().profile;
-    const grant = grantXp(base, xp);
-    set({ profile: grant.profile, lastUnlocks: [...get().lastUnlocks, ...grant.bundles] });
-    void persistProfile(grant.profile);
-  },
-
-  clearUnlocks: () => set({ lastUnlocks: [] }),
 
   newDraft(from) {
     if (get().profile.decks.length >= MAX_SAVED_DECKS) return;
@@ -229,7 +199,7 @@ export const useApp = create<AppStore>((set, get) => ({
   },
 
   recordQuickPlay(deckId, outcome) {
-    get().awardXp(outcome === 'win' ? XP_WIN : XP_LOSS, (p) => {
+    get().update((p) => {
       const prev = p.stats.quickPlay[deckId] ?? { played: 0, won: 0 };
       return {
         ...p,

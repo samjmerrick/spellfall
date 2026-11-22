@@ -43,7 +43,7 @@ Heroes, enemies, relics, lane effects and events get icons in the same flat fold
 | Lane effect  | `lane-*.svg`        | `#d6d9e0`                                                      |
 | Event        | `event-*.svg`       | `#d6d9e0`                                                      |
 
-Sizes in the UI: hero 40 px (picker, level-up), relic 28 px, enemy and event 96 px, lane effect 18 px (in the 56 px lane strip, so it must read at that size).
+Sizes in the UI: hero 40 px (picker), relic 28 px, enemy and event 96 px, lane effect 18 px (in the 56 px lane strip, so it must read at that size).
 
 ## Checking your work
 

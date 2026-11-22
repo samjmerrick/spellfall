@@ -13,7 +13,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm e2e` — Playwright (builds, serves on :4173, tests at 360×740, 390×844, 430×932)
 - `pnpm screens` — regenerate the committed screenshots in `docs/screens/` (every screen at all 3 viewports; also checks overflow)
 - `pnpm sim [n] [easy|normal|hard] [easy|normal|hard] [factionA] [factionB]` — bot-vs-bot matches (win rate, first-player win rate, turns)
-- `pnpm sim:run [n] [easy|normal|hard] [ascension]` — bot roguelike runs per hero, fully unlocked profile (win rate, nodes cleared)
+- `pnpm sim:run [n] [easy|normal|hard] [ascension]` — bot roguelike runs per hero, all cards, heroes and relics (win rate, nodes cleared)
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
 - `pnpm build` — production build (`VITE_BASE=/spellfall/` for GitHub Pages; CI sets it)
@@ -23,7 +23,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `src/rules/` — pure rules. No React, no DOM, no `src/ui` imports. Lint bans `Math.random` and `Date` here, in `src/run/`
   and `src/ai/`: all randomness comes from the seeded RNG in game state.
 - `src/content/` — JSON content, validated by Zod schemas.
-- `src/run/`, `src/ai/` — roguelike run, meta progression and tutorial; opponent planners.
+- `src/run/`, `src/ai/` — roguelike run and meta progression (Ascension, stats); opponent planners.
 - `src/save/` — profile schema (Zod), two-slot saves over IndexedDB, migrations (`tests/fixtures/save-v*.json`), save codes.
 - `src/ui/` — React screens. Only sends actions to the rules and animates returned events; never computes results.
 - `tools/sim/` — CLI simulators. `tests/unit`, `tests/sim`, `tests/e2e` — tests.
@@ -42,8 +42,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - AI: `src/ai` (`act(difficulty, view, rng, clock?)`, one action per call, from `viewFor`); Easy, Normal, Hard (`hard.ts`,
   deterministic unless given a clock; the UI passes one). Weights in `src/content/ai-weights.json`.
 - The match UI is `src/ui/duel/` (store, screen, AI worker). It plays Quick Play, run matches (`startRun`, autosaved whenever
-  the player gets priority) and the tutorial (`startTutorial`; script in `src/content/tutorial.json` and `src/run/tutorial.ts`).
-  It shows the state before an action while that action's events play, then snaps to the result. URL params
+  the player gets priority). It shows the state before an action while that action's events play, then snaps to the result. URL params
   `?seed=N&speed=0.05` make matches deterministic and fast for Playwright.
 - UI screens: `src/ui/app.ts` (navigation + profile + autosave). Bump `CURRENT_SCHEMA` and add a migration + fixture whenever
   the profile shape changes.
@@ -52,7 +51,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
   `startHand`, `heroHp`); a boss's `ai.seesHand` reveals your hand to its planner. Run content is `heroes.json`, `relics.json`,
   `enemies.json`, `events.json` (schemas in `src/run/content.ts`); run phases are map, match, reward, shop, rest, treasure,
   event, actCleared, over.
-- Meta progression is `src/run/meta.ts` (levels, `unlocks.json`, `ascension.json`, `grantXp`, `recordRunResult`, `statsSummary`).
+- Meta progression is `src/run/meta.ts` (`ascension.json`, `recordRunResult`, `statsSummary`). There are no levels, XP, unlocks or tutorial: all cards, heroes and relics are available from the start. The `unlock` field left in `cards.json` and `heroes.json` is unused..
 - Tests: `tests/unit/rules/` (helpers `setup`, `place`, `give`, `cast`, `play`, `attack`, `pass`); bulk and determinism in
   `tests/sim/rules-bulk.test.ts` with the bots in `tools/sim/rules-bot.ts`. e2e: `tests/e2e/duel.ts` (`playCard`, `attackOnce`,
   `playDuel`) plays matches by tapping.

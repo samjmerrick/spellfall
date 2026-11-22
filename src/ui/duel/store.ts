@@ -18,15 +18,7 @@ import {
   type TargetRef,
 } from '../../rules';
 import { seedRng } from '../../rules/rng';
-import {
-  matchAiRng,
-  opponentAction,
-  stepAllows,
-  TUTORIAL,
-  tutorialStart,
-  type AiHooks,
-  type RunMatch,
-} from '../../run';
+import { matchAiRng, type AiHooks, type RunMatch } from '../../run';
 import { useApp } from '../app';
 import { haptic, sfx } from '../feedback';
 import { currentScale } from '../motion';
@@ -60,11 +52,8 @@ export type Pick =
   | { kind: 'spellTargets'; uid: number; chosen: TargetRef[] };
 
 interface DuelStore {
-  /** Quick Play, a run node's match (autosaved whenever the player gets priority), or the tutorial. */
-  mode: 'quick' | 'run' | 'tutorial';
-  /** Tutorial: the coach step (index into `TUTORIAL.steps`) and the opponent's next scripted move. */
-  tutorialStep: number;
-  tutorialMove: number;
+  /** Quick Play, or a run node's match (autosaved whenever the player gets priority). */
+  mode: 'quick' | 'run';
   hooks: AiHooks;
   /** Run mode: the enemy being fought. */
   enemyId: string | null;
@@ -87,11 +76,6 @@ interface DuelStore {
   start(deck: DeckDef, difficulty: Difficulty): Promise<void>;
   /** Starts a run node's match, or resumes the saved one. */
   startRun(m: RunMatch, saved: { game: GameState; aiRng: number } | null): Promise<void>;
-  startTutorial(): Promise<void>;
-  /** Tutorial: moves past an info step. */
-  tutorialNext(): void;
-  /** Tutorial: records it as done and returns to the menu. */
-  finishTutorial(): void;
   toggleMulligan(uid: number): void;
   confirmMulligan(): Promise<void>;
   perform(action: Action): Promise<void>;
@@ -235,16 +219,9 @@ export const useDuel = create<DuelStore>((set, get) => {
       }
       if (s.priority === AI) {
         set({ busy: true });
-        let action: Action;
-        if (get().mode === 'tutorial') {
-          const move = opponentAction(s, get().tutorialMove);
-          action = move.action;
-          set({ tutorialMove: move.next });
-        } else {
-          const ai = await runDuelAi(get().difficulty, aiView(s), get().aiRng);
-          action = ai.action;
-          set({ aiRng: ai.rng });
-        }
+        const ai = await runDuelAi(get().difficulty, aiView(s), get().aiRng);
+        const action: Action = ai.action;
+        set({ aiRng: ai.rng });
         const text = describe(action, s);
         if (text) set({ banner: { id: fxId++, text } });
         await sleep(250 * currentScale());
@@ -253,8 +230,7 @@ export const useDuel = create<DuelStore>((set, get) => {
         continue;
       }
       // The player has priority. With a stack and nothing to answer with, pass for them.
-      // (Never in the tutorial: its steps ask for each pass.)
-      const auto = useApp.getState().profile.settings.autoPass && get().mode !== 'tutorial';
+      const auto = useApp.getState().profile.settings.autoPass;
       if (s.stack.length > 0 && auto && legalActions(s).every((a) => a.type === 'pass')) {
         set({ busy: true });
         await sleep(300 * currentScale());
@@ -263,9 +239,6 @@ export const useDuel = create<DuelStore>((set, get) => {
       }
       break;
     }
-    // Tutorial: a "wait" step ends when the player has priority again.
-    if (get().mode === 'tutorial' && TUTORIAL.steps[get().tutorialStep]?.kind === 'wait')
-      set({ tutorialStep: get().tutorialStep + 1 });
     set({ busy: false });
     autosave();
   }
@@ -293,8 +266,6 @@ export const useDuel = create<DuelStore>((set, get) => {
 
   return {
     mode: 'quick',
-    tutorialStep: 0,
-    tutorialMove: 0,
     hooks: {},
     enemyId: null,
     deck: null,
@@ -364,44 +335,6 @@ export const useDuel = create<DuelStore>((set, get) => {
       await loop();
     },
 
-    async startTutorial() {
-      const game = tutorialStart();
-      useApp.getState().go('duel');
-      set({
-        mode: 'tutorial',
-        tutorialStep: 0,
-        tutorialMove: 0,
-        hooks: {},
-        enemyId: null,
-        deck: null,
-        opponentDeck: null,
-        difficulty: 'easy',
-        seed: TUTORIAL.seed,
-        game,
-        busy: false,
-        aiRng: 0,
-        mulligan: [],
-        pick: null,
-        fx: [],
-        banner: null,
-        attacking: null,
-        error: null,
-      });
-      await loop();
-    },
-
-    tutorialNext() {
-      const { mode, tutorialStep, busy } = get();
-      if (mode !== 'tutorial' || busy || TUTORIAL.steps[tutorialStep]?.kind !== 'info') return;
-      set({ tutorialStep: tutorialStep + 1 });
-    },
-
-    finishTutorial() {
-      useApp.getState().completeTutorial();
-      set({ game: null, busy: false, pick: null });
-      useApp.getState().go('menu');
-    },
-
     toggleMulligan(uid) {
       set((st) => ({
         mulligan: st.mulligan.includes(uid) ? st.mulligan.filter((u) => u !== uid) : [...st.mulligan, uid],
@@ -423,14 +356,6 @@ export const useDuel = create<DuelStore>((set, get) => {
       const { game, busy } = get();
       if (!game || busy || game.priority !== HUMAN) return;
       set({ pick: null, banner: null });
-      const { mode, tutorialStep } = get();
-      if (mode === 'tutorial') {
-        if (!stepAllows(TUTORIAL.steps[tutorialStep], game, action)) {
-          set({ error: 'Follow the coach for now.' });
-          return;
-        }
-        set({ tutorialStep: tutorialStep + 1 });
-      }
       if (!guard(() => applyAction(game, action))) return;
       set({ busy: true });
       if (action.type !== 'pass') haptic('play');
@@ -451,9 +376,8 @@ export const useDuel = create<DuelStore>((set, get) => {
     leave() {
       const { mode } = get();
       set({ game: null, busy: false, pick: null });
-      // A run match stays saved; the run screen offers to resume it. Leaving the tutorial early does not
-      // mark it done.
-      useApp.getState().go(mode === 'run' ? 'run' : mode === 'tutorial' ? 'menu' : 'quickplay');
+      // A run match stays saved; the run screen offers to resume it.
+      useApp.getState().go(mode === 'run' ? 'run' : 'quickplay');
     },
   };
 });

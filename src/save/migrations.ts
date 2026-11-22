@@ -1,5 +1,5 @@
 import { RELICS } from '../run/content';
-import { MAX_ASCENSION, levelForXp, unlockedIds } from '../run/meta';
+import { MAX_ASCENSION } from '../run/meta';
 import { CURRENT_SCHEMA, ProfileSchema, type Profile } from './profile';
 
 /**
@@ -14,40 +14,27 @@ export const migrations: Record<number, (old: Record<string, unknown>) => Record
   },
   // v3 (M5): runs gained acts, elites and events, so a v2 run's choices no longer replay. It is dropped.
   2: (old) => ({ ...old, activeRun: null }),
-  // v4 (M6): the level and unlock list follow the unlock track, Ascension gains `unlocked`, and a run
-  // records its Ascension level and relic pool. A run in progress keeps replaying identically: Ascension
+  // v4 (M6): Ascension gains `unlocked`, and a run records its Ascension level and relic pool. A run in progress keeps replaying identically: Ascension
   // 0 and the full relic list, as relics used to be drawn from all of them.
   3: (old) => {
-    const xp = typeof old.xp === 'number' ? old.xp : 0;
-    const level = levelForXp(xp);
     const best = Math.min(MAX_ASCENSION, Number((old.ascension as { best?: number } | undefined)?.best ?? 0));
     const runs = Object.values(((old.stats ?? {}) as { runs?: Record<string, { won?: number }> }).runs ?? {});
     const wonARun = runs.some((r) => (r.won ?? 0) > 0);
     const run = old.activeRun as { config: Record<string, unknown> } | null | undefined;
     return {
       ...old,
-      level,
-      unlocks: unlockedIds(level),
       ascension: { best, unlocked: best > 0 || wonARun ? Math.min(MAX_ASCENSION, best + 1) : 0 },
       activeRun: run
         ? { ...run, config: { ...run.config, ascension: 0, relics: RELICS.map((r) => r.id) } }
         : null,
     };
   },
-  // v5 (M7): Sound and Haptics settings (on), `tutorialDone` and `iosTipSeen`. Anyone who already has XP or
-  // results has played, so the tutorial counts as done.
-  4: (old) => {
-    const stats = (old.stats ?? {}) as { quickPlay?: object; runs?: object };
-    const hasStats =
-      Object.keys(stats.quickPlay ?? {}).length > 0 || Object.keys(stats.runs ?? {}).length > 0;
-    const xp = typeof old.xp === 'number' ? old.xp : 0;
-    return {
-      ...old,
-      settings: { ...(old.settings as object), sound: true, haptics: true },
-      tutorialDone: xp > 0 || hasStats,
-      iosTipSeen: false,
-    };
-  },
+  // v5 (M7): Sound and Haptics settings (on) and `iosTipSeen`.
+  4: (old) => ({
+    ...old,
+    settings: { ...(old.settings as object), sound: true, haptics: true },
+    iosTipSeen: false,
+  }),
   // v6 (Spellfall V2): the Auto-pass setting, on.
   5: (old) => ({ ...old, settings: { ...(old.settings as object), autoPass: true } }),
   // v7 (Spellfall V5): runs play on Spellfall's rules. A match in progress was a Lanefall match state, so it is
@@ -56,6 +43,13 @@ export const migrations: Record<number, (old: Record<string, unknown>) => Record
   6: (old) => {
     const run = old.activeRun as Record<string, unknown> | null | undefined;
     return { ...old, activeRun: run ? { ...run, match: null } : null };
+  },
+  // v8: no tutorial and no levels: XP, level, the unlock list and the tutorial flag are dropped. Every
+  // card, hero and relic is available, so nothing else changes (Ascension and stats are kept).
+  7: (old) => {
+    const rest = { ...old };
+    for (const key of ['xp', 'level', 'unlocks', 'tutorialDone']) delete rest[key];
+    return rest;
   },
 };
 

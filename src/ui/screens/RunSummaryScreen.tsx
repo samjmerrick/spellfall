@@ -1,4 +1,4 @@
-import { getHero, runXp } from '../../run';
+import { getHero } from '../../run';
 import { useRun } from '../runStore';
 import { ScreenFrame } from './common';
 
@@ -32,11 +32,6 @@ export function RunSummaryScreen() {
         <dd>{run.deck.length} cards</dd>
         <dt>Relics</dt>
         <dd>{run.relics.length}</dd>
-        <dt>XP earned</dt>
-        <dd>
-          +{runXp(run)}
-          {won ? ' (doubled for a full win)' : ''}
-        </dd>
         <dt>Seed</dt>
         <dd className="summary__seed" data-testid="run-seed">
           {run.config.seed}

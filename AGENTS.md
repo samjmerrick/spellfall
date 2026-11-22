@@ -14,7 +14,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 
 - `src/rules/` - pure game rules (no React/DOM; no `Math.random` or `Date`, use the seeded RNG)
 - `src/content/` - JSON content validated by Zod
-- `src/run/`, `src/ai/` - roguelike run and tutorial, opponent planners
+- `src/run/`, `src/ai/` - roguelike run and meta progression, opponent planners
 - `src/save/` - profile schema, saves, migrations
 - `src/ui/` - React screens; only sends actions to the rules and animates events
 - `tools/sim/`, `tests/` - simulator and tests

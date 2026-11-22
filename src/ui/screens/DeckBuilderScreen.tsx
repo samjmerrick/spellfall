@@ -11,7 +11,7 @@ import {
   sortCards,
 } from '../../rules';
 import { MAX_DECK_NAME } from '../../save';
-import { ownedCards, useApp } from '../app';
+import { useApp } from '../app';
 import { CardArt } from '../CardView';
 import { GLYPHS } from '../factions';
 import { CardBrowser } from './CardBrowser';
@@ -39,19 +39,16 @@ export function DeckBuilderScreen() {
   const draft = useApp((s) => s.draft);
   const setDraft = useApp((s) => s.setDraft);
   const saveDraft = useApp((s) => s.saveDraft);
-  const profile = useApp((s) => s.profile);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [code, setCode] = useState<string | null>(null);
   if (!draft) return null;
 
-  const owned = ownedCards(profile);
   const counts = countCopies(draft.cards);
-  const problems = deckProblems(draft.cards, owned);
+  const problems = deckProblems(draft.cards);
   const factions = deckFactions(draft.cards);
 
   const add = (id: string) => {
-    if (!owned.has(id)) return setMessage(`${getCard(id).name} is locked`);
     if (!canAddCard(draft.cards, id)) {
       const reason =
         draft.cards.length >= DECK_SIZE
@@ -90,7 +87,7 @@ export function DeckBuilderScreen() {
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
-        <CardBrowser owned={owned} counts={counts} limitFor={copyLimit} onTap={add} />
+        <CardBrowser counts={counts} limitFor={copyLimit} onTap={add} />
       </div>
       <section className={`deck-strip${open ? ' deck-strip--open' : ''}`} aria-label="Deck">
         {message && (

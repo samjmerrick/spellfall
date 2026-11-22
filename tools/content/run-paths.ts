@@ -1,17 +1,16 @@
 // Finds the shortest choice list from a fixed run seed to each run screen, for the e2e tests.
 // Writes tests/fixtures/run-paths.json (checked by tests/unit/run-paths.test.ts). `pnpm content:paths`
 import { writeFileSync } from 'node:fs';
-import { starterCollection } from '../../src/rules';
-import { relicPool } from '../../src/run/meta';
-import { getEvent } from '../../src/run/content';
+import { collectibleCardIds } from '../../src/rules';
+import { allRelicIds, getEvent } from '../../src/run/content';
 import { applyChoice, canChoose, nextCols, startRun, type RunChoice, type RunState } from '../../src/run';
 
 const config = {
   seed: 7,
   heroId: 'hero-pyra',
-  pool: [...starterCollection()].sort(),
+  pool: collectibleCardIds().sort(),
   ascension: 0,
-  relics: relicPool(1),
+  relics: allRelicIds(),
 };
 
 type Goal = (r: RunState, choices: RunChoice[]) => boolean;

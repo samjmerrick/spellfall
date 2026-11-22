@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { act } from '../../src/ai';
-import { applyAction, initMatch, starterCollection, viewFor, type GameState } from '../../src/rules';
+import { applyAction, collectibleCardIds, initMatch, viewFor, type GameState } from '../../src/rules';
 import { seedRng } from '../../src/rules/rng';
 import {
   HEROES,
@@ -10,7 +10,6 @@ import {
   replayRun,
   runMatch,
   startRun,
-  starterHeroes,
   type RunChoice,
   type RunConfig,
   type RunState,
@@ -19,9 +18,9 @@ import { loadProfile, memoryStore, saveProfile } from '../../src/save/slots';
 import { newProfile } from '../../src/save/profile';
 import { botChoice, playBotRun } from '../../tools/sim/run';
 
-const pool = [...starterCollection()];
+const pool = collectibleCardIds();
 const relics = RELICS.map((r) => r.id);
-const heroes = starterHeroes();
+const heroes = HEROES;
 
 describe('bot runs', () => {
   it('the simulator completes 500 bot runs with no errors, and each replays to the same state', () => {

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 7,
+  "xp": 1200,
+  "level": 6,
+  "unlocks": [
+    "ember-ignite",
+    "ember-sootcaller",
+    "ember-flame-colossus",
+    "ember-cinder-whelp",
+    "hero-marin",
+    "tide-undertow",
+    "tide-reef-serpent",
+    "tide-whirlpool",
+    "bastion-fortify",
+    "bastion-sanctify",
+    "bastion-war-chaplain",
+    "bastion-sun-knight"
+  ],
+  "decks": [
+    {
+      "id": "d1",
+      "name": "Fixture Deck",
+      "cover": "ember-spark-imp",
+      "cards": ["ember-spark-imp", "ember-spark-imp", "ember-spark-imp"]
+    }
+  ],
+  "nextDeckId": 2,
+  "settings": {
+    "fastAnimations": true,
+    "reduceMotion": false,
+    "sound": false,
+    "haptics": true,
+    "autoPass": false
+  },
+  "stats": {
+    "quickPlay": {
+      "d1": {
+        "played": 5,
+        "won": 3
+      }
+    },
+    "runs": {
+      "hero-pyra": {
+        "played": 2,
+        "won": 1
+      }
+    }
+  },
+  "ascension": {
+    "best": 1,
+    "unlocked": 2
+  },
+  "activeRun": {
+    "config": {
+      "seed": 1234,
+      "heroId": "hero-pyra",
+      "pool": ["ember-spark-imp", "ember-ash-raider", "ember-cinder-bolt"],
+      "ascension": 0,
+      "relics": ["relic-ember-coal", "relic-iron-heart", "relic-scout-map"]
+    },
+    "choices": [
+      {
+        "t": "move",
+        "col": 1
+      }
+    ],
+    "match": null
+  },
+  "tutorialDone": true,
+  "iosTipSeen": true
+}

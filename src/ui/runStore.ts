@@ -1,18 +1,17 @@
 // Roguelike run UI state. The run itself lives in the profile as seed + choices (autosaved on every
 // choice); this store keeps the replayed RunState for rendering and hands matches to the match store.
 import { create } from 'zustand';
-import type { GameState } from '../rules';
+import { collectibleCardIds, type GameState } from '../rules';
 import {
+  allRelicIds,
   applyChoice,
   recordRunResult,
-  relicPool,
   replayRun,
   runMatch,
-  runXp,
   type RunChoice,
   type RunState,
 } from '../run';
-import { ownedCards, useApp } from './app';
+import { useApp } from './app';
 import { randomSeed, urlSeed } from './settings';
 import { useDuel } from './duel/store';
 
@@ -36,7 +35,7 @@ interface RunStore {
 export const useRun = create<RunStore>((set, get) => {
   function finish(run: RunState) {
     const won = run.phase.kind === 'over' && run.phase.won;
-    useApp.getState().awardXp(runXp(run), (p) => ({
+    useApp.getState().update((p) => ({
       ...recordRunResult(p, run.config.heroId, run.config.ascension, won),
       activeRun: null,
     }));
@@ -54,10 +53,10 @@ export const useRun = create<RunStore>((set, get) => {
       const config = {
         seed: urlSeed() ?? randomSeed(),
         heroId,
-        pool: [...ownedCards(profile)].sort(),
+        pool: collectibleCardIds().sort(),
         // Only levels the profile has opened can be played.
         ascension: Math.min(ascension, profile.ascension.unlocked),
-        relics: relicPool(profile),
+        relics: allRelicIds(),
       };
       useApp.getState().update((p) => ({ ...p, activeRun: { config, choices: [], match: null } }));
       set({ run: replayRun(config, []), error: null });

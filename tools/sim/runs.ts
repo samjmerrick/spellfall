@@ -1,16 +1,15 @@
 import type { Difficulty } from '../../src/ai';
 import { collectibleCards } from '../../src/rules';
-import { HEROES, MAX_LEVEL, relicPool } from '../../src/run';
+import { HEROES, allRelicIds } from '../../src/run';
 import { playBotRun } from './run';
 
 // pnpm sim:run [runs=500] [player=easy] [ascension=0]
-// Plays with a fully unlocked profile (every collectible card, relic and hero), so the numbers show the
-// run balance rather than the starting collection.
+// Plays with every collectible card, relic and hero available.
 const n = Number(process.argv[2] ?? 500);
 const player = (process.argv[3] as Difficulty) ?? 'easy';
 const ascension = Number(process.argv[4] ?? 0);
 const pool = collectibleCards().map((c) => c.id);
-const relics = relicPool(MAX_LEVEL);
+const relics = allRelicIds();
 const heroes = HEROES;
 const stats = new Map(heroes.map((h) => [h.id, { runs: 0, won: 0, nodes: 0, acts: [0, 0, 0, 0] }]));
 let matches = 0;
@@ -27,7 +26,7 @@ for (let seed = 1; seed <= n; seed++) {
 }
 const ms = performance.now() - start;
 console.log(
-  `${n} bot runs (player AI: ${player}, Ascension ${ascension}, all unlocked), ${matches} matches, ${(ms / n).toFixed(0)} ms per run`,
+  `${n} bot runs (player AI: ${player}, Ascension ${ascension}), ${matches} matches, ${(ms / n).toFixed(0)} ms per run`,
 );
 for (const [id, s] of stats)
   if (s.runs > 0)

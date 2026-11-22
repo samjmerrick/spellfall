@@ -8,7 +8,7 @@ export const MAX_COPIES = 3;
 export const MAX_LEGENDARY_COPIES = 1;
 
 export interface DeckProblem {
-  rule: 'size' | 'factions' | 'copies' | 'legendary' | 'unknown' | 'token' | 'locked';
+  rule: 'size' | 'factions' | 'copies' | 'legendary' | 'unknown' | 'token';
   message: string;
 }
 
@@ -34,16 +34,14 @@ export function copyLimit(id: string): number {
 
 /**
  * Every rule the deck breaks, most important first; empty means legal.
- * `owned` limits the deck to cards the player has unlocked (omit to skip that check).
  */
-export function deckProblems(cards: readonly string[], owned?: ReadonlySet<string>): DeckProblem[] {
+export function deckProblems(cards: readonly string[]): DeckProblem[] {
   const problems: DeckProblem[] = [];
   const known = new Map(CARDS.map((c) => [c.id, c]));
   for (const id of new Set(cards)) {
     const card = known.get(id);
     if (!card) problems.push({ rule: 'unknown', message: `Unknown card: ${id}` });
     else if (card.token) problems.push({ rule: 'token', message: `${card.name} cannot be put in a deck` });
-    else if (owned && !owned.has(id)) problems.push({ rule: 'locked', message: `${card.name} is locked` });
   }
   if (cards.length !== DECK_SIZE) {
     problems.push({
@@ -70,8 +68,8 @@ export function deckProblems(cards: readonly string[], owned?: ReadonlySet<strin
   return problems;
 }
 
-export function isDeckLegal(cards: readonly string[], owned?: ReadonlySet<string>): boolean {
-  return deckProblems(cards, owned).length === 0;
+export function isDeckLegal(cards: readonly string[]): boolean {
+  return deckProblems(cards).length === 0;
 }
 
 /** Whether one more copy of `id` can be added without breaking a rule (size, factions, copies). */
