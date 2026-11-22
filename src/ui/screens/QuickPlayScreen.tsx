@@ -1,6 +1,6 @@
 import type { Difficulty } from '../../ai/next';
-import { PREBUILT_DECKS } from '../../rules';
-import { useApp } from '../app';
+import { isDeckLegal } from '../../rules';
+import { deckChoices, ownedCards, useApp } from '../app';
 import { useDuel } from '../duel/store';
 import { ScreenFrame } from './common';
 import { DeckTile } from './DeckTile';
@@ -11,16 +11,14 @@ const DIFFICULTIES: { id: Difficulty; label: string }[] = [
   { id: 'hard', label: 'Hard' },
 ];
 
-/**
- * Quick Play on Spellfall's rules. Until the deck builder moves to the new cards (V3), only the pre-built
- * decks can be picked.
- */
+/** Quick Play: pick a pre-built or saved deck (legal with the cards you own) and an AI difficulty. */
 export function QuickPlayScreen() {
   const profile = useApp((s) => s.profile);
   const qp = useApp((s) => s.quickPlay);
   const setQp = useApp((s) => s.setQuickPlay);
   const start = useDuel((s) => s.start);
-  const decks = PREBUILT_DECKS;
+  const owned = ownedCards(profile);
+  const decks = deckChoices(profile).filter((d) => d.prebuilt || isDeckLegal(d.cards, owned));
   const chosen = decks.find((d) => d.id === qp.deckId) ?? decks[0]!;
   return (
     <ScreenFrame
@@ -48,7 +46,7 @@ export function QuickPlayScreen() {
                 name={d.name}
                 cover={d.cover}
                 cards={d.cards}
-                sub={rec ? `won ${rec.won} of ${rec.played}` : 'Pre-built'}
+                sub={rec ? `won ${rec.won} of ${rec.played}` : d.prebuilt ? 'Pre-built' : undefined}
               />
             </button>
           );

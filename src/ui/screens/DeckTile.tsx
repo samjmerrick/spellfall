@@ -1,4 +1,4 @@
-import { deckFactions, getCard } from '../../engine';
+import { deckFactions, getCard } from '../../rules';
 import { CardArt } from '../CardView';
 import { GLYPHS } from '../factions';
 

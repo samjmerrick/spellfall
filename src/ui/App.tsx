@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useApp } from './app';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MatchScreen } from './MatchScreen';
-import { DuelScreen } from './duel/DuelScreen';
+import { DetailOverlay, DuelScreen } from './duel/DuelScreen';
 import { CardDetail } from './Overlays';
 import { RotateNotice } from './RotateNotice';
 import { useReduceMotion } from './useReduceMotion';
@@ -67,6 +67,7 @@ export function App() {
       <CurrentScreen />
       <LevelUpOverlay />
       <CardDetail />
+      <DetailOverlay />
       <RotateNotice />
     </>
   );

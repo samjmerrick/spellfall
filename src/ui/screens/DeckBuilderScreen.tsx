@@ -9,7 +9,7 @@ import {
   encodeDeck,
   getCard,
   sortCards,
-} from '../../engine';
+} from '../../rules';
 import { MAX_DECK_NAME } from '../../save';
 import { ownedCards, useApp } from '../app';
 import { CardArt } from '../CardView';

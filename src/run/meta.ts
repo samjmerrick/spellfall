@@ -3,7 +3,7 @@
 import unlocksJson from '../content/unlocks.json';
 import ascensionJson from '../content/ascension.json';
 import { z } from 'zod';
-import { CARDS, starterCollection } from '../engine';
+import { CARDS, starterCollection } from '../rules';
 import type { MatchModifier } from '../engine/schema';
 import type { Profile } from '../save/profile';
 import { HEROES, RELICS, getHero, type EnemyDef, type HeroDef } from './content';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { decodeDeck, PREBUILT_DECKS } from '../../engine';
+import { decodeDeck, PREBUILT_DECKS } from '../../rules';
 import { MAX_SAVED_DECKS } from '../../save';
 import { useApp } from '../app';
 import { ScreenFrame } from './common';

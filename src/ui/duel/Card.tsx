@@ -66,11 +66,6 @@ export function Icons({
   );
 }
 
-/** The art's faction: neutral cards (the Spark) borrow Tide's glyph-less look via their own class. */
-function artFaction(f: string) {
-  return (f === 'neutral' ? 'tide' : f) as 'ember' | 'tide' | 'grove' | 'bastion' | 'dusk';
-}
-
 function CardName({ name }: { name: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   useLayoutEffect(() => {
@@ -103,7 +98,7 @@ export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'ha
         {card.cost}
       </span>
       <div className="card__art">
-        <CardArt id={card.id} faction={artFaction(card.faction)} />
+        <CardArt id={card.id} faction={card.faction} />
       </div>
       <CardName name={card.name} />
       {size === 'large' && <p className="card__text">{card.text || 'No abilities.'}</p>}
@@ -131,7 +126,7 @@ export function UnitFace({ s, unit }: { s: GameState; unit: Unit }) {
   return (
     <>
       <div className="unit__art">
-        <CardArt id={card.id} faction={artFaction(card.faction)} />
+        <CardArt id={card.id} faction={card.faction} />
       </div>
       <span className="unit__name">{card.name}</span>
       <Icons
