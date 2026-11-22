@@ -17,7 +17,6 @@ function spell(actions: Primitive[], targets: CardDef['targets'] = []): CardDef 
     effects: actions.map((action) => ({ trigger: 'spell', action })),
     text: '',
     rarity: 'common',
-    unlock: 'starter',
   });
 }
 
@@ -101,7 +100,6 @@ describe('card text', () => {
       ],
       text: '',
       rarity: 'common',
-      unlock: 'starter',
     });
     expect(cardText(unit, ctx)).toBe(
       'Growth. Start of Turn: heal this unit by 1. Last Breath: summon a 1/1 Levy. Ongoing: all enemy units have -1 Power. On Play: give adjacent units +1 Power this turn.',

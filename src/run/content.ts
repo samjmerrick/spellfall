@@ -14,8 +14,6 @@ export const HeroSchema = z.object({
   faction: z.enum(FACTIONS),
   passive: z.string().min(1),
   modifiers: z.array(MatchModifierSchema),
-  /** Legacy (the old unlock track); no longer used. */
-  unlock: z.enum(['starter', 'track']).optional(),
   starterDeck: z.array(z.string()).length(12),
 });
 

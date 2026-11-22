@@ -6,6 +6,7 @@ import {
   deckProblems,
   encodeDeck,
   isDeckLegal,
+  getCard,
   PREBUILT_DECKS,
   sortCards,
 } from '../../../src/rules';
@@ -72,6 +73,18 @@ describe('pre-built decks', () => {
     for (const deck of PREBUILT_DECKS) {
       expect(deckProblems(deck.cards), deck.id).toEqual([]);
       expect(deck.cards).toContain(deck.cover);
+    }
+  });
+
+  it('every pre-built deck has 12 to 14 spells and at most one copy of each Legendary', () => {
+    for (const deck of PREBUILT_DECKS) {
+      const spells = deck.cards.filter((id) => getCard(id).type === 'spell').length;
+      expect(spells, deck.id).toBeGreaterThanOrEqual(12);
+      expect(spells, deck.id).toBeLessThanOrEqual(14);
+      expect(
+        deckProblems(deck.cards).map((p) => p.rule),
+        deck.id,
+      ).not.toContain('legendary');
     }
   });
 });

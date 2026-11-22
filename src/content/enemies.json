@@ -7,11 +7,7 @@
     "difficulty": "easy",
     "deck": [
       "ember-spark-imp",
-      "ember-spark-imp",
-      "ember-spark-imp",
       "ember-flame-dancer",
-      "ember-flame-dancer",
-      "ember-ash-raider",
       "ember-ash-raider",
       "ember-ash-raider",
       "ember-torchbearer",
@@ -20,7 +16,11 @@
       "ember-blaze-runner",
       "ember-cinder-bolt",
       "ember-cinder-bolt",
-      "ember-magma-brute"
+      "ember-cinder-bolt",
+      "ember-magma-brute",
+      "ember-lightning-strike",
+      "ember-flare",
+      "ember-kindle"
     ]
   },
   {
@@ -31,20 +31,20 @@
     "difficulty": "easy",
     "deck": [
       "ember-cinder-scout",
-      "ember-cinder-scout",
-      "ember-ember-hound",
-      "ember-ember-hound",
       "ember-ember-hound",
       "ember-ember-hound",
       "ember-skyfire-archer",
       "ember-skyfire-archer",
-      "ember-skyfire-archer",
+      "ember-kindle",
       "ember-kindle",
       "ember-kindle",
       "ember-ash-raider",
       "ember-ash-raider",
       "ember-magma-brute",
-      "ember-magma-brute"
+      "ember-magma-brute",
+      "ember-cinder-bolt",
+      "ember-lightning-strike",
+      "ember-flare"
     ]
   },
   {
@@ -55,11 +55,8 @@
     "difficulty": "easy",
     "deck": [
       "bastion-recruit",
-      "bastion-recruit",
-      "bastion-recruit",
       "bastion-shieldbearer",
       "bastion-shieldbearer",
-      "bastion-militia",
       "bastion-militia",
       "bastion-militia",
       "bastion-wall-warden",
@@ -68,7 +65,10 @@
       "bastion-shield-sergeant",
       "bastion-mend",
       "bastion-rally-cry",
-      "bastion-rally-cry"
+      "bastion-rally-cry",
+      "bastion-rally-cry",
+      "bastion-judgement",
+      "bastion-brace"
     ]
   },
   {
@@ -79,20 +79,20 @@
     "difficulty": "easy",
     "deck": [
       "bastion-squire",
-      "bastion-squire",
-      "bastion-squire",
       "bastion-banner-knight",
       "bastion-banner-knight",
-      "bastion-banner-knight",
-      "bastion-muster-captain",
       "bastion-muster-captain",
       "bastion-muster-captain",
       "bastion-field-medic",
       "bastion-field-medic",
+      "bastion-rally-cry",
       "bastion-rally-cry",
       "bastion-rally-cry",
       "bastion-militia",
-      "bastion-militia"
+      "bastion-militia",
+      "bastion-judgement",
+      "bastion-brace",
+      "bastion-conscript"
     ]
   },
   {
@@ -103,10 +103,7 @@
     "difficulty": "easy",
     "deck": [
       "ember-spark-imp",
-      "ember-spark-imp",
       "bastion-recruit",
-      "bastion-recruit",
-      "ember-ash-raider",
       "ember-ash-raider",
       "bastion-militia",
       "bastion-militia",
@@ -116,7 +113,10 @@
       "bastion-wall-warden",
       "ember-fireball",
       "bastion-blessing",
-      "bastion-blessing"
+      "bastion-blessing",
+      "ember-cinder-bolt",
+      "bastion-brace",
+      "ember-flare"
     ]
   },
   {
@@ -131,23 +131,23 @@
     },
     "deck": [
       "ember-spark-imp",
-      "ember-spark-imp",
-      "ember-ash-raider",
       "ember-ash-raider",
       "ember-ember-hound",
-      "ember-ember-hound",
       "ember-torchbearer",
-      "ember-torchbearer",
-      "ember-blaze-runner",
       "ember-blaze-runner",
       "ember-skyfire-archer",
       "ember-war-drummer",
       "ember-magma-brute",
-      "ember-magma-brute",
       "ember-inferno-titan",
       "ember-cinder-bolt",
       "ember-cinder-bolt",
-      "ember-kindle"
+      "ember-cinder-bolt",
+      "ember-kindle",
+      "ember-kindle",
+      "ember-lightning-strike",
+      "ember-flare",
+      "ember-battle-fury",
+      "ember-volcano-lord"
     ]
   },
   {
@@ -157,7 +157,6 @@
     "kind": "elite",
     "difficulty": "normal",
     "deck": [
-      "tide-mist-sprite",
       "tide-ripple",
       "tide-shoal-crab",
       "tide-undertow",
@@ -172,7 +171,8 @@
       "tide-mirror-mage",
       "tide-riptide",
       "tide-sea-witch",
-      "tide-storm-petrel"
+      "tide-storm-petrel",
+      "tide-dispel"
     ],
     "modifiers": [
       {
@@ -219,7 +219,6 @@
     "kind": "elite",
     "difficulty": "normal",
     "deck": [
-      "dusk-cultist",
       "dusk-dark-pact",
       "dusk-grave-rat",
       "dusk-hex",
@@ -232,6 +231,7 @@
       "dusk-corpse-eater",
       "dusk-ghoul",
       "dusk-grave-call",
+      "dusk-shadow-bolt",
       "dusk-shadow-bolt",
       "dusk-soul-reaper",
       "dusk-vampire-thrall"
@@ -250,7 +250,6 @@
     "kind": "boss",
     "difficulty": "normal",
     "deck": [
-      "grove-bramble-sprite",
       "grove-sap",
       "grove-seedling",
       "grove-wild-growth",
@@ -266,8 +265,9 @@
       "grove-ironbark",
       "grove-overgrowth",
       "grove-wolf-pack",
-      "grove-briar-guardian",
-      "grove-elder-stag"
+      "grove-elder-stag",
+      "grove-vine-lash",
+      "grove-gaia"
     ],
     "modifiers": [
       {
@@ -284,7 +284,6 @@
     "kind": "boss",
     "difficulty": "normal",
     "deck": [
-      "tide-mist-sprite",
       "tide-ripple",
       "tide-shoal-crab",
       "tide-undertow",
@@ -301,7 +300,8 @@
       "tide-sea-witch",
       "tide-storm-petrel",
       "tide-high-tide",
-      "tide-reef-serpent"
+      "tide-dispel",
+      "tide-spellthief"
     ],
     "modifiers": [
       {
@@ -349,7 +349,7 @@
     "difficulty": "normal",
     "deck": [
       "ember-cinder-bolt",
-      "ember-cinder-scout",
+      "ember-cinder-bolt",
       "ember-flame-dancer",
       "ember-kindle",
       "ember-spark-imp",
@@ -402,9 +402,7 @@
     "kind": "fight",
     "difficulty": "normal",
     "deck": [
-      "dusk-cultist",
       "dusk-dark-pact",
-      "dusk-grave-rat",
       "dusk-hex",
       "ember-cinder-bolt",
       "ember-cinder-scout",
@@ -419,7 +417,9 @@
       "dusk-siphon",
       "ember-ash-raider",
       "ember-cinder-whelp",
-      "ember-ember-hound"
+      "ember-ember-hound",
+      "dusk-shadow-bolt",
+      "ember-lightning-strike"
     ]
   },
   {
@@ -586,9 +586,9 @@
       "dusk-soul-reaper",
       "dusk-vampire-thrall",
       "dusk-blood-ritual",
-      "dusk-crypt-guard",
       "dusk-death-knight",
-      "dusk-doom"
+      "dusk-doom",
+      "dusk-lich-king"
     ],
     "modifiers": [
       {
@@ -624,7 +624,6 @@
       "tide-ripple",
       "tide-shoal-crab",
       "tide-undertow",
-      "ember-ash-raider",
       "ember-cinder-whelp",
       "ember-ember-hound",
       "ember-fireball",
@@ -634,7 +633,8 @@
       "tide-current-rider",
       "tide-frost-snap",
       "tide-pearl-diver",
-      "tide-tidecaller"
+      "tide-tidecaller",
+      "ember-volcano-lord"
     ],
     "modifiers": [
       {
@@ -677,8 +677,8 @@
       "bastion-sanctify",
       "bastion-wall-warden",
       "bastion-reinforcements",
-      "bastion-shield-sergeant",
-      "bastion-standard-bearer"
+      "bastion-standard-bearer",
+      "bastion-legion-matriarch"
     ],
     "modifiers": [
       {
@@ -858,7 +858,6 @@
       "dusk-dark-pact",
       "dusk-grave-rat",
       "dusk-hex",
-      "bastion-banner-knight",
       "bastion-blessing",
       "bastion-call-to-arms",
       "bastion-field-medic",
@@ -870,7 +869,8 @@
       "dusk-night-stalker",
       "dusk-plague-rat",
       "dusk-siphon",
-      "bastion-divine-shield"
+      "bastion-divine-shield",
+      "bastion-legion-matriarch"
     ],
     "modifiers": [
       {
@@ -891,7 +891,7 @@
     "difficulty": "hard",
     "deck": [
       "ember-cinder-bolt",
-      "ember-cinder-scout",
+      "ember-cinder-bolt",
       "ember-flame-dancer",
       "ember-kindle",
       "ember-spark-imp",
@@ -911,7 +911,7 @@
       "grove-rejuvenate",
       "grove-thorn-lasher",
       "grove-young-treant",
-      "ember-blaze-runner"
+      "ember-volcano-lord"
     ],
     "modifiers": [
       {
@@ -927,7 +927,6 @@
     "kind": "elite",
     "difficulty": "hard",
     "deck": [
-      "dusk-cultist",
       "dusk-dark-pact",
       "dusk-grave-rat",
       "dusk-hex",
@@ -947,8 +946,9 @@
       "tide-pearl-diver",
       "tide-tidecaller",
       "tide-wave-dancer",
-      "dusk-corpse-eater",
-      "dusk-ghoul"
+      "dusk-ghoul",
+      "dusk-shadow-bolt",
+      "dusk-lich-king"
     ],
     "modifiers": [
       {
@@ -988,10 +988,10 @@
       "tide-pearl-diver",
       "tide-tidecaller",
       "tide-wave-dancer",
-      "dusk-corpse-eater",
       "dusk-ghoul",
       "dusk-grave-call",
-      "dusk-shadow-bolt"
+      "dusk-shadow-bolt",
+      "dusk-lich-king"
     ],
     "modifiers": [
       {
@@ -1012,7 +1012,7 @@
     "difficulty": "hard",
     "deck": [
       "ember-cinder-bolt",
-      "ember-cinder-scout",
+      "ember-cinder-bolt",
       "ember-flame-dancer",
       "ember-kindle",
       "ember-spark-imp",
@@ -1032,9 +1032,9 @@
       "grove-rejuvenate",
       "grove-thorn-lasher",
       "grove-young-treant",
-      "ember-blaze-runner",
       "ember-pyre-zealot",
-      "ember-reckless-charge"
+      "ember-reckless-charge",
+      "ember-volcano-lord"
     ],
     "modifiers": [
       {
@@ -1081,8 +1081,8 @@
       "dusk-plague-rat",
       "dusk-siphon",
       "bastion-divine-shield",
-      "bastion-drill-sergeant",
-      "bastion-muster-captain"
+      "bastion-muster-captain",
+      "bastion-legion-matriarch"
     ],
     "modifiers": [
       {

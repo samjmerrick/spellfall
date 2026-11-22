@@ -16,7 +16,7 @@ Spellfall is a fork of Lanefall, a 3-lane simultaneous-reveal game. The Lanefall
 - **Interactive:** every spell and every attack gives the opponent a chance to answer, but a turn with nothing to answer never waits.
 - **Deterministic:** the same seed and the same player choices always give the same result.
 
-**In scope:** Quick Play against the AI, roguelike runs, meta progression, deck building, 5 factions, about 150 cards, vector placeholder art, offline play.
+**In scope:** Quick Play against the AI, roguelike runs, meta progression, deck building, 5 factions, about 175 cards, vector placeholder art, offline play.
 
 **Not in scope:** online multiplayer, accounts, monetisation, card trading, illustrated art, sound beyond simple effects.
 
@@ -92,7 +92,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 ## Cards, keywords and factions
 
-About 150 cards: 30 per faction across 5 factions, with no colourless cards. Every card is a JSON record; effects are built from a small set of reusable effect primitives, not one-off code per card.
+About 175 cards: 35 per faction across 5 factions (17 Legendaries, 14 spells per faction), with no colourless cards other than tokens. Every card is a JSON record; effects are built from a small set of reusable effect primitives, not one-off code per card.
 
 **Factions** (names are placeholders)
 
@@ -108,7 +108,7 @@ About 150 cards: 30 per faction across 5 factions, with no colourless cards. Eve
 
 | Keyword     | Rule                                                                                  |
 | ----------- | ------------------------------------------------------------------------------------- |
-| Guard       | While you have a Guard unit, enemies can only attack Guard units.                     |
+| Guard       | While you have a Guard unit, enemies can only attack Guard units (Spellfall's taunt). Elusive and Barrier do not exempt it: an Elusive Guard still has to be attacked, and a Barrier Guard is attacked normally (the Barrier absorbs the hit). Every faction has Guard units. |
 | Barrier     | Prevents the next damage this unit would take, then is removed.                       |
 | Overwhelm   | When this unit attacks a unit, the target takes damage only up to its remaining Health and the rest hits the enemy hero (Barrier still blocks the target's share). |
 | Lifesteal   | Damage this unit deals in combat (attacking or defending, including Overwhelm) heals your hero by the same amount. |
@@ -122,11 +122,21 @@ About 150 cards: 30 per faction across 5 factions, with no colourless cards. Eve
 | Ongoing     | Effect applies while the unit is in play.                                             |
 | Last Breath | Effect resolves when the unit dies.                                                   |
 
-**Card record fields:** `id`, `name`, `faction`, `type`, `cost`, `power`, `health`, `speed` (spells), `targets[]`, `keywords[]`, `effects[]`, `text`, `rarity` (Common, Uncommon, Rare, Legendary), `unlock` (starter, or the meta-progression unlock that adds it).
+**Card record fields:** `id`, `name`, `faction`, `type`, `cost`, `power`, `health`, `speed` (spells), `targets[]`, `keywords[]`, `effects[]`, `text`, `rarity` (Common, Uncommon, Rare, Legendary; at most 1 copy of a Legendary per deck).
 
 **Targets:** each entry of `targets[]` is a target kind (`enemyUnit`, `friendlyUnit`, `anyUnit`, `enemyCharacter`, `anyCharacter`, `stackItem`) with optional filters (cost at most n, damaged, has a keyword). Effects refer to targets by index.
 
-**Effect primitives:** as in Lanefall (`damage`, `heal`, `buff`, `draw`, `summon`, `gainMana`, `grantKeyword`, `destroy`), with board-wide selectors in place of lane-relative ones (`allEnemyUnits`, `allFriendlyUnits`, `adjacentUnits`, `randomEnemyUnit`, …), plus `bounce` (return a unit to its owner's hand), `silence` (remove keywords and text) and `counter` (remove a spell from the stack; rare, Tide and Dusk only).
+**Effect primitives:** as in Lanefall (`damage`, `heal`, `buff`, `draw`, `summon`, `gainMana`, `grantKeyword`, `destroy`), with board-wide selectors in place of lane-relative ones (`allEnemyUnits`, `allFriendlyUnits`, `adjacentUnits`, `randomEnemyUnit`, …), plus `bounce` (return a unit to its owner's hand), `silence` (remove keywords and text) and `counter` (remove a spell from the stack; rare, Tide and Dusk only). Six more primitives exist for Legendaries: `steal` (take control of enemy units: the unit joins the end of your board, needs a free slot, and cannot attack this turn unless Quick), `setMaxMana` (raise your max mana to n, at most 10, and refill your mana to it), `deathWard` (your hero cannot be reduced below 1 HP until the end of the turn; a hero already at 0 is not saved), `extraTurn` (you also take the next turn, once; only as a spell or On Play effect, so it cannot loop), `revive` (return up to n friendly units from your discard pile to the board, most recent first, while there is room; tokens never go to the discard pile) and `copySpell` (add a copy of the spell just cast to your hand; a full hand burns it). There is one more selector, `otherUnits` (every unit but the source), and two more unit triggers: `whenCast` ("Whenever you cast a spell:") and `whenEnemyCast` ("Whenever the enemy casts a spell:"). They run as the spell is cast, before it goes on the stack or resolves, and a silenced unit does not trigger.
+
+**Legendaries.** Every faction has three or more Legendaries, a mix of units and spells whose effects change the game. A deck holds **at most 1 copy** of a Legendary (the deck builder and `deckProblems` enforce it; the pre-built decks hold one or two different ones). There are 17:
+
+| Faction | Legendary                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------- |
+| Ember   | Volcano Lord (7, 6/6 Quick: On Play destroy all other units), Ashen Dragon (8, 7/6 Quick, Overwhelm: On Play 5 damage to the enemy hero), Inferno Pyromancer (4, 2/5: whenever you cast a spell, 2 damage to the enemy hero), Supernova (8, Slow: 8 damage to the enemy hero and 3 to all units) |
+| Tide    | Sea Queen (8, 5/7 Elusive, Barrier: On Play return all enemy units to their owners' hands and draw 2), Archmage Spellthief (5, 3/5: whenever the enemy casts a spell, add a copy to your hand), Turn the Tide (7, Slow: take an extra turn) |
+| Grove   | World Tree (7, 6/7 Growth, Regenerate: Start of Turn gain an empty mana slot; End of Turn other friendly units +1/+1), Gaia, the Heartwood (6, 5/5 Guard, Growth: On Play gain 2 empty mana slots and other friendly units +2/+2), Primal Surge (5, Slow: max mana 10 and refill) |
+| Bastion | Grand Marshal (7, 5/6: On Play summon three Levies and other friendly units +2/+2), Archon (8, 6/8 Guard: On Play other friendly units Barrier; Ongoing other friendly units +1/+1), Legion Matriarch (6, 3/7 Guard: End of Turn summon two Levies), Aegis Eternal (4, Fast: heal your hero by 8 and it cannot drop below 1 HP this turn) |
+| Dusk    | Night Queen (8, 6/7 Lifesteal: On Play destroy all enemy units), Lich King (6, 5/5: On Play take control of an enemy unit), Rise of the Fallen (6, Slow: revive all friendly units that died this match) |
 
 **Balance baselines**
 
@@ -134,7 +144,7 @@ About 150 cards: 30 per faction across 5 factions, with no colourless cards. Eve
 - Each keyword or effect costs about 1 stat point; Overwhelm, Lifesteal and Elusive cost 2.
 - A Fast spell costs about 1 more mana than the same effect at Slow speed; Burst about 1 more than Fast.
 - Mana curve per 30-card faction pool: 4 at 1 mana, 5 at 2, 5 at 3, 5 at 4, 4 at 5, 3 at 6, 2 at 7, 2 at 8–10.
-- About 1 in 3 cards per faction is a spell.
+- About 2 in 5 cards per faction are spells (14 of 35), most of them Fast or Burst tricks, so both players have something to answer with. Pre-built decks hold 12–14 spells; run starter decks 5 of 12; enemy decks about 40%.
 
 **Porting Lanefall's cards:** about 38 of Lanefall's 153 cards depend on lanes, Shift, moving or lane-relative Rally and are redesigned; the rest are re-costed and re-statted. Names and art carry over. Spellfall's card list and share codes are its own.
 
