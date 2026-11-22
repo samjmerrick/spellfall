@@ -1,10 +1,10 @@
 // Save codes: the profile JSON, deflate-compressed, base64url-encoded, with a checksum.
-// Format: "LS1." + base64url(deflate(json)) + "." + checksum(json)
+// Format: "SS1." + base64url(deflate(json)) + "." + checksum(json)
 import { checksum } from './checksum';
 import { migrate } from './migrations';
 import type { Profile } from './profile';
 
-const PREFIX = 'LS1.';
+const PREFIX = 'SS1.';
 
 async function pipe(bytes: Uint8Array, stream: CompressionStream | DecompressionStream): Promise<Uint8Array> {
   const out = new Blob([bytes as BlobPart]).stream().pipeThrough(stream);
@@ -31,7 +31,7 @@ export async function exportSaveCode(profile: Profile): Promise<string> {
 /** Parses a save code back into a profile, migrating older versions. Throws a readable Error if invalid. */
 export async function importSaveCode(code: string): Promise<Profile> {
   const parts = code.trim().split('.');
-  if (parts.length !== 3 || `${parts[0]}.` !== PREFIX) throw new Error('That is not a Lanefall save code');
+  if (parts.length !== 3 || `${parts[0]}.` !== PREFIX) throw new Error('That is not a Spellfall save code');
   let json: string;
   try {
     const bytes = await pipe(fromBase64Url(parts[1]!), new DecompressionStream('deflate-raw'));

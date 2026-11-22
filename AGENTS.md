@@ -1,6 +1,6 @@
-# Lanefall
+# Spellfall
 
-Portrait-mode, single-player 3-lane card battler (PWA). The spec is `docs/spec.md` and is the source of truth.
+Portrait-mode, single-player card battler (PWA): open board with chosen targets, spell speeds, priority and a stack. Forked from Lanefall (3-lane game; old spec `docs/v1/spec.md`). The spec is `docs/spec.md` and is the source of truth.
 
 ## Commands
 
@@ -12,7 +12,7 @@ Portrait-mode, single-player 3-lane card battler (PWA). The spec is `docs/spec.m
 
 ## Layout
 
-- `src/engine/` - pure rules (no React/DOM; no `Math.random` or `Date`, use the seeded RNG)
+- `src/rules/` - Spellfall rules (from V1); `src/engine/` - Lanefall rules until V2 (no React/DOM; no `Math.random` or `Date`, use the seeded RNG)
 - `src/content/` - JSON content validated by Zod
 - `src/run/`, `src/ai/` - roguelike run, opponent planners
 - `src/save/` - profile schema, saves, migrations

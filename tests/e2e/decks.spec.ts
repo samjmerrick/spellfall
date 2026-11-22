@@ -51,7 +51,7 @@ test('deck codes: copy a deck code and import it as a new deck', async ({ page }
   await page.getByRole('button', { name: /Show deck list/ }).click();
   await page.getByRole('button', { name: 'Copy deck code' }).click();
   const code = await page.getByRole('textbox', { name: 'Deck code', exact: true }).inputValue();
-  expect(code).toMatch(/^LD1-/);
+  expect(code).toMatch(/^SD1-/);
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.getByRole('textbox', { name: 'Deck code to import' }).fill(code);
   await page.getByRole('button', { name: 'Import', exact: true }).click();
@@ -61,7 +61,7 @@ test('deck codes: copy a deck code and import it as a new deck', async ({ page }
 
   await page.getByRole('textbox', { name: 'Deck code to import' }).fill('nonsense');
   await page.getByRole('button', { name: 'Import', exact: true }).click();
-  await expect(page.getByRole('alert')).toHaveText(/not a Lanefall deck code/);
+  await expect(page.getByRole('alert')).toHaveText(/not a Spellfall deck code/);
 });
 
 test('save code: export, then restore into a fresh browser profile', async ({ page, browser }) => {
@@ -74,7 +74,7 @@ test('save code: export, then restore into a fresh browser profile', async ({ pa
   await expect(page.getByTestId('persist-status')).not.toHaveText('Checking…');
   await page.getByRole('button', { name: 'Copy save code' }).click();
   const code = await page.getByRole('textbox', { name: 'Your save code' }).inputValue();
-  expect(code).toMatch(/^LS1\./);
+  expect(code).toMatch(/^SS1\./);
 
   const fresh = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await openMenu(fresh);

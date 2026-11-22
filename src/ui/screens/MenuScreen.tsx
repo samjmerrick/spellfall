@@ -33,7 +33,7 @@ export function MenuScreen() {
   return (
     <main className={`menu${showTip ? ' menu--tip' : ''}`} aria-label="Main menu">
       <header className="menu__header">
-        <h1>Lanefall</h1>
+        <h1>Spellfall</h1>
         <p>Three lanes. Hidden plans. Overflow wins.</p>
         <XpBar xp={profile.xp} className="menu__xp" />
       </header>
@@ -92,8 +92,8 @@ export function MenuScreen() {
       {showTip && (
         <aside className="ios-tip" data-testid="ios-tip" aria-label="Install tip">
           <p>
-            Install Lanefall: tap Share, then Add to Home Screen. This keeps your save safe from Safari&apos;s
-            data clearing.
+            Install Spellfall: tap Share, then Add to Home Screen. This keeps your save safe from
+            Safari&apos;s data clearing.
           </p>
           <button type="button" className="primary" onClick={dismissIosTip}>
             Got it

@@ -1,6 +1,6 @@
-# Lanefall
+# Spellfall
 
-Portrait-mode, single-player 3-lane card battler (PWA). **The spec is `docs/spec.md` — it is the source of truth.**
+Portrait-mode, single-player card battler (PWA): open board with chosen targets, spell speeds, priority and a stack. Forked from Lanefall (3-lane game; old spec `docs/v1/spec.md`). **The spec is `docs/spec.md` — it is the source of truth.**
 
 ## Commands
 
@@ -17,12 +17,12 @@ Portrait-mode, single-player 3-lane card battler (PWA). **The spec is `docs/spec
 - `pnpm sim:balance [n] [--out path]` — M8 balance report (all 10 faction pairs, Normal vs Normal, n per seat, default 1000) written to `docs/balance.md`; multi-threaded, reproducible; exits 1 if an out-of-target faction/card has no reason in `tools/sim/balance-exceptions.json`
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/engine/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
-- `pnpm build` — production build (`VITE_BASE=/lanefall/` for GitHub Pages; CI sets it)
+- `pnpm build` — production build (`VITE_BASE=/spellfall/` for GitHub Pages; CI sets it)
 
 ## Folder rules
 
-- `src/engine/` — pure rules. No React, no DOM, no `src/ui` imports. Lint bans `Math.random` and `Date`
-  here and in `src/run/` and `src/ai/`: all randomness comes from the seeded RNG in game state.
+- `src/rules/` — Spellfall's pure rules (V1 onwards). `src/engine/` — Lanefall's rules, still driving the UI until V2, then deleted. Both are pure rules. No React, no DOM, no `src/ui` imports. Lint bans `Math.random` and `Date`
+  here, in `src/rules/`, `src/run/` and `src/ai/`: all randomness comes from the seeded RNG in game state.
 - `src/content/` — JSON content, validated by Zod schemas.
 - `src/run/`, `src/ai/` — roguelike run, opponent planners.
 - `src/save/` — profile schema (Zod), two-slot saves over IndexedDB, migrations (`tests/fixtures/save-v*.json`), save codes.
@@ -30,6 +30,9 @@ Portrait-mode, single-player 3-lane card battler (PWA). **The spec is `docs/spec
 - `tools/sim/` — CLI simulator. `tests/unit`, `tests/e2e` — tests.
 
 ## Engine notes
+
+These describe Lanefall's `src/engine/`, which still runs the game until V2. Spellfall's rules interface is in the spec
+(Tech stack and architecture); update these notes as `src/rules/` replaces it.
 
 - Public API is `src/engine/index.ts`: `initMatch`, `legalActions`, `applyAction`, `resolveRound`.
 - Card and lane-effect behaviour is data (`src/content/*.json`, validated by `src/engine/schema.ts`). Add a primitive
@@ -53,7 +56,7 @@ Portrait-mode, single-player 3-lane card battler (PWA). **The spec is `docs/spec
 
 ## Working rules
 
-- One milestone (M0–M8, see spec) per branch and PR; don't start the next until CI is green. CI runs on PRs and
+- One milestone (V0–V8, see spec) per branch and PR; don't start the next until CI is green. CI runs on PRs and
   `main` (jobs `check` and `e2e` in parallel; `deploy` to Pages after both, on `main` only).
 - Spec silent on something? Pick the simplest option and log it in `docs/decisions.md` (date, question, decision).
 - Any game-rule change updates `docs/spec.md` in the same PR.

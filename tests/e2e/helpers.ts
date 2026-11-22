@@ -55,12 +55,12 @@ export async function playOneCard(page: Page): Promise<boolean> {
   return true;
 }
 
-/** Reads both save slots straight from IndexedDB (idb-keyval's default database). */
+/** Reads both save slots straight from IndexedDB (the 'spellfall' database). */
 export async function savedJson(page: Page): Promise<string> {
   return page.evaluate(
     () =>
       new Promise<string>((resolve, reject) => {
-        const open = indexedDB.open('keyval-store');
+        const open = indexedDB.open('spellfall');
         open.onerror = () => reject(open.error);
         open.onsuccess = () => {
           const tx = open.result.transaction('keyval', 'readonly');
@@ -95,7 +95,7 @@ export function saveCode(profile: Profile): string {
   let h = 0x811c9dc5;
   for (let i = 0; i < json.length; i++) h = Math.imul(h ^ json.charCodeAt(i), 0x01000193);
   const sum = (h >>> 0).toString(16).padStart(8, '0');
-  return `LS1.${deflateRawSync(Buffer.from(json)).toString('base64url')}.${sum}`;
+  return `SS1.${deflateRawSync(Buffer.from(json)).toString('base64url')}.${sum}`;
 }
 
 /** Replaces the saved profile by pasting a save code in Settings (the app's own import path). */

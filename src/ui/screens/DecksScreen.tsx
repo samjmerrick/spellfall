@@ -94,7 +94,7 @@ export function DecksScreen() {
       <div className="import">
         <input
           className="code"
-          placeholder="LD1-…"
+          placeholder="SD1-…"
           aria-label="Deck code to import"
           value={code}
           onChange={(e) => setCode(e.target.value)}

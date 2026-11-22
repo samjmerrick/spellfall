@@ -7,7 +7,7 @@ test('serves a valid web manifest', async ({ page, request }) => {
   const res = await request.get(new URL(href!, page.url()).toString());
   expect(res.ok()).toBe(true);
   const manifest = await res.json();
-  expect(manifest.name).toBe('Lanefall');
+  expect(manifest.name).toBe('Spellfall');
   expect(manifest.display).toBe('standalone');
   expect(manifest.orientation).toBe('portrait');
   const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);

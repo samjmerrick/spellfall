@@ -1,157 +1,144 @@
-# Lanefall — Mobile TCG Spec v0.1
+# Spellfall — Mobile TCG Spec v2.0
 
-2026-11-20 · Sam Merrick
+2026-11-22 · Sam Merrick
 
 ## Overview
 
-Lanefall is a single-player, portrait-mode card battler for phones: 3-lane simultaneous-reveal turns (Marvel Snap), lane combat with overflow damage to a hero (Legends of Runeterra), and five colour factions with a 20 HP life total (Magic: The Gathering). "Lanefall" is a working title.
+Spellfall is a single-player, portrait-mode card battler for phones: an open board where you choose every attack's target (Hearthstone), spell speeds, priority and a stack that let the opponent answer on either turn (Legends of Runeterra), and five colour factions with a 20 HP life total.
+
+Spellfall is a fork of Lanefall, a 3-lane simultaneous-reveal game. The Lanefall spec is kept in `docs/v1/spec.md` for reference; this document replaces it. Until milestone V2 the code still plays Lanefall's rules (see Transition from Lanefall).
 
 **Design pillars**
 
-- **Fast:** a Quick Play match lasts 3–5 minutes; a roguelike run lasts 30–40 minutes and can be paused at any step.
+- **Fast:** a Quick Play match lasts 5–8 minutes; a roguelike run lasts 40–60 minutes and can be paused at any step.
 - **One thumb:** every action is a tap or a drag within the bottom 60% of the screen.
-- **Readable:** every number on a card is visible without zooming; tap any card for full rules text.
+- **Readable:** every number on a card is visible without zooming; tap any card for full rules text; the stack is always on screen.
+- **Interactive:** every spell and every attack gives the opponent a chance to answer, but a turn with nothing to answer never waits.
 - **Deterministic:** the same seed and the same player choices always give the same result.
 
-**In scope for v1:** Quick Play against the AI, roguelike runs, meta progression, deck building, 5 factions, about 150 cards, vector placeholder art, offline play.
+**In scope:** Quick Play against the AI, roguelike runs, meta progression, deck building, 5 factions, about 150 cards, vector placeholder art, offline play.
 
-**Not in v1:** online multiplayer, accounts, monetisation, card trading, illustrated art, sound beyond simple effects.
+**Not in scope:** online multiplayer, accounts, monetisation, card trading, illustrated art, sound beyond simple effects.
 
 ## Core rules
 
-A match is at most 8 rounds. Both players plan face-down at the same time, cards reveal together, then each lane fights and any overflow damage hits the enemy hero.
+Players take alternating turns. The active player plays units, casts spells and attacks with targets they choose; spells and attacks go on a stack, and the opponent may respond before anything resolves.
 
 **Setup**
 
-- Each hero starts on 20 HP (kept at 20 after the M8 simulations).
+- Each hero starts on 20 HP.
 - Decks are 30 cards in Quick Play; run decks start at 12 and grow.
-- Draw 4 to start. One mulligan: replace any number of those cards once.
-- Hand limit is 8; a draw past 8 is discarded.
-- The board has 3 lanes (Left, Centre, Right). Each side of a lane holds up to 4 units, shown as a 2×2 grid.
+- The match seed decides who goes first. The first player draws 3, the second draws 4 and also gets **the Spark** (a 0-cost Burst spell: gain 1 mana this turn).
+- One mulligan: replace any number of your starting cards once.
+- Hand limit is 10; a draw past 10 is burned (discarded).
+- Each side of the board holds up to 6 units in one row. A unit is played into any position in the row; units to its right move over. When a unit dies, the gap closes.
 
-**Round sequence**
+**Mana**
 
-- **Mana:** each player's mana refills to the round number, capped at 8.
-- **Reserve:** up to 2 mana left unspent last round is kept as Reserve, which can pay for spells only.
-- **Draw** 1 card.
-- **Lane reveal:** in rounds 1, 2 and 3, the Left, Centre and Right lane effects are revealed in turn.
-- **Plan:** both players secretly drag units into lane slots and queue spells with their targets, then tap End Turn. Cards can be taken back until End Turn.
-- **Reveal:** the player with initiative reveals first, card by card in the order played; then the other player. Initiative alternates each round; round 1 is set by the match seed. Each card's On Reveal effect resolves as it reveals.
-- **Combat:** lanes resolve Left, Centre, Right (rules below).
-- **End of round:** End of Round effects trigger, then temporary effects expire.
+- At the start of your turn, your max mana goes up by 1 (cap 10) and your mana refills.
+- **Spell mana:** at the end of your turn, up to 3 unspent mana is banked as spell mana, which can pay for spells only. Spells spend normal mana first, then spell mana.
 
-**Lane combat**
+**Turn sequence**
 
-- Each side's lane power = the sum of its units' Power in that lane.
-- Both sides deal their lane power at the same time. Some lane effects change who deals damage and in what order (see Lane effects).
-- Damage is assigned to enemy units in that lane: Guard units first, then by slot position: front row (slots 1 and 2: front-left, front-right; the row nearest the lane strip) before back row (slots 3 and 4: back-left, back-right), left before right. Empty slots are skipped and gaps never close: units do not shift slots when others die, and play order does not matter. Each unit takes up to its remaining Health before the next takes any.
-- Damage left after every enemy unit in the lane is assigned goes to the enemy hero.
-- Units whose damage reaches their Health die after the lane resolves. Damage stays on surviving units between rounds unless healed.
+1. **Start of turn:** max mana +1 and refill; draw 1 card (from an empty deck you take fatigue damage instead: 1, then 2, then 3, …); then Start of Turn triggers.
+2. **Main phase:** the active player has priority. With an empty stack they may, in any order and as often as they can pay: play a unit, cast a spell of any speed, declare an attack, or end the turn.
+3. **End of turn:** End of Turn triggers, then effects that last "this turn" expire, then spell mana is banked and the other player's turn starts.
+
+**Priority and the stack**
+
+- The stack is a last-in, first-out list of pending items: Fast spells, Slow spells and attacks.
+- Putting an item on the stack hands priority to the other player. They may add a Fast spell (which hands priority back), cast a Burst spell (which resolves at once and keeps priority with them), or pass.
+- When the player with priority **passes** with items on the stack, the **whole stack resolves**, top item first, with no priority in between. Then the active player gets priority again with an empty stack.
+- So both players see the full exchange before anything happens, and whoever adds the last item has the last word.
+- As each item resolves, its targets are checked again. Targets that are gone or now illegal are skipped; if every target is gone the item **fizzles** (its mana is not refunded). An earlier-resolving item can remove a later item's target.
+- The active player may only play a unit, cast a Slow spell, declare an attack or end the turn while the stack is empty.
+- Passing with an empty stack ends the turn (only the active player has priority with an empty stack).
+
+**Spell speeds**
+
+| Speed | Can be cast                                      | Uses the stack?                                     |
+| ----- | ------------------------------------------------ | --------------------------------------------------- |
+| Burst | Whenever you have priority                       | No: resolves at once, and you keep priority         |
+| Fast  | Whenever you have priority                       | Yes: the opponent may respond                       |
+| Slow  | In your main phase, when the stack is empty only | Yes: the opponent may respond with Fast/Burst spells |
+
+**Units**
+
+- Playing a unit costs its mana and can only happen in your main phase with an empty stack. It does not use the stack: the unit enters at once and its On Play effect resolves at once. Targets for an On Play effect are chosen as the unit is played.
+- A unit can attack once per turn, but not on the turn it entered unless it has **Quick**.
+
+**Combat**
+
+- Declaring an attack names an attacker and a target: an enemy unit or the enemy hero. If the defender has any unit with **Guard**, only Guard units are legal targets.
+- The attack goes on the stack and the defender gets priority. The target cannot be changed.
+- When the attack resolves, if the attacker and the target are both still on the board (or the target is the hero): the attacker deals damage equal to its Power to the target, and a target unit deals damage equal to its Power back, at the same time. A hero deals no damage back.
+- Damage stays on units between turns unless they are healed.
+- After each stack item (and each Burst spell or On Play effect) resolves, units with damage equal to or above their Health die, in play order; their Last Breath effects then resolve.
+
+**Triggered abilities**
+
+- On Play, Last Breath, Start of Turn and End of Turn effects resolve immediately and do not use the stack. When several trigger at once, the active player's resolve first, each side in play order.
 
 **Winning**
 
-- A hero on 0 HP or less after combat loses. If both are at 0 or less, the one with more HP left wins; equal HP = draw.
-- After round 8, the higher HP wins; equal HP = draw.
+- A hero on 0 HP or less loses, checked after each item resolves. If both reach 0 at the same check, the match is a draw.
+- If turn 40 is reached (20 each), the match is a draw. This exists so simulations always end; it should almost never happen.
 - In a run, a draw counts as a loss.
 
 **Card types**
 
-- **Unit:** cost, Power, Health, optional keywords and text. Played into an empty slot on your side of a lane.
-- **Spell:** cost and an effect. Targets are picked while planning; a spell that targets a friendly unit (or any unit) may target a unit you planned earlier in the same turn. If a target has gone by the time the spell reveals, the spell fizzles and its mana is not refunded.
-
-**Lane effects**
-
-- Each lane gets 1 effect, drawn by seed from a pool of 33 (see the table). The effect shows as soon as the lane is revealed and stays for the whole match.
-- Text must fit the 56 px lane strip (three columns at 360 px wide), so each is a short line; `tests/e2e/lane-text.spec.ts` checks it at every supported width.
-- "Top power" means the player with strictly more total Power in the lane when the effect resolves (after combat); on a tie, nobody.
-- A lane effect is data. Besides stat bonuses (`powerBonus`, `healthBonus`), `overflowMultiplier`, `maxUnits`, `heroDamage` and End of Round primitives, an effect may use:
-  - `winnerEndOfRound`: primitives at End of Round for the player with top power (their `friendlyHero`, `draw`, `gainMana`, `friendlyUnitsInLane`).
-  - `onEnter`: primitives for each unit that enters the lane (played, summoned, moved in or Shifted in); `self` is that unit.
-  - `onDeath`: primitives for each unit that dies in the lane; the owner is the dying unit's owner.
-  - `returnOnDeath`: a unit that dies there returns to its owner's hand instead of the discard (tokens do not; a full hand discards it).
-  - `keywords`: Guard, Pierce or Lifesteal for units fighting there (in combat only; it does not add the keyword to the card).
-  - `soak`: which of a side's units take damage first after Guard: `front` (default, slot order), `back` (back row first, right to left) or `weakest` (least remaining Health first, ties by slot).
-  - `champion`: only each side's highest-Power unit deals damage (the lowest slot wins a tie), with its Power multiplied.
-  - `spellShield`: enemy spells cannot target units there (the spell is illegal to plan, and fizzles if the target moves in before it reveals). Spells that target a lane still work.
-- Lane stat bonuses apply while the unit is in the lane. A lane effect that is not yet revealed does nothing.
-
-| Lane | Text |
-|---|---|
-| Open Field | No effect. |
-| Forge | Units here have +1 Power. Only 2 per side. |
-| Chasm | Only 1 unit per side. Overflow doubled. |
-| Narrows | Only 2 units per side. |
-| Bulwark | Units here have +1 Health. |
-| Sanctuary | No hero damage. Top power heals 4. |
-| Ashfield | Units take 1 a round. Top power draws. |
-| Spring | End of Round: heal each unit here by 2. |
-| Lowlands | -1 Power, +1 Health. Overflow x2. |
-| Fortress | Units here have +2 Health. |
-| Crucible | +2 Power, but units here die at End of Round. |
-| Rope Bridge | Only 1 unit per side. It has +2/+2. |
-| Mountain Pass | Only 3 units per side. |
-| Gorge | Only 2 units per side. -1 Power. Overflow tripled. |
-| Shrine | End of Round: fully heal each unit here. |
-| Stormfront | +1 Power. Units take 3 at End of Round. |
-| Oasis | End of Round: heal both heroes by 2. |
-| Cursed Land | End of Round: both heroes take 1. |
-| Barracks | Max 3 units. Each gains +1 Power a round. |
-| Glacier | -1 Power, +3 Health. Overflow tripled. |
-| Open Road | Units here have Pierce. Top power heals 1. |
-| Bloodmoon | Units here have Lifesteal and -1 Power. |
-| Aegis Gate | Units here enter with a Barrier. |
-| Ambush | Entering units deal 1 to a random enemy. |
-| Scriptorium | Top power here draws a card each round. |
-| Leyline | Top power here gains 1 mana each round. |
-| Catacombs | A unit dying here draws its owner a card. |
-| Phoenix Nest | Units that die here return to hand. |
-| Reverse Ranks | Damage hits the back row first. |
-| Culling Field | Damage hits the weakest unit first. |
-| Crossroads | Units move to another lane each round. |
-| Duelling Ring | +1 Power. Only the strongest unit attacks. |
-| Shroud | Enemy spells can't target units here. |
+- **Unit:** cost, Power, Health, optional keywords and text.
+- **Spell:** cost, speed (Burst, Fast or Slow), 0–2 targets and an effect.
 
 ## Cards, keywords and factions
 
-v1 ships 150 cards: 30 per faction across 5 factions, with no colourless cards. Every card is a JSON record; effects are built from a small set of reusable effect primitives, not one-off code per card.
+About 150 cards: 30 per faction across 5 factions, with no colourless cards. Every card is a JSON record; effects are built from a small set of reusable effect primitives, not one-off code per card.
 
 **Factions** (names are placeholders)
 
-| Faction | Colour | Play style | Signature keywords |
-|---|---|---|---|
-| Ember | Red | Aggro: cheap units, direct hero damage | Pierce, Ephemeral |
-| Tide | Blue | Tricks: spells, card draw, moving units | Shift, Barrier |
-| Grove | Green | Ramp: extra mana, big units that grow | Growth, Regenerate |
-| Bastion | White | Swarm: many small units, buffs, healing | Rally, Guard |
-| Dusk | Black | Control: removal, sacrifice, death value | Last Breath, Lifesteal |
+| Faction | Colour | Play style                                  | Signature keywords        |
+| ------- | ------ | ------------------------------------------- | ------------------------- |
+| Ember   | Red    | Aggro: Quick units, direct hero damage      | Quick, Overwhelm          |
+| Tide    | Blue   | Tricks: Fast and Burst spells, bounce, draw | Elusive, Barrier          |
+| Grove   | Green  | Ramp: extra mana, big units that grow       | Growth, Regenerate        |
+| Bastion | White  | Swarm: many small units, buffs, healing     | Guard, Rally              |
+| Dusk    | Black  | Control: removal, sacrifice, death value    | Last Breath, Lifesteal    |
 
 **Keywords**
 
-| Keyword | Rule |
-|---|---|
-| Guard | Enemy lane damage is assigned to this unit before non-Guard units, whatever row it is in. |
-| Barrier | Prevents the next damage this unit would take, then is removed. |
-| Pierce | This unit's Power skips enemy units and goes straight to the enemy hero. |
-| Rally | On Reveal: other friendly units in this lane get +1 Power this round. |
-| Growth | End of Round: +1 Power and +1 Health. |
-| Regenerate | End of Round: heal this unit fully. |
-| Lifesteal | When this lane deals hero damage, your hero heals by this unit's Power. |
-| Shift | During planning, may move to another lane once per match. |
-| Ephemeral | Dies at End of Round. |
-| On Reveal | Effect resolves when the card reveals. |
-| Ongoing | Effect applies while the unit is in play. |
-| Last Breath | Effect resolves when the unit dies. |
+| Keyword     | Rule                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------- |
+| Guard       | While you have a Guard unit, enemies can only attack Guard units.                     |
+| Barrier     | Prevents the next damage this unit would take, then is removed.                       |
+| Overwhelm   | When this unit attacks a unit, damage beyond the target's remaining Health hits the enemy hero. |
+| Lifesteal   | Damage this unit deals heals your hero by the same amount.                            |
+| Quick       | Can attack the turn it enters.                                                        |
+| Elusive     | Cannot be targeted by enemy spells or effects until it attacks. It can still be attacked. |
+| Rally       | On Play: other friendly units get +1 Power this turn.                                 |
+| Growth      | End of your turn: +1 Power and +1 Health.                                             |
+| Regenerate  | Start of your turn: heal this unit fully.                                             |
+| Ephemeral   | Dies at the end of your turn.                                                         |
+| On Play     | Effect resolves when the card is played from hand.                                    |
+| Ongoing     | Effect applies while the unit is in play.                                             |
+| Last Breath | Effect resolves when the unit dies.                                                   |
 
-**Card record fields:** `id`, `name`, `faction`, `type`, `cost`, `power`, `health`, `keywords[]`, `effects[]`, `text`, `rarity` (Common, Uncommon, Rare, Legendary), `unlock` (starter, or the meta-progression unlock that adds it).
+**Card record fields:** `id`, `name`, `faction`, `type`, `cost`, `power`, `health`, `speed` (spells), `targets[]`, `keywords[]`, `effects[]`, `text`, `rarity` (Common, Uncommon, Rare, Legendary), `unlock` (starter, or the meta-progression unlock that adds it).
+
+**Targets:** each entry of `targets[]` is a target kind (`enemyUnit`, `friendlyUnit`, `anyUnit`, `enemyCharacter`, `anyCharacter`, `stackItem`) with optional filters (cost at most n, damaged, has a keyword). Effects refer to targets by index.
+
+**Effect primitives:** as in Lanefall (`damage`, `heal`, `buff`, `draw`, `summon`, `gainMana`, `grantKeyword`, `destroy`), with board-wide selectors in place of lane-relative ones (`allEnemyUnits`, `allFriendlyUnits`, `adjacentUnits`, `randomEnemyUnit`, …), plus `bounce` (return a unit to its owner's hand), `silence` (remove keywords and text) and `counter` (remove a spell from the stack; rare, Tide and Dusk only).
 
 **Balance baselines**
 
 - A unit with no keywords has Power + Health = 2 × cost + 1 (a 2-cost unit is 3/2 or 2/3).
-- Each keyword or effect costs about 1 stat point; Pierce and Lifesteal cost 2.
-- Mana curve per 30-card faction pool: 4 at 1 mana, 6 at 2, 6 at 3, 5 at 4, 4 at 5, 3 at 6, 2 at 7–8.
+- Each keyword or effect costs about 1 stat point; Overwhelm, Lifesteal and Elusive cost 2.
+- A Fast spell costs about 1 more mana than the same effect at Slow speed; Burst about 1 more than Fast.
+- Mana curve per 30-card faction pool: 4 at 1 mana, 5 at 2, 5 at 3, 5 at 4, 4 at 5, 3 at 6, 2 at 7, 2 at 8–10.
 - About 1 in 3 cards per faction is a spell.
 
-**Starter set for M2:** Ember and Bastion, 20 cards each.
+**Porting Lanefall's cards:** about 38 of Lanefall's 153 cards depend on lanes, Shift, moving or lane-relative Rally and are redesigned; the rest are re-costed and re-statted. Names and art carry over. Spellfall's card list and share codes are its own.
+
+**Starter set for V1:** Ember and Bastion, 20 cards each.
 
 ## Game modes
 
@@ -165,133 +152,67 @@ There are two modes: Quick Play is one match against the AI; a Run is a 3-act ro
 
 ### Roguelike run
 
-**Start**
+As in Lanefall (`docs/v1/spec.md`, Roguelike run): heroes with a faction, a passive and a 12-card starter deck; 3 Hearts; 3 acts of a 7-row branching map with Fight, Elite, Shop, Event, Rest and Treasure nodes; a second faction after the act 1 boss; card upgrades; about 40 relics; 3 bosses per act with a match rule each; seeded and replayable; abandon at any time; the same run XP.
 
-- Pick a hero. 3 are unlocked at the start. Each hero has one faction, one passive ability and a fixed 12-card starter deck.
-- A run has 3 Hearts. Losing a match costs 1 Heart and gives no reward; the run ends at 0 Hearts. A draw counts as a loss. Losing to a boss with Hearts left means a rematch.
-- Each match starts with both heroes on 20 HP, so damage does not carry between matches.
+Changes for Spellfall:
 
-**Map**
-
-- Each act is a branching map of 7 rows with 2–3 nodes per row. You move one row at a time along the paths, ending at the act's boss.
-- Node types:
-  - **Fight:** a standard enemy. Reward: choose 1 of 3 cards, plus gold.
-  - **Elite:** a harder enemy. Reward: a relic, plus a card choice.
-  - **Shop:** spend gold on cards, relics or removing a card from your deck.
-  - **Event:** a short text scene with 2–3 choices and their trade-offs.
-  - **Rest:** restore 1 Heart, or upgrade 1 card.
-  - **Treasure:** a free relic.
-- Card choices come from your hero's faction. Beating the act 1 boss lets you add a second faction, which then appears in later card choices.
-- Starting a new act restores 1 Heart.
-
-**Cards, relics and bosses**
-
-- Every card has an upgraded version (+1 stat, or a stronger effect).
-- Relics are passive bonuses for the rest of the run, such as "Start each match with 1 Reserve mana". v1 has about 40 relics.
-- Each act has a pool of 3 bosses, each with its own rule that changes the match, such as "The boss sees your planned cards".
-- Enemy decks are written by hand per enemy, scaling in strength by act.
-- Run decks have no size limit and no copy limit.
-
-**Run flow**
-
-- Every run has a seed, shown on the summary screen, so it can be replayed.
-- You can abandon a run at any time from the map.
-- Run XP: 10 per node cleared, 100 per boss beaten, doubled for a full win.
+- Relics, hero passives and boss rules that refer to lanes, rounds, Reserve or simultaneous planning are rewritten for turns, spell mana and the stack. Examples: "Start each match with 1 spell mana"; boss rule "The boss sees your hand".
+- Lanefall's lane effects are removed. Ideas worth keeping become boss rules or relics (for example "Your first unit each turn has Barrier").
 
 ## Meta progression
 
-XP from both modes raises one account level; each level unlocks something specific, and nothing is bought. There are no currencies outside a run.
-
-- **Levels:** level n needs 100 + 50n XP to reach the next level. Cap at level 30 for v1.
-- **Starting collection:** 12 Common cards per faction (60 cards), enough for every faction's pre-built deck.
-- **Unlock track:** levels 2–30 each unlock one bundle: 3–4 cards from one faction, a hero (with 3 cards of its faction), or 3 relics added to the run relic pool. 29 bundles: 18 card bundles, 7 heroes and 4 relic bundles; all 90 track cards, 7 heroes and 12 relics appear exactly once. The full track is `src/content/unlocks.json` so it can be tuned. A new profile has 60 cards, 3 heroes and 28 relics in the pool.
-- **Heroes:** 3 at the start, 10 in total by level 30 (2 per faction).
-- **Shared pool:** unlocked cards appear in run card choices and in the deck builder, so both modes feed each other.
-- **Ascension:** after the first full run win, Ascension levels 1–10 open. Each adds one rule, and the rules are cumulative (level n applies rules 1 to n). A full win at the highest open level unlocks the next. The rules (`src/content/ascension.json`):
-  1. Elites have +2 HP.
-  2. Shops cost 25% more (after relic discounts, rounded up; card removal too).
-  3. Start with 15 less gold.
-  4. Normal fight enemies have +3 HP.
-  5. Fights give 25% less gold (rounded down).
-  6. Bosses have +5 HP.
-  7. Act 1 enemies use at least Normal AI.
-  8. A rest can no longer restore a Heart (upgrade or move on).
-  9. Card rewards offer 2 cards (relic bonuses still add).
-  10. Start with 2 Hearts (the limit stays 3).
-- **Records:** a stats screen shows runs won and played per hero, best Ascension level, and Quick Play win rate per deck.
+As in Lanefall (`docs/v1/spec.md`, Meta progression): one account level from XP in both modes (level n needs 100 + 50n XP, cap 30), a starting collection of 12 Commons per faction, an unlock track of 29 bundles (cards, heroes, relics) in `src/content/unlocks.json`, 10 heroes, Ascension 1–10 after the first full run win, and a stats screen. The bundle contents are rebuilt for Spellfall's cards in V6.
 
 ## Deck building
 
-Quick Play decks are exactly 30 cards, from up to 2 factions, with at most 3 copies of a card (1 of a Legendary). Saving is blocked until a deck is legal, and the reason is shown.
-
-- **Saved decks:** up to 20, each with a name and a cover card.
-- **Pre-built decks:** one per faction pair (10). They cannot be edited, but can be copied and the copy edited.
-- **Collection screen:** a scrolling 3-column grid of cards. Filters for faction, cost (1–8), type, keyword and rarity; search by name or text. Locked cards show greyed out with the level that unlocks them.
-- **Deck panel:** a strip at the bottom shows the card count (for example 27/30), the factions in use and a mana-curve bar chart. Tap the strip to expand it into the full deck list.
-- **Adding and removing:** tap a card in the grid to add it; tap a card in the deck list to remove it. Long-press any card for full rules text.
-- **Share codes:** export and import a deck as a short text code.
+As in Lanefall (`docs/v1/spec.md`, Deck building): 30-card decks from up to 2 factions, at most 3 copies (1 of a Legendary); up to 20 saved decks; one pre-built deck per faction pair; collection grid with filters (the cost filter runs 1–10, and there is a speed filter for spells); deck strip with count, factions and curve; share codes (Spellfall codes start `SD1-`).
 
 ## Portrait UI and art
 
-The layout is designed for a 390 × 844 viewport (iPhone 14-class) and must work from 360 × 740 up to 430 × 932 with no horizontal scrolling. Portrait only; in landscape, show a "Rotate your phone" screen.
+The layout is designed for a 390 × 844 viewport and must work from 360 × 740 up to 430 × 932 with no horizontal scrolling. Portrait only; in landscape, show a "Rotate your phone" screen.
 
 **Match screen, top to bottom**
 
-| Zone | Height (at 844) | Contents |
-|---|---|---|
-| Opponent bar | 48 px | Opponent hero HP, mana, cards in hand, deck size |
-| Opponent lanes | 200 px | 3 columns, each a 2×2 grid of unit tokens |
-| Lane strip | 56 px | Each lane's effect (icon + short text) and both sides' lane power |
-| Your lanes | 200 px | 3 columns, each a 2×2 grid of drop slots |
-| Your bar | 48 px | Your hero HP, mana and Reserve pips, End Turn button on the right |
-| Hand | 160 px | Fanned hand of up to 8 cards; the dragged card lifts above your thumb |
-| Safe-area margin | rest | Space for the phone's home indicator |
+| Zone             | Height (at 844) | Contents                                                                          |
+| ---------------- | --------------- | --------------------------------------------------------------------------------- |
+| Opponent bar     | 56 px           | Opponent hero portrait (a target), HP, mana and spell mana, hand and deck counts  |
+| Opponent board   | 150 px          | Up to 6 unit cards in a row                                                       |
+| Stack strip      | 72 px           | Pending stack items, newest on the right, with arrows to their targets; when empty, whose turn it is |
+| Your board       | 150 px          | Up to 6 unit cards in a row                                                       |
+| Your bar         | 64 px           | Your hero portrait, HP, mana and spell mana pips, the main button on the right    |
+| Hand             | 170 px          | Fanned hand of up to 10 cards; the dragged card lifts above your thumb            |
+| Safe-area margin | rest            | Space for the phone's home indicator                                              |
 
 **Touch rules**
 
-- Drag a card from the hand onto a slot to play it; slots it can go in are highlighted, and others are dimmed.
-- Tap a card to see it enlarged with full text. Long-press a unit on the board for the same view.
-- Spells with a target: drag onto the target; an arrow shows the target.
-- All tap targets are at least 44 × 44 px. End Turn is the largest button on screen.
+- Drag a unit from the hand onto your board to play it; a gap opens where it will go.
+- Drag from one of your units to a target to attack; legal targets light up and others dim (Guard applied). Units that can attack have a glow.
+- Targeted spells: drag onto the target; an arrow shows it. Untargeted spells: drag above the hand.
+- Tap a card to see it enlarged with full text. Long-press a unit or a stack item for the same view.
+- **The main button** reads _End Turn_ in your main phase, _Resolve_ when you have priority with items on the stack (passing resolves the whole stack), and _Opponent's turn_ (disabled) otherwise. It is the largest button on screen.
+- **Auto-pass** (setting, on by default): when you get priority but have no legal play, you pass automatically. When you can respond, the newest stack item pulses and the button reads _Resolve_. There are no timers.
+- All tap targets are at least 44 × 44 px.
 
-**Vector art style**
-
-- Cards are drawn with CSS and SVG: a frame tinted in the faction colour, cost in a top-left gem, Power and Health in the bottom corners, with a row of small keyword and effect-trigger icons (Guard, Shift, On Reveal and so on, each with a label) between them. The name sits on its own line above that row and shrinks to fit, so it never overlaps the stats.
-- The art box shows the card's line icon (`src/content/art/<id>.svg`: a geometric line drawing in the faction colour drawn straight onto the card background, with no backdrop shape; style in `docs/art.md`) with the faction glyph as a small badge. A card without an icon falls back to a geometric emblem generated from its id. Icons are placeholders, to be replaced later with illustrated art, one file per card id, without changing the layout.
-- Every faction has a glyph as well as a colour, so factions can be told apart without colour.
-- Dark theme by default.
+**Vector art style** — as in Lanefall (`docs/v1/spec.md`): CSS/SVG card frames tinted by faction, line-icon art per card id (`src/content/art/<id>.svg`, style in `docs/art.md`), a glyph per faction, dark theme by default. Spell cards show their speed as an icon in the top-right corner.
 
 **Motion and feedback**
 
-- Reveal: cards flip in sequence, about 250 ms each. Combat: lane power numbers fly at the enemy units or hero, with damage numbers.
-- A Fast animations setting halves durations; the Reduce motion setting (which also follows the system setting) replaces movement with fades. Settings also has Sound and Haptics toggles, both on by default. Sounds are short synthesised tones.
-- Haptics use `navigator.vibrate` where the phone supports it (Android Chrome); on iOS Safari it does nothing.
+- Opponent actions play one at a time at a readable pace (about 600 ms each). Items fly to the stack strip; when the stack resolves, items leave it one by one, newest first.
+- Attacks: the attacker lunges at its target; damage numbers pop on both.
+- Fast animations, Reduce motion, Sound and Haptics settings as in Lanefall.
 
 ## Tech stack and architecture
 
-The game is an installable web app (PWA) in strict TypeScript. The rules engine is pure code with no UI or browser dependencies; the UI only sends actions to it and animates the events it returns.
-
-**Stack**
-
-| Part | Choice |
-|---|---|
-| Language | TypeScript, `strict: true` |
-| Build | Vite, pnpm |
-| UI | React, Zustand for UI state, Motion (Framer Motion) for animation |
-| Offline and install | vite-plugin-pwa (service worker + web manifest) |
-| Storage | idb-keyval over IndexedDB |
-| Content validation | Zod schemas for every JSON content file |
-| Tests | Vitest (unit and simulation), Playwright (screenshots at phone viewports) |
-| Lint | ESLint + Prettier |
-| Hosting | GitHub Pages via GitHub Actions, deployed on every push to `main` |
+Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Pages via GitHub Actions on every push to `main`.
 
 **Folders**
 
 ```
 src/
-  engine/    rules: state, actions, combat, effects, seeded RNG (no React, no DOM)
-  content/   cards.json, lanes.json, relics.json, heroes.json, enemies.json, unlocks.json
-  run/       map generation, rewards, shops, events
+  rules/     Spellfall rules: state, actions, priority, stack, combat, effects, seeded RNG (no React, no DOM)
+  engine/    Lanefall rules, still driving the UI until V2, then deleted
+  content/   cards.json, relics.json, heroes.json, enemies.json, unlocks.json, …
+  run/       map generation, rewards, shops, events, meta progression
   ai/        opponent planners (Easy, Normal, Hard)
   save/      persistence, schema versions, migrations
   ui/        screens, components, animation of engine events
@@ -299,146 +220,132 @@ tools/sim/   command-line bot-vs-bot simulator for balance
 tests/       unit, simulation and Playwright tests
 ```
 
-**Engine interface**
+**Rules interface** (`src/rules/index.ts`)
 
 ```ts
 initMatch(config: MatchConfig, seed: number): GameState
-legalActions(state: GameState, player: PlayerId): Action[]
-applyAction(state: GameState, action: Action): GameState      // planning-phase actions, pure
-resolveRound(state: GameState): { state: GameState; events: GameEvent[] }
+legalActions(state: GameState): Action[]   // actions for the player with priority (or both, during the mulligan)
+applyAction(state: GameState, action: Action): { state: GameState; events: GameEvent[] }
+viewFor(state: GameState, player: PlayerId): PlayerView   // hides the opponent's hand and both deck orders
 ```
 
-**Engine rules**
+**Rules engine requirements**
 
-- `GameState` is plain, serialisable JSON, including the RNG state, so any match can be saved and resumed mid-round.
-- All randomness uses one seeded generator (for example mulberry32) stored in the state. A lint rule bans `Math.random` and `Date` inside `src/engine`, `src/run` and `src/ai`.
-- `resolveRound` returns an ordered list of events (`CardRevealed`, `DamageDealt`, `UnitDied`, `HeroDamaged` and so on). The UI animates them in order and never works out game results itself.
-- Card effects are data: each effect is a primitive (`dealDamage`, `buff`, `draw`, `summon`, `move`, `heal`, `gainMana` and so on) with a target selector and parameters. A new card should need new JSON, not new engine code, in most cases.
+- `GameState` is plain, serialisable JSON, including the RNG state, so any match can be saved and resumed at any priority point. It holds `turn`, `activePlayer`, `priority`, `stack`, both players and the result.
+- Every action (mulligan, play unit, cast spell, declare attack, pass, end turn) is one `applyAction` step that returns an ordered list of events (`CardPlayed`, `StackItemAdded`, `StackResolving`, `DamageDealt`, `UnitDied`, `HeroDamaged`, `Fizzled`, `TurnStarted` and so on). The UI animates them in order and never works out game results itself.
+- All randomness uses one seeded generator stored in the state. A lint rule bans `Math.random` and `Date` inside `src/rules`, `src/engine`, `src/run` and `src/ai`.
+- The AI and the UI only ever read a `PlayerView`, so neither can see hidden cards, except where a boss rule says so.
+- Card effects are data: a new card needs new JSON, not new engine code, in most cases.
 
 ## Save persistence
 
-Saves live in IndexedDB on the phone, with a copy-and-paste save code as a manual backup; cloud sync through Supabase is a later, optional milestone.
+As in Lanefall (`docs/v1/spec.md`, Save persistence): profile and active run in IndexedDB, runs stored as seed + choices, autosave, persistent storage request, schema versions with migrations, two slots, save codes, the iOS home-screen tip, and later optional Supabase sync.
 
-**What is saved**
-
-- **Profile:** XP, level, unlocks, decks, settings, stats, Ascension progress.
-- **Active run (if any):** run seed, the list of choices made so far, and the current match state if a match is in progress.
-- The run is stored as seed + choices, and is rebuilt by replaying those choices through the engine. This keeps saves small and makes any bug reproducible.
-
-**Rules**
-
-- **Autosave** after every match end, card pick, map step, shop purchase and End Turn.
-- **Persistent storage:** call `navigator.storage.persist()` on first launch, and show the result in Settings.
-- **Schema version:** every save has a `schemaVersion`. On load, run migrations in order up to the current version. Each migration has a unit test using a stored sample save.
-- **Two slots:** write to the older of 2 slots, then mark it current. On load, use the newest slot that passes validation; if both fail, offer a reset and keep the broken data for export.
-- **Save code:** Settings has "Copy save code" and "Paste save code". The code is the profile JSON, compressed and base64-encoded, with a checksum.
-- **iOS:** on first launch in iOS Safari, show a one-time tip to add the game to the home screen, which protects the save from Safari's data clearing.
-
-**Later: Supabase sync (after M8)**
-
-- Sign in with an emailed one-time link. One table: `saves (user_id, updated_at, schema_version, blob)`, with row-level security so users can only read their own row.
-- Sync on app open and after each autosave; if both copies changed, keep the one with the higher total XP and ask before overwriting.
+Spellfall uses its own IndexedDB database (`spellfall`) and its own local-storage keys, because it is served from the same origin as Lanefall. Save codes start `SS1.`. Spellfall does not import Lanefall saves. With autosave now after every priority step instead of every End Turn, writes are coalesced to at most one every 500 ms.
 
 ## AI opponent
 
-The AI plans with the same information a player has: it never sees your hand or your face-down cards, except where a boss rule says otherwise. All three levels share one interface: `plan(state, player, rng): Action[]`.
+The AI plays from its `PlayerView`: it never sees your hand or deck order, except where a boss rule says otherwise. It now makes many small decisions (each play, attack and pass), including whether to respond on your turn.
 
-| Level | How it plans |
-|---|---|
-| Easy | Picks random legal plays, preferring to spend its mana. |
-| Normal | Lists every affordable set of plays (pruned to the best 200 by a quick score), simulates each against an empty opponent plan, and picks the highest score. |
-| Hard | As Normal, but tests the top 20 candidates against 30 sampled opponent plans drawn from cards the opponent could hold, and picks the best average score. |
+| Level  | Main phase                                                                                                                                  | Responses                                                    |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Easy   | A random legal action, preferring to spend its mana and to attack the hero.                                                                 | Responds 30% of the time when it can.                        |
+| Normal | Greedy: scores the board after each legal action (resolving the stack as if the opponent passes) and takes the best, until ending the turn scores best. | Responds when the scored board after responding beats passing. |
+| Hard   | Determinised search: samples 20 hands the opponent could hold, searches the rest of the turn for each, and picks the best average.          | The same search from the priority point.                     |
 
-**Scoring:** a weighted sum of hero HP difference, lane power difference per lane, total unit Power and Health on board, and cards in hand. Weights live in a JSON file so the simulator can tune them.
+- Interface: `act(difficulty, view, rng): Action`, one action per call.
+- Scoring: a weighted sum of hero HP difference, board Power and Health, cards in hand, and mana efficiency. Weights live in `src/content/ai-weights.json`.
+- Performance: planning runs in a Web Worker. Each Hard decision must finish in under 500 ms on a mid-range phone; if it runs out of time it returns the best action found so far.
+- Determinism: the AI uses its own seeded random stream, separate from the match's.
+- Bosses can override parts of planning through hooks in `enemies.json`.
 
-**Performance:** planning runs in a Web Worker so the UI never freezes. Hard must finish in under 500 ms on a mid-range phone; if it runs out of time, it returns the best plan found so far.
+## Transition from Lanefall
 
-**Determinism:** the AI uses its own seeded random stream, separate from the match's, so the same seed always gives the same AI choices.
+Spellfall starts as a copy of Lanefall with its full history. The new rules are built beside the old ones, so `main` always deploys a working game:
 
-**Bosses:** a boss can override parts of planning (for example, seeing your planned cards) through hooks defined in `enemies.json`.
+| Area                                                    | Fate                                                                                                    |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Tooling, CI, Pages deploy, PWA, lint, Playwright        | Kept                                                                                                    |
+| `src/save`                                              | Kept; own database and code prefixes (V0); profile schema restarts at a fresh version when cards change (V3) |
+| `src/run`, run and meta content                         | Kept; lane-, round- and Reserve-based relics, passives and boss rules rewritten (V4, V6)                 |
+| Content pipeline (Zod, generated card text, art icons)  | Kept; schema changes in `src/rules`                                                                     |
+| `src/engine`                                            | Replaced by `src/rules` (built in V1, switched to and deleted in V2); `rng`, `deck`, `text` and much of `effects` are reused |
+| `src/ai`                                                | Rewritten for one-action-at-a-time play (V2, V5)                                                        |
+| `src/ui`                                                | Menus, run screens, deck builder, collection, settings, card rendering, drag and motion kept; match screen, board, store, view and tutorial coach rewritten (V2, V7) |
+| Tests and simulator                                     | Run, meta, save, deck and content tests kept; rules, combat, lane and AI tests and the balance report rewritten |
 
 ## Milestones
 
-Build in 9 milestones, M0 to M8, in order. Each ends in checks that Claude Code runs itself; a milestone is done only when every check passes in CI.
+Build in 9 milestones, V0 to V8, in order. Each ends in checks that Claude Code runs itself; a milestone is done only when every check passes in CI.
 
-### M0: Project setup
+### V0: Fork
 
-Vite + React + TypeScript project, lint, Vitest, Playwright, GitHub Actions deploying to GitHub Pages, PWA manifest, and a placeholder portrait match screen.
+Copy Lanefall's history into this repository, rename to Spellfall, give saves their own storage, and replace the spec.
 
-- `pnpm lint`, `pnpm test` and `pnpm build` pass in CI.
-- The deployed URL loads and can be installed to the home screen.
-- Playwright screenshots at 360×740, 390×844 and 430×932 show no horizontal overflow (page scroll width ≤ viewport width).
+- CI passes (`check` and `e2e`) and the game deploys to `/spellfall/` on GitHub Pages.
+- The menu, manifest and page title say Spellfall; Spellfall saves never touch Lanefall's IndexedDB database.
 
-### M1: Rules engine
+### V1: Rules engine
 
-Everything in Core rules, the effect primitives, all 12 keywords, seeded RNG, Zod content schemas, and the 40 starter cards (Ember and Bastion).
+Everything in Core rules in `src/rules/`: turns, mana and spell mana, priority, the stack, spell speeds, combat, all 13 keywords, the effect primitives and targets, seeded RNG, Zod content schemas, and the 40 starter cards (Ember and Bastion) in a new content file.
 
-- A unit test for each round step and each keyword.
-- 10,000 random bot-vs-bot matches all finish within 8 rounds with no errors.
+- A unit test for each rule in Core rules and each keyword, including fizzling, whole-stack resolution order and Guard targeting.
+- 10,000 random bot-vs-bot matches all end (win, loss or turn-40 draw) with no errors.
 - The same seed and actions give an identical event log, byte for byte.
-- `src/engine` imports nothing from `src/ui`; engine test coverage is at least 90%.
+- `src/rules` imports nothing from `src/ui` or `src/engine`; coverage of `src/rules` is at least 90%.
 
-### M2: One playable match
+### V2: One playable match
 
-Match screen, drag-to-play, reveal and combat animations driven by engine events, Easy and Normal AI, and a result screen.
+The new match screen (board rows, stack strip, attack and target drags, main button, auto-pass), Easy and Normal AI, and the result screen, all on `src/rules`. Quick Play uses the starter decks; `src/engine` and the lane content are deleted, and runs are temporarily limited to the Ember and Bastion heroes.
 
-- A Playwright script plays a full match at 390×844 and reaches the result screen with no console errors.
-- Normal AI plans in under 200 ms in the test environment.
+- A Playwright script plays a full match at all 3 viewports, including responding to an opponent's spell, and reaches the result screen with no console errors.
+- Each Normal AI decision takes under 50 ms in the test environment.
 
-### M3: Quick Play, deck builder and saves
+### V3: Quick Play, deck builder and saves
 
-Main menu, collection, deck builder, pre-built decks for the factions so far, IndexedDB saves (schema v1), two save slots and save codes.
+Collection, deck builder and pre-built decks on the new cards; a fresh profile schema; save codes.
 
 - Unit tests for every deck-legality rule.
-- Playwright: build a deck, reload the page, and the deck is still there.
-- A save code exported and imported gives an identical profile.
-- A corrupted save slot falls back to the other slot.
+- Playwright: build a deck, reload, and the deck is still there; a save code round-trips to an identical profile.
+- A match closed at a priority point and reopened resumes in an identical state.
 
-### M4: Run core
+### V4: Run port
 
-Map generation, Fight, Rest, Shop and Treasure nodes, card rewards, Hearts, gold, 10 relics, and act 1 with one boss. Runs saved as seed + choices.
+Run nodes, relics, hero passives, enemies and bosses re-authored for Spellfall's rules.
 
-- Across 1,000 seeds, every map is connected and every path reaches the boss.
-- A run closed mid-match and resumed reaches an identical state.
+- Every relic, passive and boss rule has a unit test.
 - The simulator completes 500 bot runs with no errors.
 
-### M5: Full content
+### V5: Full content
 
-All 5 factions (150 cards), Elites, Events (20), card upgrades, 40 relics, 33 lane effects (20 at first, then reworked and extended), 3 acts with 9 bosses, and Hard AI.
+All 5 factions (about 150 cards) and Hard AI.
 
-- All content files pass schema validation.
-- Every card has a test that its effect resolves as its text says.
-- Hard AI meets its 500 ms budget in a CI benchmark.
+- All content files pass schema validation; every card and its upgrade has a test that it resolves as its text says.
+- Hard AI meets its 500 ms per decision budget in a CI benchmark.
 
-### M6: Meta progression
+### V6: Meta progression
 
-XP, levels, the unlock track, 10 heroes, Ascension 1–10 and the stats screen.
+The unlock track, 10 heroes and Ascension 1–10 rebuilt on the new content.
 
-- A new profile has only the 60 starter cards and 3 heroes.
-- Tests for each unlock and each Ascension rule.
+- A new profile has only the starter cards and 3 heroes; tests for each unlock and each Ascension rule.
 
-### M7: Polish
+### V7: Polish
 
-Animation tuning, Fast animations and Reduce motion settings, haptics, simple sound effects, a tutorial match, and the iOS home-screen tip.
+Animation tuning, a tutorial match that teaches attacking, responding and the stack, and the committed screenshot set.
 
-- A committed set of screenshots of every screen at all 3 viewports, with no overflow.
-- The tutorial is a scripted 3-round match with a coach banner (no XP). It is offered on the menu to a new profile (Play or Skip) and stays available as a Tutorial button; finishing or skipping it sets `tutorialDone`.
+- Committed screenshots of every screen at all 3 viewports, with no overflow.
 - A Playwright script completes the tutorial.
 
-### M8: Balance and 1.0
+### V8: Balance and 1.0
 
 Run the simulator at scale and tune cards, hero HP and AI weights; tag version 1.0.
 
-- The simulator writes a Markdown report (`pnpm sim:balance`, `docs/balance.md`): win rate per faction pair, and win rate when played per card. A draw counts as a loss.
-- Targets: every faction wins 45–55% of Normal-vs-Normal matches; no card's win rate when played is above 60%. Every lane effect is also measured (how often it appears, the share of units and mana played there, hero damage through it, how often the player who dealt more hero damage there wins, and draws) against the lane targets in the report. Any exception is listed in the report with a reason.
-- Lane targets (`tools/sim/balance.ts`): 20–55% of the units played in rounds 3 to 8 go into the lane, hero damage through it is 0.4–1.8x the mean, the player who dealt more hero damage through it wins at most 80% of the time, and at most 8% of matches with it are drawn.
+- `pnpm sim:balance` writes `docs/balance.md`: win rate per faction pair, first-player win rate and win rate when played per card. A draw counts as a loss.
+- Targets: every faction wins 45–55% of Normal-vs-Normal matches; the first player wins 47–53%; no card's win rate when played is above 60%; the median match lasts 14–22 turns. Any exception is listed in the report with a reason.
 
 ## Working rules for Claude Code
 
-Copy this spec into the repository as `docs/spec.md`, and keep it as the source of truth for every session.
-
 - **One milestone per branch and pull request.** Do not start the next milestone until the current one's checks all pass in CI.
-- **CLAUDE.md:** at M0, write a short `CLAUDE.md` with the commands (`pnpm dev`, `pnpm test`, `pnpm e2e`, `pnpm sim`), the folder rules, and a pointer to this spec.
 - **Ambiguity:** when the spec doesn't decide something, choose the simplest option, record it in `docs/decisions.md` (date, question, decision), and carry on.
 - **Rule changes:** any change to game rules updates `docs/spec.md` in the same pull request.
 - **Look at the UI:** after any UI change, take Playwright screenshots at the 3 viewports and look at them before committing.
@@ -447,8 +354,6 @@ Copy this spec into the repository as `docs/spec.md`, and keep it as the source 
 
 ## Open questions
 
-- Final game name ("Lanefall" is a working title).
-- Hero HP: 20, or higher if simulations show matches ending before round 6.
-- Should damage on units carry over between rounds (current rule) or heal each round as in Legends of Runeterra?
-- Faction names: themes are fixed (Ember fire, Tide water, Grove nature, Bastion stone and order, Dusk shadow and death); the names may still change before illustrated art is commissioned or generated.
-- When to add Supabase cloud sync: straight after M8, or earlier if you want to play on two devices.
+- Board limit 6 or 7 units per side? 6 fits a 360 px row at about 52 px per unit; 7 drops to about 45 px.
+- Hero HP: 20, or 30 if simulations show matches ending too fast.
+- Faction names: themes are fixed (Ember fire, Tide water, Grove nature, Bastion stone and order, Dusk shadow and death); the names may still change.

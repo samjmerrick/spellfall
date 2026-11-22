@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDrag } from './drag';
 import { useShiftTargets } from './shift';
 
-const SEEN_KEY = 'lanefall.shiftHintSeen';
+const SEEN_KEY = 'spellfall.shiftHintSeen';
 
 function seen(): boolean {
   try {

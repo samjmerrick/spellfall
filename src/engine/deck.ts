@@ -94,10 +94,10 @@ export function sortCards(cards: readonly string[]): string[] {
 }
 
 // ---------- Share codes ----------
-// Format: "LD1-" + base64url of bytes [cardIndex, count, cardIndex, count, ...], where cardIndex is the
+// Format: "SD1-" + base64url of bytes [cardIndex, count, cardIndex, count, ...], where cardIndex is the
 // card's position in the collectible card list. Card order in content must therefore only ever be appended to.
 
-const CODE_PREFIX = 'LD1-';
+const CODE_PREFIX = 'SD1-';
 
 function collectibleIds(): string[] {
   return CARDS.filter((c) => !c.token).map((c) => c.id);
@@ -129,7 +129,7 @@ export function encodeDeck(cards: readonly string[]): string {
 /** Decodes a share code; throws an Error with a readable message if it is not valid. */
 export function decodeDeck(code: string): string[] {
   const trimmed = code.trim();
-  if (!trimmed.startsWith(CODE_PREFIX)) throw new Error('That is not a Lanefall deck code');
+  if (!trimmed.startsWith(CODE_PREFIX)) throw new Error('That is not a Spellfall deck code');
   let bytes: Uint8Array;
   try {
     bytes = fromBase64Url(trimmed.slice(CODE_PREFIX.length));

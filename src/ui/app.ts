@@ -248,8 +248,9 @@ export const useApp = create<AppStore>((set, get) => ({
 
   async importSave(code) {
     const profile = await importSaveCode(code);
-    set({ profile, screen: 'menu', fellBack: false });
+    // Write before leaving Settings, so a reload straight after the menu appears never finds the old profile.
     await persistProfile(profile);
+    set({ profile, screen: 'menu', fellBack: false });
   },
 
   resetProfile() {

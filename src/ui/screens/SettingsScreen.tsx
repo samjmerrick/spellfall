@@ -131,7 +131,7 @@ export function SettingsScreen() {
       <textarea
         className="code code--area"
         aria-label="Paste save code"
-        placeholder="LS1.…"
+        placeholder="SS1.…"
         value={paste}
         onChange={(e) => {
           setPaste(e.target.value);
