@@ -37,6 +37,10 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
   turn; otherwise resolve the whole stack). Burst resolves at once; Fast/Slow spells and attacks go on `state.stack`.
 - Cards are `src/content/next/cards.json` until V2 (schema `src/rules/schema.ts`: `speed`, `targets[]`, `target`/`target2`
   selectors). Run `pnpm content:text:next` after editing one.
+- AI: `src/ai/next` (`act(difficulty, view, rng)`, one action per call, from `viewFor`); weights in
+  `src/content/next/ai-weights.json`. The match UI is `src/ui/duel/` (store, screen, worker); Quick Play uses it.
+  Runs and the tutorial still use Lanefall's `src/ui/store.ts` + `MatchScreen` until V4/V7.
+- e2e: `tests/e2e/duel.ts` (`playCard`, `attackOnce`, `playDuel`) plays Spellfall matches by tapping.
 - Tests: `tests/unit/rules/` (helpers `setup`, `place`, `give`, `cast`, `play`, `attack`, `pass`); bulk and determinism in
   `tests/sim/rules-bulk.test.ts` with the random bot in `tools/sim/rules-bot.ts`.
 

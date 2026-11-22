@@ -1,19 +1,11 @@
 // Screenshots of every screen at every supported viewport, each checked for horizontal overflow.
 // Run `pnpm screens` to refresh the committed set in docs/screens; otherwise they go to test-results.
 import { expect, test, type Page } from '@playwright/test';
+import { playCard, playDuel, waitForPlayer } from './duel';
 import type { RunChoice } from '../../src/run/schema';
 import type { Profile } from '../../src/save';
 import fixture from '../fixtures/run-paths.json' with { type: 'json' };
-import {
-  keepHand,
-  loadProfile,
-  newProfile,
-  openMenu,
-  playOneCard,
-  savedJson,
-  startMatch,
-  watchErrors,
-} from './helpers';
+import { keepHand, loadProfile, newProfile, openMenu, savedJson, startMatch, watchErrors } from './helpers';
 import { VIEWPORTS } from './viewports';
 
 const OUT_DIR = process.env.UPDATE_SCREENS === '1' ? 'docs/screens' : 'test-results/screens/committed';
@@ -176,23 +168,21 @@ for (const vp of VIEWPORTS) {
       await page.waitForTimeout(400);
       await shot(page, 'match-mulligan');
       await keepHand(page);
-      await page.locator('.hand__slot').first().click();
+      // A long press (or right click) opens a card's rules text.
+      await page.locator('.hand__slot').first().click({ button: 'right' });
       const detail = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Close' }) });
       await expect(detail).toBeVisible();
       await page.waitForTimeout(400);
       await shot(page, 'card-detail');
       await detail.getByRole('button', { name: 'Close' }).click();
       await expect(detail).toBeHidden();
-      for (let i = 0; i < 2; i++) await playOneCard(page);
+      await waitForPlayer(page);
+      for (let i = 0; i < 2; i++) await playCard(page);
       await shot(page, 'match-planning');
 
       // Play on to the result.
       const result = page.getByRole('dialog', { name: 'Match result' });
-      for (let round = 1; round <= 8 && !(await result.isVisible()); round++) {
-        for (let i = 0; i < 6 && (await playOneCard(page)); i++);
-        await page.getByRole('button', { name: 'End Turn' }).click();
-        await expect(page.locator('.end-turn:enabled').or(result)).toBeVisible({ timeout: 30_000 });
-      }
+      await playDuel(page);
       await expect(result).toBeVisible();
       await page.waitForTimeout(600);
       await shot(page, 'match-result');

@@ -9,7 +9,9 @@ import {
   type Action,
   type GameEvent,
   type GameState,
+  viewFor,
 } from '../../src/rules';
+import { act, type Difficulty } from '../../src/ai/next';
 
 /** 30-card mono-faction decks from the collectible cards: every card once, then the commons again. */
 export function factionDeck(faction: string): string[] {
@@ -49,6 +51,33 @@ export function randomMatch(decks: [string[], string[]], seed: number, passChanc
     const r = applyAction(s, a);
     s = r.state;
     actions.push(a);
+    events.push(...r.events);
+  }
+  return { state: s, actions, events };
+}
+
+/** Plays one match between two AI levels; each player decides from its own view. */
+export function aiMatch(
+  decks: [string[], string[]],
+  levels: [Difficulty, Difficulty],
+  seed: number,
+  onDecision?: (ms: number, level: Difficulty) => void,
+  clock: () => number = () => 0,
+): BotMatch {
+  let s = initMatch({ decks }, seed);
+  const rngs: [number, number] = [(seed * 31 + 1) >>> 0, (seed * 37 + 2) >>> 0];
+  const actions: Action[] = [];
+  const events: GameEvent[] = [];
+  for (let step = 0; s.phase !== 'over'; step++) {
+    if (step > 5000) throw new Error(`match ${seed} did not end`);
+    const player = s.phase === 'mulligan' ? (s.players[0].mulliganed ? 1 : 0) : s.priority;
+    const t0 = clock();
+    const { action, rng } = act(levels[player], viewFor(s, player), rngs[player]);
+    onDecision?.(clock() - t0, levels[player]);
+    rngs[player] = rng;
+    const r = applyAction(s, action);
+    s = r.state;
+    actions.push(action);
     events.push(...r.events);
   }
   return { state: s, actions, events };

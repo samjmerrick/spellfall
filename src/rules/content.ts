@@ -1,6 +1,7 @@
 import cardsJson from '../content/next/cards.json';
+import decksJson from '../content/next/decks.json';
 import { cardText } from './text';
-import { CardListSchema, type CardDef } from './schema';
+import { CardListSchema, DeckDefListSchema, type CardDef, type DeckDef } from './schema';
 
 /** Suffix marking an upgraded card id, e.g. `ember-kindle+`. */
 export const UPGRADED = '+';
@@ -79,3 +80,6 @@ export function generatedText(card: CardDef): string {
 export function collectibleCards(): CardDef[] {
   return CARDS.filter((c) => !c.token);
 }
+
+/** Pre-built decks. Read-only; players copy them to edit. */
+export const PREBUILT_DECKS: readonly DeckDef[] = DeckDefListSchema.parse(decksJson);

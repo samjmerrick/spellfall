@@ -28,6 +28,7 @@ export type Screen =
   | 'settings'
   | 'stats'
   | 'match'
+  | 'duel'
   | 'runStart'
   | 'run'
   | 'runSummary';

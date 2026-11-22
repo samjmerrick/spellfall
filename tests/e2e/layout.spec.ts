@@ -50,14 +50,8 @@ for (const vp of VIEWPORTS) {
       await noOverflow();
 
       // Every zone, including the whole hand, sits inside the viewport.
-      for (const zone of [
-        'opponent-bar',
-        'opponent-lanes',
-        'lane-strip',
-        'player-lanes',
-        'player-bar',
-        'hand',
-      ]) {
+      await expect(page.locator('.end-turn:enabled')).toBeVisible({ timeout: 30_000 });
+      for (const zone of ['opponent-bar', 'opponent-board', 'stack', 'player-board', 'player-bar', 'hand']) {
         const box = await page.locator(`[data-zone="${zone}"]`).boundingBox();
         expect(box, zone).not.toBeNull();
         expect(box!.x).toBeGreaterThanOrEqual(0);

@@ -9,7 +9,8 @@ function withXp(profile: Profile, xp: number) {
   while (xp >= xpThreshold(level + 1)) level++;
   return { ...profile, xp, level };
 }
-import { keepHand, loadProfile, newProfile, openMenu, playOneCard, watchErrors } from './helpers';
+import { playDuel } from './duel';
+import { keepHand, loadProfile, newProfile, openMenu, watchErrors } from './helpers';
 import { VIEWPORTS } from './viewports';
 
 async function noOverflow(page: Page) {
@@ -115,11 +116,7 @@ for (const vp of VIEWPORTS) {
       await expect(page.getByRole('main', { name: 'Match' })).toBeVisible();
       await keepHand(page);
       const result = page.getByRole('dialog', { name: 'Match result' });
-      for (let round = 1; round <= 8 && !(await result.isVisible()); round++) {
-        for (let i = 0; i < 6 && (await playOneCard(page)); i++);
-        await page.getByRole('button', { name: 'End Turn' }).click();
-        await expect(page.locator('.end-turn:enabled').or(result)).toBeVisible({ timeout: 60_000 });
-      }
+      await playDuel(page);
       const levelUp = page.getByRole('dialog', { name: 'Level up' });
       await expect(levelUp).toBeVisible();
       await expect(levelUp.getByRole('heading', { name: 'Level 3!' })).toBeVisible();

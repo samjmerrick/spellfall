@@ -38,9 +38,7 @@ test('build a deck, reload the page, and the deck is still there', async ({ page
   await expect(page.getByRole('main', { name: 'Main menu' })).toBeVisible();
   await page.getByRole('button', { name: 'Decks', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Edit Test Deck' })).toBeVisible();
-  await page.getByRole('button', { name: 'Back', exact: true }).click();
-  await page.getByRole('button', { name: 'Quick Play' }).click();
-  await expect(page.getByRole('radio', { name: /Test Deck/ })).toBeVisible();
+  // Saved decks return to Quick Play when the deck builder moves to Spellfall's cards (V3).
   expect(errors).toEqual([]);
 });
 

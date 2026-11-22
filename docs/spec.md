@@ -187,6 +187,7 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 
 - Drag a unit from the hand onto your board to play it; a gap opens where it will go.
 - Drag from one of your units to a target to attack; legal targets light up and others dim (Guard applied). Units that can attack have a glow.
+- Every drag also works as two taps: tap a card or unit to pick it (its legal targets light up), then tap a target. Tapping anywhere else drops the pick. A card that cannot be played opens its rules text when tapped; a long press opens it for any card or unit.
 - Targeted spells: drag onto the target; an arrow shows it. Untargeted spells: drag above the hand.
 - Tap a card to see it enlarged with full text. Long-press a unit or a stack item for the same view.
 - **The main button** reads _End Turn_ in your main phase, _Resolve_ when you have priority with items on the stack (passing resolves the whole stack), and _Opponent's turn_ (disabled) otherwise. It is the largest button on screen.
@@ -210,7 +211,7 @@ Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand an
 ```
 src/
   rules/     Spellfall rules: state, actions, priority, stack, combat, effects, seeded RNG (no React, no DOM)
-  engine/    Lanefall rules, still driving the UI until V2, then deleted
+  engine/    Lanefall rules, still driving runs and the tutorial until V4/V7, then deleted
   content/   cards.json, relics.json, heroes.json, enemies.json, unlocks.json, …
   run/       map generation, rewards, shops, events, meta progression
   ai/        opponent planners (Easy, Normal, Hard)
@@ -253,7 +254,7 @@ The AI plays from its `PlayerView`: it never sees your hand or deck order, excep
 | Normal | Greedy: scores the board after each legal action (resolving the stack as if the opponent passes) and takes the best, until ending the turn scores best. | Responds when the scored board after responding beats passing. |
 | Hard   | Determinised search: samples 20 hands the opponent could hold, searches the rest of the turn for each, and picks the best average.          | The same search from the priority point.                     |
 
-- Interface: `act(difficulty, view, rng): Action`, one action per call.
+- Interface: `act(difficulty, view, rng): { action, rng }`, one action per call (`src/ai/next`).
 - Scoring: a weighted sum of hero HP difference, board Power and Health, cards in hand, and mana efficiency. Weights live in `src/content/ai-weights.json`.
 - Performance: planning runs in a Web Worker. Each Hard decision must finish in under 500 ms on a mid-range phone; if it runs out of time it returns the best action found so far.
 - Determinism: the AI uses its own seeded random stream, separate from the match's.
@@ -269,7 +270,7 @@ Spellfall starts as a copy of Lanefall with its full history. The new rules are 
 | `src/save`                                              | Kept; own database and code prefixes (V0); profile schema restarts at a fresh version when cards change (V3) |
 | `src/run`, run and meta content                         | Kept; lane-, round- and Reserve-based relics, passives and boss rules rewritten (V4, V6)                 |
 | Content pipeline (Zod, generated card text, art icons)  | Kept; schema changes in `src/rules`                                                                     |
-| `src/engine`                                            | Replaced by `src/rules` (built in V1, switched to and deleted in V2); `rng`, `deck`, `text` and much of `effects` are reused |
+| `src/engine`                                            | Replaced by `src/rules` (built in V1; Quick Play switches in V2, runs in V4, the tutorial in V7, then deleted); `rng`, `deck`, `text` and much of `effects` are reused |
 | `src/ai`                                                | Rewritten for one-action-at-a-time play (V2, V5)                                                        |
 | `src/ui`                                                | Menus, run screens, deck builder, collection, settings, card rendering, drag and motion kept; match screen, board, store, view and tutorial coach rewritten (V2, V7) |
 | Tests and simulator                                     | Run, meta, save, deck and content tests kept; rules, combat, lane and AI tests and the balance report rewritten |
@@ -296,7 +297,7 @@ Everything in Core rules in `src/rules/`: turns, mana and spell mana, priority, 
 
 ### V2: One playable match
 
-The new match screen (board rows, stack strip, attack and target drags, main button, auto-pass), Easy and Normal AI, and the result screen, all on `src/rules`. Quick Play uses the starter decks; `src/engine` and the lane content are deleted, and runs are temporarily limited to the Ember and Bastion heroes.
+The new match screen (board rows, stack strip, attack and target drags, main button, auto-pass), Easy and Normal AI, and the result screen, all on `src/rules`. Quick Play moves to the new rules with the starter pre-built decks (saved decks return in V3; Hard plays as Normal until V5). Runs and the tutorial keep Lanefall's match screen and `src/engine` until they are ported (V4, V7); `src/engine` and the lane content are deleted then.
 
 - A Playwright script plays a full match at all 3 viewports, including responding to an opponent's spell, and reaches the result screen with no console errors.
 - Each Normal AI decision takes under 50 ms in the test environment.

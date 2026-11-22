@@ -2558,3 +2558,367 @@ textarea {
   font-weight: 400;
   color: var(--muted);
 }
+
+/* ---------- Spellfall match (designed at 390 × 844) ---------- */
+
+.faction-neutral {
+  --faction: var(--accent);
+}
+
+.duel {
+  position: relative;
+  display: grid;
+  grid-template-rows: 52px minmax(0, 1fr) 60px 160px;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  margin: 0 auto;
+  padding: env(safe-area-inset-top) var(--gutter) env(safe-area-inset-bottom);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.duel__field {
+  display: grid;
+  grid-template-rows: minmax(96px, 1fr) 64px minmax(96px, 1fr);
+  min-height: 0;
+  border-radius: 12px;
+}
+
+.duel-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-bar__hero {
+  position: relative;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 22px;
+  border: 2px solid var(--line);
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.duel-bar__hp {
+  color: var(--hp);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.duel-bar__mana {
+  color: var(--mana);
+}
+
+.duel-bar__spell {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.duel-bar__spell .pip {
+  border-color: #b07cff;
+}
+
+.duel-bar__spell .pip--on {
+  background: #b07cff;
+}
+
+.duel-bar__stat {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.duel-bar--opponent .duel-bar__stat:last-child {
+  margin-left: auto;
+}
+
+.end-turn--resolve {
+  background: #b07cff;
+}
+
+.duel-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  border-radius: 12px;
+}
+
+.unit {
+  position: relative;
+  flex: 0 1 60px;
+  min-width: 0;
+  height: min(100%, 92px);
+  padding: 0;
+  border-radius: 10px;
+  border: 2px solid var(--faction);
+  background: color-mix(in srgb, var(--faction) 22%, var(--surface-2));
+  color: var(--text);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: visible;
+  cursor: pointer;
+  touch-action: none;
+  transition: transform 0.15s;
+}
+
+.unit__art {
+  grid-row: 2;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 4px 4px 0;
+}
+
+.unit__art .card-art,
+.unit__art .emblem {
+  width: 100%;
+  height: 100%;
+  max-height: 40px;
+}
+
+.unit .card-art__glyph {
+  display: none;
+}
+
+.unit__name {
+  grid-row: 1;
+  padding-top: 3px !important;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 2px;
+}
+
+.unit__kw {
+  grid-row: 3;
+  display: flex;
+  justify-content: center;
+  gap: 1px;
+  min-height: 12px;
+  padding-bottom: 12px;
+  color: color-mix(in srgb, var(--text) 88%, var(--faction));
+}
+
+.unit__kw .kw {
+  width: 10px;
+  height: 10px;
+}
+
+.unit__power,
+.unit__health {
+  position: absolute;
+  bottom: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.unit__power {
+  left: -4px;
+  background: #b5651d;
+}
+
+.unit__health {
+  right: -4px;
+  background: #b0303a;
+}
+
+.unit__health--hurt {
+  background: #e5484d;
+  box-shadow: 0 0 0 2px #fff3;
+}
+
+.unit__stat--up {
+  box-shadow: 0 0 0 2px #5ee38a;
+}
+
+.unit--guard {
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.4);
+  border-radius: 10px 10px 18px 18px;
+}
+
+.unit--barrier::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 12px;
+  border: 2px solid #9fe7ff;
+  box-shadow: 0 0 8px #9fe7ff;
+  pointer-events: none;
+}
+
+.unit--ready {
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 0 12px rgb(245 184 61 / 0.5);
+}
+
+.unit--picked {
+  transform: translateY(-6px);
+}
+
+.unit--attacking-0 {
+  transform: translateY(-18px);
+}
+
+.unit--attacking-1 {
+  transform: translateY(18px);
+}
+
+.targeted {
+  outline: 3px solid #ff6b6b;
+  outline-offset: 2px;
+}
+
+.stack-strip {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.stack-strip__turn,
+.stack-strip__prompt {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.stack-strip__prompt {
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.stack-strip__items {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 100%;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.stack-item {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--surface-2);
+  border: 2px solid var(--line);
+}
+
+.stack-item--player {
+  border-color: var(--mana);
+}
+
+.stack-item--opponent {
+  border-color: var(--hp);
+}
+
+.stack-item--top {
+  animation: stack-pulse 1.2s ease-in-out infinite;
+}
+
+.reduce-motion .stack-item--top {
+  animation: none;
+}
+
+@keyframes stack-pulse {
+  50% {
+    box-shadow: 0 0 10px rgb(255 255 255 / 0.35);
+  }
+}
+
+.stack-item__kind {
+  margin-right: 4px;
+}
+
+.duel .hand {
+  position: relative;
+  display: block;
+}
+
+.duel .hand__slot {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.hand__slot--picked {
+  translate: 0 -14px;
+}
+
+.hand__slot--picked .card {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 6px 16px rgb(0 0 0 / 0.45);
+}
+
+.card__type--burst {
+  color: #ffd166;
+}
+
+.card__type--fast {
+  color: #7cc4ff;
+}
+
+.card__type--slow {
+  color: #c9a7ff;
+}
+
+.drag-arrow {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 30;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  fill: var(--accent);
+}
+
+.drag-ghost {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  translate: -50% -70%;
+  opacity: 0.9;
+}
+
+.duel .icon-button {
+  flex: none;
+}
