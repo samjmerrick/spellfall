@@ -185,15 +185,15 @@ describe('two save slots', () => {
 describe('save codes', () => {
   it('export then import gives an identical profile', async () => {
     const code = await exportSaveCode(sample());
-    expect(code).toMatch(/^LS1\.[A-Za-z0-9_-]+\.[0-9a-f]{8}$/);
+    expect(code).toMatch(/^SS1\.[A-Za-z0-9_-]+\.[0-9a-f]{8}$/);
     expect(await importSaveCode(code)).toEqual(sample());
   });
 
   it('rejects damaged or foreign codes', async () => {
     const code = await exportSaveCode(sample());
-    await expect(importSaveCode('nope')).rejects.toThrow(/not a Lanefall save code/);
+    await expect(importSaveCode('nope')).rejects.toThrow(/not a Spellfall save code/);
     await expect(importSaveCode(code.replace(/\.[0-9a-f]{8}$/, '.00000000'))).rejects.toThrow(/checksum/);
-    await expect(importSaveCode('LS1.@@@@.00000000')).rejects.toThrow(/damaged/);
+    await expect(importSaveCode('SS1.@@@@.00000000')).rejects.toThrow(/damaged/);
     const bad = await exportSaveCode({ ...sample(), level: 0 });
     await expect(importSaveCode(bad)).rejects.toThrow(/not a valid save/);
   });

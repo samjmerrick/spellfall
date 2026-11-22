@@ -98,18 +98,18 @@ describe('deck share codes', () => {
   it('round-trips a deck', () => {
     for (const deck of PREBUILT_DECKS) {
       const code = encodeDeck(deck.cards);
-      expect(code).toMatch(/^LD1-[A-Za-z0-9_-]+$/);
+      expect(code).toMatch(/^SD1-[A-Za-z0-9_-]+$/);
       expect(code.length).toBeLessThan(40);
       expect(decodeDeck(code)).toEqual(sortCards(deck.cards));
     }
   });
 
   it('rejects bad codes with a readable message', () => {
-    expect(() => decodeDeck('hello')).toThrow(/not a Lanefall deck code/);
-    expect(() => decodeDeck('LD1-')).toThrow(/damaged/);
-    expect(() => decodeDeck('LD1-AA')).toThrow(/damaged/);
-    expect(() => decodeDeck('LD1-%%%%')).toThrow(/damaged/);
-    expect(() => decodeDeck('LD1-_wE')).toThrow(/does not exist/);
+    expect(() => decodeDeck('hello')).toThrow(/not a Spellfall deck code/);
+    expect(() => decodeDeck('SD1-')).toThrow(/damaged/);
+    expect(() => decodeDeck('SD1-AA')).toThrow(/damaged/);
+    expect(() => decodeDeck('SD1-%%%%')).toThrow(/damaged/);
+    expect(() => decodeDeck('SD1-_wE')).toThrow(/does not exist/);
     expect(() => encodeDeck(['nope-card'])).toThrow(/Cannot encode/);
   });
 });

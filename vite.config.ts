@@ -20,8 +20,8 @@ export default defineConfig({
       includeAssets: ['icon.svg'],
       workbox: { globPatterns: ['**/*.{js,css,html,svg}'] },
       manifest: {
-        name: 'Lanefall',
-        short_name: 'Lanefall',
+        name: 'Spellfall',
+        short_name: 'Spellfall',
         description: 'A portrait-mode, three-lane card battler.',
         theme_color: '#0f1117',
         background_color: '#0f1117',

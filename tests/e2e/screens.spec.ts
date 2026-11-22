@@ -153,7 +153,7 @@ for (const vp of VIEWPORTS) {
       await page.evaluate(
         () =>
           new Promise<void>((resolve, reject) => {
-            const open = indexedDB.open('keyval-store');
+            const open = indexedDB.open('spellfall');
             open.onerror = () => reject(open.error);
             open.onsuccess = () => {
               const tx = open.result.transaction('keyval', 'readwrite');

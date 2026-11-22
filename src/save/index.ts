@@ -1,4 +1,4 @@
-import { get, set } from 'idb-keyval';
+import { createStore, get, set } from 'idb-keyval';
 import type { KeyValueStore } from './slots';
 
 export * from './profile';
@@ -6,8 +6,16 @@ export * from './slots';
 export * from './code';
 export { migrate } from './migrations';
 
-/** The browser's IndexedDB, through idb-keyval. */
-export const idbStore: KeyValueStore = { get, set };
+/**
+ * The browser's IndexedDB, through idb-keyval. Spellfall has its own database, so it never reads or overwrites a
+ * Lanefall save served from the same origin (both live on the same github.io host).
+ */
+let db: ReturnType<typeof createStore> | undefined;
+const store = () => (db ??= createStore('spellfall', 'keyval'));
+export const idbStore: KeyValueStore = {
+  get: (key) => get(key, store()),
+  set: (key, value) => set(key, value, store()),
+};
 
 export type PersistStatus = 'granted' | 'denied' | 'unsupported';
 
