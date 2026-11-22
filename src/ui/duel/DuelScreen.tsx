@@ -16,6 +16,7 @@ import {
 import { useApp } from '../app';
 import { useRun } from '../runStore';
 import { CardArt } from '../CardView';
+import { artUrl } from '../art';
 import { FADE_SECONDS, useDurationScale } from '../motion';
 import { useReduceMotion } from '../useReduceMotion';
 import { DuelCard, UnitFace } from './Card';
@@ -123,6 +124,7 @@ export function DuelScreen() {
   const pick = useDuel((s) => s.pick);
   const setPick = useDuel((s) => s.setPick);
   const perform = useDuel((s) => s.perform);
+  const motionScale = useDurationScale();
   const [drag, setDrag] = useState<Drag | null>(null);
   /** The card being held to read, and the hold in progress. */
   const [reading, setReading] = useState<string | null>(null);
@@ -169,7 +171,7 @@ export function DuelScreen() {
       const ref = keyRef(key);
       const a = ref && actionsFor(legal, src).find((o) => o.type === 'attack' && sameTarget(o.target, ref));
       if (a) void perform(a);
-      else setPick(null);
+      else if (!refuseForGuard(key)) setPick(null);
       return;
     }
     if (src.kind === 'card') {
@@ -278,9 +280,26 @@ export function DuelScreen() {
     setPick(src);
   }
 
+  /**
+   * An attack aimed past an enemy Guard: say why instead of silently dropping it. Returns true if it applied
+   * (the attacker stays picked, so the player can choose the Guard next).
+   */
+  function refuseForGuard(key: DropKey): boolean {
+    if (!game || active?.kind !== 'unit') return false;
+    const ref = keyRef(key);
+    const enemy =
+      (ref?.kind === 'hero' && ref.player === AI) ||
+      (ref?.kind === 'unit' && game.boards[AI].some((u) => u.uid === ref.uid));
+    if (!enemy || !game.boards[AI].some((u) => u.keywords.includes('guard'))) return false;
+    useDuel.setState({ error: 'Attack a Guard unit first' });
+    setPick(active);
+    return true;
+  }
+
   /** A tap on a drop target while something is picked. Returns true if it was used. */
   function tapTarget(key: DropKey, x: number): boolean {
-    if (!pick || !valid.has(key)) return false;
+    if (!pick) return false;
+    if (!valid.has(key)) return refuseForGuard(key);
     choose(pick, key, x);
     return true;
   }
@@ -303,11 +322,13 @@ export function DuelScreen() {
       : pick?.kind === 'unit'
         ? 'Choose what to attack'
         : null;
+  const motionStyle = { '--motion': motionScale } as React.CSSProperties;
   const draggingSpell = drag?.moved && drag.src.kind === 'card' && cardOf(drag.src.uid)?.type === 'spell';
 
   return (
     <main
       className={`duel${drag?.moved ? ' duel--dragging' : ''}`}
+      style={motionStyle}
       aria-label="Match"
       onClick={(e) => {
         // A tap on nothing in particular drops the current pick.
@@ -323,13 +344,14 @@ export function DuelScreen() {
           if (!tapTarget('cast', e.clientX)) setPick(null);
         }}
       >
-        <BoardRow side={AI} input={input} />
+        <BoardSide side={AI} input={input} />
         <StackStrip prompt={prompt} input={input} />
-        <BoardRow side={HUMAN} input={input} />
+        <BoardSide side={HUMAN} input={input} />
       </div>
-      <HeroBar input={input} />
+      <HeroBar />
       <HandRow input={input} dragging={drag?.moved ? drag.src : null} />
       <Connectors />
+      <PlayReveal />
       {drag?.moved && <DragGhost drag={drag} game={game} />}
       {reading && <HoldReader cardId={reading} />}
       <MulliganOverlay />
@@ -431,15 +453,11 @@ function OpponentTop() {
   );
 }
 
-function HeroBar({ input }: { input: Input }) {
+function HeroBar() {
   const game = useDuel((s) => s.game)!;
   const busy = useDuel((s) => s.busy);
   const pass = useDuel((s) => s.pass);
-  const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === HUMAN);
   const p = game.players[HUMAN];
-  const key = `hero:${HUMAN}`;
-  const valid = input.valid.has(key);
-  const targeted = targetedKeys(game.stack).has(key);
   let label = "Opponent's turn";
   let enabled = false;
   if (game.phase === 'main' && game.priority === HUMAN && !busy) {
@@ -448,17 +466,6 @@ function HeroBar({ input }: { input: Input }) {
   } else if (busy && game.priority === HUMAN) label = '…';
   return (
     <div className="duel-bar duel-bar--player" data-zone="player-bar">
-      <button
-        type="button"
-        className={`duel-bar__hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
-        data-drop={key}
-        data-ref={key}
-        aria-label={`Your hero, ${p.hp} HP`}
-        onClick={(e) => input.tapTarget(key, e.clientX)}
-      >
-        <span className="duel-bar__hp">♥ {p.hp}</span>
-        <FxLayer fx={fx} />
-      </button>
       <span className="duel-bar__mana" aria-label={`Mana ${p.mana} of ${p.maxMana}`}>
         ◆ {p.mana}/{p.maxMana}
       </span>
@@ -479,9 +486,20 @@ function HeroBar({ input }: { input: Input }) {
   );
 }
 
+/** One side of the board: the unit row, and the hero's slot at its right (the target for attacks on the hero). */
+function BoardSide({ side, input }: { side: PlayerId; input: Input }) {
+  return (
+    <div className={`duel-side duel-side--${side === HUMAN ? 'player' : 'opponent'}`}>
+      <BoardRow side={side} input={input} />
+      <HeroSlot side={side} input={input} />
+    </div>
+  );
+}
+
 function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
   const game = useDuel((s) => s.game)!;
   const attacking = useDuel((s) => s.attacking);
+  const dying = useDuel((s) => s.dying);
   const fx = useDuel((s) => s.fx);
   const showDetail = useDuel((s) => s.showDetail);
   const units = game.boards[side];
@@ -507,6 +525,7 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
         const card = getCard(u.cardId);
         // Whether it can attack comes from the engine. Only the side whose turn it is has units that sleep.
         const sleeping = u.owner === game.activePlayer && !canAttack(game, u);
+        const unitFx = fx.filter((f) => 'unit' in f.target && f.target.unit === u.uid);
         return (
           <button
             key={u.uid}
@@ -528,6 +547,8 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
               targeted.has(key) ? 'targeted' : '',
               sleeping ? 'unit--sleeping' : '',
               canAttack(game, u) ? '' : 'unit--spent',
+              unitFx.some((f) => f.kind === 'damage') ? 'unit--hit' : '',
+              dying.includes(u.uid) ? 'unit--dying' : '',
             ].join(' ')}
             aria-label={`${side === HUMAN ? 'Your' : 'Enemy'} ${card.name}`}
             onPointerDown={(e) => {
@@ -556,7 +577,7 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
                 </svg>
               </span>
             )}
-            <FxLayer fx={fx.filter((f) => 'unit' in f.target && f.target.unit === u.uid)} />
+            <FxLayer fx={unitFx} />
           </button>
         );
       })}
@@ -579,26 +600,35 @@ function stackLabel(s: GameState, item: StackItem): string {
   return item.targets.length ? `${name} → ${item.targets.map(target).join(', ')}` : name;
 }
 
-/** The opponent hero as a target, at the left of the middle strip where a thumb reaches it. */
-function EnemyHeroTarget({ input }: { input: Input }) {
+/** A hero at the right end of its board row: portrait art and HP, and the drop zone for attacks and spells. */
+function HeroSlot({ side, input }: { side: PlayerId; input: Input }) {
   const game = useDuel((s) => s.game)!;
-  const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === AI);
-  const key = `hero:${AI}`;
-  const valid = input.valid.has(key);
-  const targeted = targetedKeys(game.stack).has(key);
+  const art = useDuel((s) => s.heroArt[side]);
+  const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === side);
+  const key = `hero:${side}`;
+  const p = game.players[side];
+  const lost = game.result && game.result.winner !== side;
+  const url = art ? artUrl(art) : undefined;
   return (
     <button
       type="button"
-      className={`strip-hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
+      className={[
+        'hero-slot',
+        `hero-slot--${side === HUMAN ? 'player' : 'opponent'}`,
+        input.valid.has(key) ? 'drop--valid' : '',
+        targetedKeys(game.stack).has(key) ? 'targeted' : '',
+        fx.some((f) => f.kind === 'damage') ? 'hero-slot--hit' : '',
+        lost ? 'hero-slot--defeated' : '',
+      ].join(' ')}
       data-drop={key}
       data-ref={key}
-      aria-label={`Opponent hero, ${game.players[AI].hp} HP`}
+      aria-label={`${side === HUMAN ? 'Your' : 'Opponent'} hero, ${p.hp} HP`}
       onClick={(e) => input.tapTarget(key, e.clientX)}
     >
-      <span className="strip-hero__icon" aria-hidden="true">
-        ♛
+      <span className="hero-slot__art" aria-hidden="true">
+        {url ? <img src={url} alt="" draggable={false} /> : <span className="hero-slot__glyph">♛</span>}
       </span>
-      <span className="strip-hero__hp">♥ {game.players[AI].hp}</span>
+      <span className="hero-slot__hp">{p.hp}</span>
       <FxLayer fx={fx} />
     </button>
   );
@@ -627,6 +657,7 @@ function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) 
   const pick = useDuel((s) => s.pick);
   const setPick = useDuel((s) => s.setPick);
   const showDetail = useDuel((s) => s.showDetail);
+  const resolving = useDuel((s) => s.resolving);
   const yourTurn = game.activePlayer === HUMAN;
   // Always derived from the current state: the stack, else whose turn it is and who has priority.
   const turnText =
@@ -644,7 +675,6 @@ function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) 
   const hasItems = game.stack.length > 0 || pending;
   return (
     <div className="stack-strip" aria-label="Stack" aria-live="polite" data-zone="stack">
-      <EnemyHeroTarget input={input} />
       <div className="stack-strip__body">
         {hasItems && (
           <ol className="stack-strip__items">
@@ -662,6 +692,7 @@ function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) 
                     `stack-item--${item.owner === HUMAN ? 'player' : 'opponent'}`,
                     i === game.stack.length - 1 && !pending ? 'stack-item--top' : '',
                     input.valid.has(key) ? 'drop--valid' : '',
+                    resolving === item.id ? 'stack-item--resolving' : '',
                   ].join(' ')}
                   data-drop={key}
                   data-ref={key}
@@ -754,7 +785,7 @@ function Connectors() {
             x1: a.left + a.width / 2 - root.left,
             y1: y1 - root.top,
             x2: b.left + b.width / 2 - root.left,
-            y2: (below ? b.top + 4 : b.bottom - 4) - root.top,
+            y2: (below ? b.top - 2 : b.bottom + 10) - root.top,
           });
         }
         const key = JSON.stringify(next);
@@ -783,6 +814,22 @@ function Connectors() {
         );
       })}
     </svg>
+  );
+}
+
+/** The opponent's card, shown enlarged for a moment as it is played. */
+function PlayReveal() {
+  const reveal = useDuel((s) => s.reveal);
+  if (!reveal) return null;
+  return (
+    <div
+      key={reveal.id}
+      className="play-reveal"
+      aria-live="polite"
+      aria-label={`Opponent plays ${getCard(reveal.cardId).name}`}
+    >
+      <DuelCard cardId={reveal.cardId} />
+    </div>
   );
 }
 
@@ -939,8 +986,12 @@ function ResultOverlay() {
   const { winner } = game.result;
   const title = winner === null ? 'Draw' : winner === HUMAN ? 'Victory' : 'Defeat';
   return (
-    <div className="overlay" role="dialog" aria-label="Match result">
-      <h2>{title}</h2>
+    <div
+      className={`overlay result result--${winner === null ? 'draw' : winner === HUMAN ? 'win' : 'loss'}`}
+      role="dialog"
+      aria-label="Match result"
+    >
+      <h2 className="result__title">{title}</h2>
       <p className="overlay__hint">
         {game.result.reason === 'turns' ? 'Turn 40 ended with both heroes standing.' : `Turn ${game.turn}`}
       </p>

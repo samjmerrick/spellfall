@@ -13,6 +13,9 @@ import { CardArt } from '../CardView';
 import { PATHS } from '../keywordPaths';
 import { GLOSSARY, TRIGGER_NAME, keywordName } from './glossary';
 
+/** Keywords that say nothing more once a unit is on the board. */
+const SPENT_IN_PLAY = new Set<Keyword>(['quick', 'guard']);
+
 const SPEED_LABEL = { burst: 'Burst', fast: 'Fast', slow: 'Slow' } as const;
 
 /** Keywords first, then non-spell trigger marks, in a fixed order. */
@@ -130,11 +133,12 @@ export function UnitFace({ s, unit }: { s: GameState; unit: Unit }) {
       <div className="unit__art">
         <CardArt id={card.id} faction={card.faction} />
       </div>
+      {/* Only what still matters in play: not Quick or On Play (done), not Guard (it has its own frame and badge). */}
       <Icons
-        keywords={unit.keywords}
-        effects={unit.silenced ? [] : card.effects}
+        keywords={unit.keywords.filter((k) => !SPENT_IN_PLAY.has(k))}
+        effects={unit.silenced ? [] : card.effects.filter((e) => e.trigger !== 'onPlay')}
         className="unit__kw"
-        max={4}
+        max={3}
       />
       <span className={`unit__power${power > unit.basePower ? ' unit__stat--up' : ''}`}>{power}</span>
       <span className={`unit__health${hurt ? ' unit__health--hurt' : ''}`}>{health}</span>

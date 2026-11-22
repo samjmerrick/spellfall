@@ -101,7 +101,7 @@ About 175 cards: 35 per faction across 5 factions (17 Legendaries, 14 spells per
 | Ember   | Red    | Aggro: Quick units, direct hero damage      | Quick, Overwhelm          |
 | Tide    | Blue   | Tricks: Fast and Burst spells, bounce, draw | Elusive, Barrier          |
 | Grove   | Green  | Ramp: extra mana, big units that grow       | Growth, Regenerate        |
-| Bastion | White  | Swarm: many small units, buffs, healing     | Guard, Rally              |
+| Bastion | White  | Swarm: many small units, buffs, healing     | Guard, team-wide On Play buffs |
 | Dusk    | Black  | Control: removal, sacrifice, death value    | Last Breath, Lifesteal    |
 
 **Keywords**
@@ -114,7 +114,6 @@ About 175 cards: 35 per faction across 5 factions (17 Legendaries, 14 spells per
 | Lifesteal   | Damage this unit deals in combat (attacking or defending, including Overwhelm) heals your hero by the same amount. |
 | Quick       | Can attack the turn it enters.                                                        |
 | Elusive     | Cannot be targeted by enemy spells or effects until it attacks. It can still be attacked. |
-| Rally       | On Play: other friendly units get +1 Power this turn.                                 |
 | Growth      | End of your turn: +1 Power and +1 Health.                                             |
 | Regenerate  | Start of your turn: heal this unit fully.                                             |
 | Ephemeral   | Dies at the end of your turn.                                                         |
@@ -187,10 +186,10 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 | Zone             | Height (at 844) | Contents                                                                          |
 | ---------------- | --------------- | --------------------------------------------------------------------------------- |
 | Opponent top     | 64 px           | Leave button; the opponent's hand as card backs hanging from the top edge (faces only for cards you may see); opponent mana and deck count |
-| Opponent board   | 150 px          | Up to 6 unit cards in a row                                                       |
-| Stack strip      | 84 px           | At the left, the **opponent hero target** with its HP (drop zone for attacks and spells, within thumb reach). Beside it: stack items as round tokens showing their card art (an attack shows the attacker with a sword badge), newest on the right, each with a connector line to its targets; when empty, the current turn and priority ("Your turn", "Opponent's turn", "Your response"), always derived from the live state |
-| Your board       | 150 px          | Up to 6 unit cards in a row                                                       |
-| Your bar         | 60 px           | Your hero, HP, mana, deck count, the main button on the right                     |
+| Opponent board   | 150 px          | Up to 6 unit cards in a row; at the right, the **opponent hero slot** (portrait art and HP), the target for attacks and spells on the hero |
+| Stack strip      | 72 px           | Stack items as round tokens showing their card art (an attack shows the attacker with a sword badge), newest on the right, each with a connector line to its targets; when empty, the current turn and priority ("Your turn", "Opponent's turn", "Your response"), always derived from the live state |
+| Your board       | 150 px          | Up to 6 unit cards in a row; at the right, **your hero slot** (portrait art and HP)  |
+| Your bar         | 60 px           | Your mana and deck count, the main button on the right                            |
 | Hand             | 170 px          | Fanned hand of up to 10 cards; the dragged card lifts above your thumb            |
 | Safe-area margin | rest            | Space for the phone's home indicator                                              |
 
@@ -207,12 +206,16 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 - **Auto-pass** (setting, on by default): when you get priority but have no legal play, you pass automatically. When you can respond, the newest stack item pulses and the button reads _Resolve_. There are no timers.
 - All tap targets are at least 44 × 44 px.
 
-**Vector art style** — as in Lanefall (`docs/v1/spec.md`): CSS/SVG card frames tinted by faction, line-icon art per card id (`src/content/art/<id>.svg`, style in `docs/art.md`), a glyph per faction, dark theme by default. Units have a rectangular art frame; spells have a round art window at the top (the token they become on the stack) and a speed pill at the bottom. Legendaries have a gold frame with an inner ring in the faction colour and a gold crest, in hand and on the board. Units on the board show no name (hold to read it).
+**Vector art style** — as in Lanefall (`docs/v1/spec.md`): CSS/SVG card frames tinted by faction, line-icon art per card id (`src/content/art/<id>.svg`, style in `docs/art.md`), a glyph per faction, dark theme by default. Units have a rectangular art frame; spells have a round art window at the top (the token they become on the stack) and a speed pill at the bottom. Legendaries have a gold frame with an inner ring in the faction colour and a gold crest, in hand and on the board. Units on the board show no name (hold to read it). Their keyword icons sit in a pill on the bottom edge, half out of the frame, between Power and Health, and only for what still matters in play: not Quick or On Play (already used), not Guard (it has its own frame and badge). Hero portraits: in a run, your hero and the enemy's art; in Quick Play, a hero of each deck's first faction.
 
 **Motion and feedback**
 
 - Opponent actions play one at a time at a readable pace (about 600 ms each). Items fly to the stack strip; when the stack resolves, items leave it one by one, newest first.
-- Attacks: the attacker lunges at its target; damage numbers pop on both.
+- Attacks: the attacker lunges at its target; damage numbers pop on both, and a hit unit or hero shakes with a red flash.
+- Draws: a card rises into your hand; the opponent's card back drops into theirs. Units land on the board with a short pop; a dying unit fades and shrinks before the gap closes.
+- The opponent's plays are shown enlarged in the middle of the screen for about a second. Stack tokens pop in, and flare out one by one as they resolve.
+- Game end: the beaten hero's portrait cracks and greys, then the result title lands (gold for Victory, red for Defeat).
+- An attack aimed past an enemy Guard shows "Attack a Guard unit first" and keeps the attacker picked.
 - Fast animations, Reduce motion, Sound and Haptics settings as in Lanefall.
 
 ## Tech stack and architecture

@@ -17,7 +17,6 @@ export const GLOSSARY: Record<string, string> = {
   Lifesteal: 'Damage this unit deals in combat heals your hero by the same amount.',
   Quick: 'Can attack the turn it enters.',
   Elusive: 'Cannot be targeted by enemy spells or effects until it attacks.',
-  Rally: 'On Play: other friendly units get +1 Power this turn.',
   Growth: 'End of your turn: +1 Power and +1 Health.',
   Regenerate: 'Start of your turn: heal this unit fully.',
   Ephemeral: 'Dies at the end of your turn.',

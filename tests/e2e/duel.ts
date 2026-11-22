@@ -55,7 +55,7 @@ async function tapTarget(page: Page): Promise<boolean> {
     await hero.click();
     return true;
   }
-  const unit = page.locator('.unit.drop--valid, .duel-bar__hero.drop--valid');
+  const unit = page.locator('.unit.drop--valid, .hero-slot.drop--valid');
   if (await unit.count()) {
     await unit.first().click();
     return true;

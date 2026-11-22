@@ -9,7 +9,6 @@ export const KEYWORD_NAME: Record<Keyword, string> = {
   lifesteal: 'Lifesteal',
   quick: 'Quick',
   elusive: 'Elusive',
-  rally: 'Rally',
   growth: 'Growth',
   regenerate: 'Regenerate',
   ephemeral: 'Ephemeral',

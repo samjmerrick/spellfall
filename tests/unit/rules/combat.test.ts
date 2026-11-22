@@ -183,7 +183,7 @@ describe('keywords', () => {
     expect(s.players[1].hp).toBe(17);
   });
 
-  it('Rally: On Play, other friendly units get +1 Power this turn', () => {
+  it('Banner Knight (formerly Rally): On Play, other friendly units get +1 Power this turn', () => {
     let s = setup({ mana: 3 });
     const a = place(s, 0, FILLER);
     s = play(s, 0, 'bastion-banner-knight');

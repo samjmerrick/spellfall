@@ -385,13 +385,6 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
         position: action.position,
         targets: action.targets,
       });
-      if (hasKeyword(unit, 'rally')) {
-        for (const u of s.boards[player]) {
-          if (u.uid === unit.uid) continue;
-          u.turnPower += 1;
-          ctx.events.push({ type: 'UnitBuffed', uid: u.uid, power: 1, health: 0, duration: 'turn' });
-        }
-      }
       runTrigger(ctx, unit, 'onPlay', action.targets);
       settle(ctx);
       break;

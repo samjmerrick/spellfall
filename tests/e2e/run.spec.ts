@@ -55,7 +55,7 @@ test.describe('run', () => {
     const handLabels = () =>
       page.locator('.hand .hand__slot').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
     const heroLabels = () =>
-      page.locator('.duel-bar__hero').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+      page.locator('.hero-slot').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
     const hand = await handLabels();
     const hp = await heroLabels();
     await expect.poll(() => savedJson(page)).toContain('\\"turn\\":3');

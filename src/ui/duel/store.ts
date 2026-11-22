@@ -18,7 +18,7 @@ import {
   type TargetRef,
 } from '../../rules';
 import { seedRng } from '../../rules/rng';
-import { matchAiRng, type AiHooks, type RunMatch } from '../../run';
+import { HEROES, matchAiRng, type AiHooks, type RunMatch } from '../../run';
 import { useApp } from '../app';
 import { haptic, sfx } from '../feedback';
 import { currentScale } from '../motion';
@@ -70,6 +70,12 @@ interface DuelStore {
   banner: Banner | null;
   /** Units currently attacking (for a lunge) and a unit that just died (fade). */
   attacking: number | null;
+  /** The stack item resolving now, units dying now, and the opponent's card being shown as it is played. */
+  resolving: number | null;
+  dying: number[];
+  reveal: { id: number; cardId: string } | null;
+  /** Art ids for the two heroes (yours, the opponent's), for the hero slots beside the boards. */
+  heroArt: [string | null, string | null];
   detail: string | null;
   error: string | null;
 
@@ -94,8 +100,14 @@ function eventMs(e: GameEvent): number {
   switch (e.type) {
     case 'SpellCast':
     case 'UnitPlayed':
+      // The opponent's plays are shown enlarged for a moment; your own show at once.
+      return e.player === HUMAN ? 450 : 900;
     case 'AttackDeclared':
       return 450;
+    case 'MatchEnded':
+      return 900;
+    case 'CardDrawn':
+      return 120;
     case 'Combat':
       return 350;
     case 'DamageDealt':
@@ -105,7 +117,7 @@ function eventMs(e: GameEvent): number {
     case 'Countered':
       return 220;
     case 'StackResolving':
-      return 200;
+      return 320;
     case 'TurnStarted':
       return 300;
     default:
@@ -171,13 +183,16 @@ export const useDuel = create<DuelStore>((set, get) => {
     if (own) set({ game: state });
     for (const e of eventsFor(events, HUMAN)) {
       if (e.type === 'AttackDeclared') set({ attacking: e.attacker });
-      if (e.type === 'StackResolving') set({ attacking: null });
+      if (e.type === 'StackResolving') set({ attacking: null, resolving: e.id });
+      if (e.type === 'UnitDied') set((st) => ({ dying: [...st.dying, e.uid] }));
+      if ((e.type === 'SpellCast' || e.type === 'UnitPlayed') && e.player !== HUMAN)
+        set({ reveal: { id: fxId++, cardId: e.cardId } });
       pushFx(e);
       feedbackFor(e);
       const ms = own && (e.type === 'UnitPlayed' || e.type === 'SpellCast') ? 0 : eventMs(e) * scale;
       if (ms > 0) await sleep(ms);
     }
-    set({ game: state, attacking: null });
+    set({ game: state, attacking: null, resolving: null, dying: [], reveal: null });
     // Opponent messages describe an action that has now happened; the strip falls back to the live state.
     if (action.player !== HUMAN) set({ banner: null });
     if (state.result) finish(state);
@@ -285,6 +300,10 @@ export const useDuel = create<DuelStore>((set, get) => {
     fx: [],
     banner: null,
     attacking: null,
+    resolving: null,
+    dying: [],
+    reveal: null,
+    heroArt: [null, null],
     detail: null,
     error: null,
 
@@ -311,6 +330,10 @@ export const useDuel = create<DuelStore>((set, get) => {
         fx: [],
         banner: null,
         attacking: null,
+        resolving: null,
+        dying: [],
+        reveal: null,
+        heroArt: [heroForDeck(deck.cards), heroForDeck(opponent.cards, heroForDeck(deck.cards))],
         error: null,
       });
       await loop();
@@ -335,6 +358,10 @@ export const useDuel = create<DuelStore>((set, get) => {
         fx: [],
         banner: null,
         attacking: null,
+        resolving: null,
+        dying: [],
+        reveal: null,
+        heroArt: [useRun.getState().run?.config.heroId ?? heroForDeck(m.config.decks[0]), m.enemyId],
         error: null,
       });
       await loop();
@@ -393,4 +420,11 @@ function nameOf(id: string): string {
   } catch {
     return 'a card';
   }
+}
+
+/** A hero portrait for a Quick Play deck: a hero of the deck's first faction (other than `not` when it can). */
+function heroForDeck(cards: readonly string[], not?: string | null): string | null {
+  const faction = cards.map((c) => getCard(c).faction).find((f) => f !== 'neutral');
+  const options = HEROES.filter((h) => h.faction === faction);
+  return (options.find((h) => h.id !== not) ?? options[0])?.id ?? null;
 }

@@ -11,7 +11,6 @@ export const KEYWORDS = [
   'lifesteal',
   'quick',
   'elusive',
-  'rally',
   'growth',
   'regenerate',
   'ephemeral',
