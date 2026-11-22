@@ -328,9 +328,9 @@ Run nodes, relics, hero passives, enemies and bosses re-authored for Spellfall's
 
 ### V6: Meta progression
 
-The unlock track, 10 heroes and Ascension 1–10 on the new content.
+The unlock track, 10 heroes and Ascension 1–10 on the new content. Card, hero and relic ids are unchanged, so the track, levels and Ascension rules carry over as they are; this milestone checks them against Spellfall's pool.
 
-- A new profile has only the starter cards and 3 heroes; tests for each unlock and each Ascension rule.
+- A new profile has only the starter cards (12 per faction) and 3 heroes; the starter cards and the track together cover every collectible card exactly once; tests for each unlock and each Ascension rule.
 
 ### V7: Polish
 

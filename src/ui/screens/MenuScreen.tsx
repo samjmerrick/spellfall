@@ -34,7 +34,7 @@ export function MenuScreen() {
     <main className={`menu${showTip ? ' menu--tip' : ''}`} aria-label="Main menu">
       <header className="menu__header">
         <h1>Spellfall</h1>
-        <p>Three lanes. Hidden plans. Overflow wins.</p>
+        <p>Pick your targets. Answer every spell.</p>
         <XpBar xp={profile.xp} className="menu__xp" />
       </header>
       {fellBack && (

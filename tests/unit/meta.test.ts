@@ -550,3 +550,27 @@ describe('the 7 unlockable heroes', () => {
     }
   });
 });
+
+describe('meta progression on Spellfall’s card pool', () => {
+  it('the starting collection and the unlock track together cover every collectible card exactly once', () => {
+    const track = UNLOCKS.filter((b) => b.kind !== 'relics')
+      .flatMap((b) => b.ids)
+      .filter((id) => !id.startsWith('hero-'));
+    const all = [...starterCollection(), ...track].sort();
+    expect(all).toEqual(
+      collectibleCards()
+        .map((c) => c.id)
+        .sort(),
+    );
+    for (const id of track) expect(getCard(id).unlock, id).toBe('track');
+  });
+
+  it('a new profile owns 12 starter cards in each faction', () => {
+    const owned = [...ownedCardIds(newProfile())];
+    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
+      expect(
+        owned.filter((id) => getCard(id).faction === f),
+        f,
+      ).toHaveLength(12);
+  });
+});
