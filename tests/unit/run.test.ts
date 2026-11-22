@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getCard, starterCollection } from '../../src/rules';
+import { collectibleCardIds, getCard } from '../../src/rules';
 import { seedRng } from '../../src/rules/rng';
 import {
-  BOSS_XP,
   ENEMIES,
   EVENTS,
   HEROES,
   IllegalChoiceError,
   MAP_ROWS,
-  NODE_XP,
   RELICS,
   REMOVE_PRICE,
   START_HEARTS,
@@ -25,14 +23,12 @@ import {
   nextCols,
   replayRun,
   runMatch,
-  runXp,
   startRun,
-  starterHeroes,
   type NodeType,
   type RunState,
 } from '../../src/run';
 
-const pool = [...starterCollection()];
+const pool = collectibleCardIds();
 const config = (seed = 1, heroId = 'hero-pyra', ascension = 0) => ({
   seed,
   heroId,
@@ -70,8 +66,7 @@ const illegal = (r: RunState, c: Parameters<typeof applyChoice>[1]) =>
   expect(() => applyChoice(r, c)).toThrow(IllegalChoiceError);
 
 describe('content', () => {
-  it('has 3 starter heroes, 40 relics, 20 events, and fights, elites and 3 bosses in each of 3 acts', () => {
-    expect(starterHeroes()).toHaveLength(3);
+  it('has heroes, 40 relics, 20 events, and fights, elites and 3 bosses in each of 3 acts', () => {
     for (const h of HEROES) for (const id of h.starterDeck) expect(getCard(id).faction).toBe(h.faction);
     expect(RELICS).toHaveLength(40);
     expect(EVENTS).toHaveLength(20);
@@ -241,18 +236,16 @@ describe('run flow', () => {
     expect(r.phase.kind === 'match' && getEnemy(r.phase.enemyId).act).toBe(2);
   });
 
-  it('the act 2 boss offers no faction; the act 3 boss wins the run with doubled XP', () => {
+  it('the act 2 boss offers no faction; the act 3 boss wins the run', () => {
     let r = applyChoice(atBoss({ ...startRun(config()), act: 2 }), { t: 'matchEnd', won: true });
     expect(r.phase.kind === 'actCleared' && r.phase.factions).toEqual([]);
     r = applyChoice(r, { t: 'nextAct', faction: null });
     expect(r.act).toBe(3);
     r = atBoss(r);
     expect(r.phase.kind === 'match' && getEnemy(r.phase.enemyId).difficulty).toBe('hard');
-    const cleared = r.nodesCleared;
     r = applyChoice(r, { t: 'matchEnd', won: true });
     expect(r.phase).toEqual({ kind: 'over', won: true, abandoned: false });
     expect(nextCols(r)).toEqual([]);
-    expect(runXp(r)).toBe(((cleared + 1) * NODE_XP + 2 * BOSS_XP) * 2);
   });
 
   it('an elite gives a relic, extra gold and a card choice', () => {
@@ -430,12 +423,11 @@ describe('run flow', () => {
   it('can be abandoned from the map and other screens', () => {
     const r = applyChoice(startRun(config()), { t: 'abandon' });
     expect(r.phase).toEqual({ kind: 'over', won: false, abandoned: true });
-    expect(runXp(r)).toBe(0);
   });
 
-  it('card pool is owned cards of the hero faction (until a second faction is added)', () => {
+  it('card pool is every collectible card of the hero faction (until a second faction is added)', () => {
     const r = startRun(config(1, 'hero-aldric'));
-    expect(cardPool(r).length).toBe(12);
+    expect(cardPool(r).length).toBeGreaterThanOrEqual(12);
     expect(cardPool(r).every((id) => getCard(id).faction === 'bastion')).toBe(true);
   });
 

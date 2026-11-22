@@ -76,9 +76,9 @@ export function generatedText(card: CardDef): string {
   return withText(card).text;
 }
 
-/** Cards every new profile owns: the starter commons of each faction. */
-export function starterCollection(): Set<string> {
-  return new Set(CARDS.filter((c) => !c.token && c.unlock === 'starter').map((c) => c.id));
+/** Ids of every collectible (non-token) card: all of them are available from the start. */
+export function collectibleCardIds(): string[] {
+  return CARDS.filter((c) => !c.token).map((c) => c.id);
 }
 
 /** A card that can go in a deck: never a token, never neutral. */

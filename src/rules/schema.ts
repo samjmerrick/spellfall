@@ -47,6 +47,7 @@ export const UNIT_SELECTORS = [
   'otherFriendlyUnits',
   'allEnemyUnits',
   'allUnits',
+  'otherUnits',
   'adjacentUnits',
   'randomEnemyUnit',
   'randomFriendlyUnit',
@@ -81,9 +82,32 @@ export const PrimitiveSchema = z.discriminatedUnion('op', [
   z.object({ op: z.literal('silence'), target: UnitSelector }),
   /** Removes the chosen stack item (`target`) from the stack. */
   z.object({ op: z.literal('counter') }),
+  /** Takes control of enemy units (needs room on your board; they cannot attack this turn unless Quick). */
+  z.object({ op: z.literal('steal'), target: UnitSelector }),
+  /** Raises your max mana to this much (cap 10) and refills your mana to it. */
+  z.object({ op: z.literal('setMaxMana'), amount: z.number().int().min(1).max(10) }),
+  /** Your hero cannot be reduced below 1 HP until the end of the turn. */
+  z.object({ op: z.literal('deathWard') }),
+  /** The owner takes another turn right after this one. */
+  z.object({ op: z.literal('extraTurn') }),
+  /** Brings back friendly units from the discard pile (most recent first, while there is room). */
+  z.object({ op: z.literal('revive'), count: posInt }),
+  /** Adds a copy of the spell that was just cast to your hand (whenCast / whenEnemyCast only). */
+  z.object({ op: z.literal('copySpell') }),
 ]);
 
-export const TRIGGERS = ['onPlay', 'ongoing', 'startOfTurn', 'endOfTurn', 'lastBreath', 'spell'] as const;
+export const TRIGGERS = [
+  'onPlay',
+  'ongoing',
+  'startOfTurn',
+  'endOfTurn',
+  'lastBreath',
+  'spell',
+  /** Units only: whenever the owner casts a spell (before it resolves). */
+  'whenCast',
+  /** Units only: whenever the enemy casts a spell (before it resolves). */
+  'whenEnemyCast',
+] as const;
 
 export const EffectSchema = z.object({
   trigger: z.enum(TRIGGERS),
@@ -107,7 +131,6 @@ export const CardSchema = z
     effects: z.array(EffectSchema).default([]),
     text: z.string(),
     rarity: z.enum(['common', 'uncommon', 'rare', 'legendary']),
-    unlock: z.enum(['starter', 'track']),
     token: z.boolean().default(false),
     /** Overrides for the upgraded version (`<id>+`). Omitted: see `upgradeCard`. */
     upgrade: z
@@ -154,6 +177,10 @@ export const CardSchema = z
         issue('ongoing buffs apply to other friendly, adjacent or enemy units');
       if (a.op === 'counter' && card.targets[0]?.kind !== 'stackItem')
         issue('counter needs a stackItem target');
+      const cast = e.trigger === 'whenCast' || e.trigger === 'whenEnemyCast';
+      if (a.op === 'copySpell' && !cast) issue('copySpell needs a whenCast or whenEnemyCast trigger');
+      if (a.op === 'extraTurn' && e.trigger !== 'spell' && e.trigger !== 'onPlay')
+        issue('extraTurn only works as a spell or On Play effect');
       // Unit-only primitives cannot point at a chosen character that might be a hero.
       if (
         (sel === 'target' || sel === 'target2') &&
@@ -198,6 +225,8 @@ export const MatchModifierSchema = z
     if ('target' in m.action && !GLOBAL_SELECTORS.includes(m.action.target))
       ctx.addIssue({ code: 'custom', message: `turnStart cannot use the ${m.action.target} selector` });
     if (m.action.op === 'counter') ctx.addIssue({ code: 'custom', message: 'turnStart cannot counter' });
+    if (m.action.op === 'extraTurn' || m.action.op === 'copySpell')
+      ctx.addIssue({ code: 'custom', message: `turnStart cannot use ${m.action.op}` });
   });
 
 export type CardDef = z.infer<typeof CardSchema>;

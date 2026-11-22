@@ -22,6 +22,8 @@ const TRIGGER_PREFIX: Record<Effect['trigger'], string> = {
   endOfTurn: 'End of Turn: ',
   lastBreath: 'Last Breath: ',
   spell: '',
+  whenCast: 'Whenever you cast a spell: ',
+  whenEnemyCast: 'Whenever the enemy casts a spell: ',
 };
 
 const COUNT_WORD = ['', 'a', 'two', 'three', 'four'];
@@ -90,6 +92,8 @@ export function cardText(card: CardDef, ctx: TextContext): string {
         return 'all enemy units';
       case 'allUnits':
         return 'all units';
+      case 'otherUnits':
+        return 'all other units';
       case 'adjacentUnits':
         return 'adjacent units';
       case 'randomEnemyUnit':
@@ -131,11 +135,27 @@ export function cardText(card: CardDef, ctx: TextContext): string {
       case 'destroy':
         return `destroy ${target(a.target)}`;
       case 'bounce':
-        return `return ${target(a.target)} to its owner's hand`;
+        return a.target.startsWith('all') || a.target.startsWith('other') || a.target === 'adjacentUnits'
+          ? `return ${target(a.target)} to their owners' hands`
+          : `return ${target(a.target)} to its owner's hand`;
       case 'silence':
         return `silence ${target(a.target)}`;
       case 'counter':
         return `counter ${target('target')}`;
+      case 'steal':
+        return `take control of ${target(a.target)}`;
+      case 'setMaxMana':
+        return `set your max mana to ${a.amount} and refill your mana`;
+      case 'deathWard':
+        return 'your hero cannot be reduced below 1 HP this turn';
+      case 'extraTurn':
+        return 'take an extra turn';
+      case 'revive':
+        return a.count >= 6
+          ? 'revive all friendly units that died this match'
+          : `revive up to ${a.count} friendly units that died this match`;
+      case 'copySpell':
+        return 'add a copy of that spell to your hand';
     }
   };
 

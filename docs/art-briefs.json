@@ -916,5 +916,155 @@
     "subject": "a faint shadow figure with glowing eyes",
     "composition": "head-and-shoulders, centered, fills 70% of frame",
     "motif": "smoke wisps and a crescent moon"
+  },
+  {
+    "id": "ember-pyromancer",
+    "subject": "a hooded fire mage with a flame above the hood",
+    "composition": "head-and-shoulders, centered, fills 80% of frame",
+    "motif": "a flame crowning the hood"
+  },
+  {
+    "id": "ember-supernova",
+    "subject": "a star exploding in all directions",
+    "composition": "single object, radial, fills 85% of frame",
+    "motif": "eight rays around a core"
+  },
+  {
+    "id": "tide-spellthief",
+    "subject": "a hooded mage holding a stolen spell card",
+    "composition": "three-quarter body, centered, fills 80% of frame",
+    "motif": "a card clutched in one hand"
+  },
+  {
+    "id": "tide-turn-the-tide",
+    "subject": "a clock face above rolling waves",
+    "composition": "single object, centered, fills 85% of frame",
+    "motif": "clock hands and a wave line"
+  },
+  {
+    "id": "grove-primal-surge",
+    "subject": "a seedling bursting under a rising arc of power",
+    "composition": "single object, centered, fills 80% of frame",
+    "motif": "two leaves and an arc"
+  },
+  {
+    "id": "grove-gaia",
+    "subject": "a tree spirit with a leafy crown and outstretched branch arms",
+    "composition": "full-body, symmetric, fills 90% of frame",
+    "motif": "a round canopy head"
+  },
+  {
+    "id": "bastion-aegis-eternal",
+    "subject": "a shield bearing a cross",
+    "composition": "single object, centered, fills 80% of frame",
+    "motif": "a cross on the shield face"
+  },
+  {
+    "id": "bastion-legion-matriarch",
+    "subject": "a crowned commander flanked by banner poles",
+    "composition": "head-and-shoulders, symmetric, fills 85% of frame",
+    "motif": "a crown and two standards"
+  },
+  {
+    "id": "dusk-lich-king",
+    "subject": "a crowned skull",
+    "composition": "head only, centered, fills 80% of frame",
+    "motif": "a jagged crown above hollow eyes"
+  },
+  {
+    "id": "dusk-rise-fallen",
+    "subject": "a gravestone with a cross and a rising chevron",
+    "composition": "single object, centered, fills 80% of frame",
+    "motif": "a chevron lifting off the stone"
+  },
+  {
+    "id": "ember-flare",
+    "subject": "a flare shot from a wand-like streak",
+    "composition": "single object, diagonal, fills 80% of frame",
+    "motif": "sparks around a bright core"
+  },
+  {
+    "id": "ember-battle-fury",
+    "subject": "a raised sword wreathed in rage",
+    "composition": "single object, vertical, fills 85% of frame",
+    "motif": "curling flames beside the blade"
+  },
+  {
+    "id": "ember-lightning-strike",
+    "subject": "a jagged lightning bolt",
+    "composition": "single object, vertical, fills 80% of frame",
+    "motif": "a zigzag bolt"
+  },
+  {
+    "id": "tide-dispel",
+    "subject": "a magic circle crossed out",
+    "composition": "single object, centered, fills 75% of frame",
+    "motif": "a diagonal slash through a ring"
+  },
+  {
+    "id": "tide-slip-away",
+    "subject": "an arrow rising out of the waves",
+    "composition": "single object, vertical, fills 80% of frame",
+    "motif": "a wave line and an upward arrow"
+  },
+  {
+    "id": "tide-flood-gate",
+    "subject": "a sluice gate with water pouring through",
+    "composition": "single object, centered, fills 80% of frame",
+    "motif": "two wave lines in an arch"
+  },
+  {
+    "id": "grove-bark-skin",
+    "subject": "a leaf shaped like a shield with veins",
+    "composition": "single object, centered, fills 80% of frame",
+    "motif": "a central vein with side veins"
+  },
+  {
+    "id": "grove-wild-gift",
+    "subject": "a blossom on a stem with one leaf",
+    "composition": "single object, vertical, fills 80% of frame",
+    "motif": "petal lines around a bud"
+  },
+  {
+    "id": "grove-vine-lash",
+    "subject": "a thorny vine whipping upward",
+    "composition": "single object, diagonal, fills 80% of frame",
+    "motif": "thorns along the vine"
+  },
+  {
+    "id": "bastion-brace",
+    "subject": "a stone wall of bricks",
+    "composition": "single object, centered, fills 75% of frame",
+    "motif": "staggered brick lines"
+  },
+  {
+    "id": "bastion-judgement",
+    "subject": "a pair of balanced scales",
+    "composition": "single object, symmetric, fills 85% of frame",
+    "motif": "two hanging pans"
+  },
+  {
+    "id": "bastion-conscript",
+    "subject": "a new recruit beside a plus sign",
+    "composition": "three-quarter body, centered, fills 75% of frame",
+    "motif": "a plus mark for reinforcements"
+  },
+  {
+    "id": "dusk-nullify",
+    "subject": "an eye struck through",
+    "composition": "single object, centered, fills 85% of frame",
+    "motif": "a slash across the pupil"
+  },
+  {
+    "id": "dusk-assassinate",
+    "subject": "a dagger pointing up",
+    "composition": "single object, vertical, fills 85% of frame",
+    "motif": "a short cross-guard"
+  },
+  {
+    "id": "dusk-blood-tap",
+    "subject": "a drop of blood with a curved highlight",
+    "composition": "single object, centered, fills 80% of frame",
+    "motif": "a curve inside the drop"
   }
 ]

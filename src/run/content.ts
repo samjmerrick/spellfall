@@ -14,7 +14,6 @@ export const HeroSchema = z.object({
   faction: z.enum(FACTIONS),
   passive: z.string().min(1),
   modifiers: z.array(MatchModifierSchema),
-  unlock: z.enum(['starter', 'track']),
   starterDeck: z.array(z.string()).length(12),
 });
 
@@ -115,13 +114,12 @@ function byId<T extends { id: string }>(list: readonly T[], kind: string) {
   };
 }
 
+/** Every relic id: all relics can appear in a run from the start. */
+export const allRelicIds = (): string[] => RELICS.map((r) => r.id);
+
 export const getHero = byId(HEROES, 'hero');
 export const getRelic = byId(RELICS, 'relic');
 export const getEnemy = byId(ENEMIES, 'enemy');
 export const getEvent = byId(EVENTS, 'event');
-
-export function starterHeroes(): HeroDef[] {
-  return HEROES.filter((h) => h.unlock === 'starter');
-}
 
 export type { Faction };

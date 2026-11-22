@@ -6,12 +6,12 @@ import {
   deckProblems,
   encodeDeck,
   isDeckLegal,
+  getCard,
   PREBUILT_DECKS,
   sortCards,
-  starterCollection,
 } from '../../../src/rules';
 
-const rules = (cards: string[], owned?: Set<string>) => deckProblems(cards, owned).map((p) => p.rule);
+const rules = (cards: string[]) => deckProblems(cards).map((p) => p.rule);
 const n = (id: string, count: number) => Array.from({ length: count }, () => id);
 const tenEmber = collectibleCards()
   .filter((c) => c.faction === 'ember' && c.rarity !== 'legendary')
@@ -55,14 +55,6 @@ describe('deck legality', () => {
     expect(rules([...legal.slice(0, 29), 'bastion-levy'])).toEqual(['token']);
   });
 
-  it('rejects locked cards when a collection is given', () => {
-    const owned = starterCollection();
-    const locked = collectibleCards().find(
-      (c) => c.faction === 'ember' && !owned.has(c.id) && !tenEmber.includes(c.id),
-    )!.id;
-    expect(rules([...legal.slice(0, 29), locked], new Set([...legal]))).toContain('locked');
-  });
-
   it('canAddCard respects size, copies, Legendary and faction limits', () => {
     expect(canAddCard(legal, tenEmber[0]!)).toBe(false);
     expect(canAddCard(legal.slice(0, 27), tenEmber[9]!)).toBe(true);
@@ -75,21 +67,24 @@ describe('deck legality', () => {
 });
 
 describe('pre-built decks', () => {
-  it('are legal using only the starter collection', () => {
+  it('are legal', () => {
     expect(PREBUILT_DECKS).toHaveLength(10);
     expect(new Set(PREBUILT_DECKS.map((d) => d.id)).size).toBe(10);
     for (const deck of PREBUILT_DECKS) {
-      expect(deckProblems(deck.cards, starterCollection()), deck.id).toEqual([]);
+      expect(deckProblems(deck.cards), deck.id).toEqual([]);
       expect(deck.cards).toContain(deck.cover);
     }
   });
 
-  it('the starter collection is 12 commons per faction', () => {
-    const owned = [...starterCollection()].map((id) => collectibleCards().find((c) => c.id === id)!);
-    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'] as const) {
-      const mine = owned.filter((c) => c.faction === f);
-      expect(mine).toHaveLength(12);
-      expect(mine.every((c) => c.rarity === 'common')).toBe(true);
+  it('every pre-built deck has 12 to 14 spells and at most one copy of each Legendary', () => {
+    for (const deck of PREBUILT_DECKS) {
+      const spells = deck.cards.filter((id) => getCard(id).type === 'spell').length;
+      expect(spells, deck.id).toBeGreaterThanOrEqual(12);
+      expect(spells, deck.id).toBeLessThanOrEqual(14);
+      expect(
+        deckProblems(deck.cards).map((p) => p.rule),
+        deck.id,
+      ).not.toContain('legendary');
     }
   });
 });

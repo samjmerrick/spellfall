@@ -82,6 +82,37 @@ test.describe('interaction', () => {
     expect(errors).toEqual([]);
   });
 
+  test('holding a hand card reads it without playing it; releasing closes it; dragging does not read', async ({
+    page,
+  }) => {
+    const errors = watchErrors(page);
+    await startMatch(page, { seed: 11, speed: 0.02 });
+    await keepHand(page);
+    await waitForPlayer(page);
+    const card = page.locator('.hand__slot--playable').first();
+    const handBefore = await page.locator('.hand__slot').count();
+    const box = (await card.boundingBox())!;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height * 0.3;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    const reader = page.locator('.overlay--hold');
+    await expect(reader).toBeVisible();
+    await expect(reader.locator('.card--large')).toBeVisible();
+    await page.mouse.up();
+    await expect(reader).toBeHidden();
+    await expect(page.locator('.hand__slot')).toHaveCount(handBefore);
+    await expect(page.locator('.hand__slot--picked')).toHaveCount(0);
+    // A drag never opens the reader.
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y - 60, { steps: 5 });
+    await page.waitForTimeout(500);
+    await expect(reader).toBeHidden();
+    await page.mouse.up();
+    expect(errors).toEqual([]);
+  });
+
   test('a card that cannot be played opens its rules text; a picked card can be dropped by tapping away', async ({
     page,
   }) => {

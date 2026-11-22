@@ -1,43 +1,30 @@
 import { describe, expect, it } from 'vitest';
-import { collectibleCards, getCard, initMatch, starterCollection } from '../../src/rules';
+import { collectibleCardIds, getCard, initMatch } from '../../src/rules';
 import {
   ASCENSION_RULES,
   CARD_CHOICES,
   HEROES,
   IllegalChoiceError,
   MAP_ROWS,
-  MAX_LEVEL,
   RELICS,
   START_GOLD,
-  UNLOCKS,
+  allRelicIds,
   applyChoice,
   ascensionRules,
-  bundlesBetween,
-  grantXp,
-  levelForXp,
   maxHearts,
-  ownedCardIds,
-  ownedHeroes,
   recordRunResult,
-  relicPool,
   removePrice,
   runMatch,
   startRun,
-  starterHeroes,
   statsSummary,
-  unlockLevel,
-  unlockedIds,
   upgradable,
-  withXp,
-  xpProgress,
-  xpThreshold,
   type NodeType,
   type RunState,
 } from '../../src/run';
 import { newProfile } from '../../src/save';
 import { FILLER, pass, place, setup } from './rules/helpers';
 
-const pool = [...starterCollection()];
+const pool = collectibleCardIds();
 const allRelics = RELICS.map((r) => r.id);
 const config = (ascension = 0, seed = 1, heroId = 'hero-pyra') => ({
   seed,
@@ -78,166 +65,15 @@ function hpGain(node: 'fight' | 'elite' | 'boss', ascension: number, from = asce
 }
 
 describe('a new profile', () => {
-  it('owns exactly the 60 starter cards, 3 heroes and 28 relics', () => {
+  it('has no progress except a locked Ascension, and nothing is gated: every hero, card and relic is available', () => {
     const p = newProfile();
-    expect(ownedCardIds(p)).toEqual(starterCollection());
-    expect(ownedCardIds(p).size).toBe(60);
-    expect(ownedHeroes(p)).toEqual(starterHeroes());
-    expect(ownedHeroes(p)).toHaveLength(3);
-    expect(relicPool(p)).toHaveLength(28);
-    expect(p.unlocks).toEqual([]);
     expect(p.ascension).toEqual({ best: 0, unlocked: 0 });
-  });
-
-  it('a level 30 profile owns everything: 150 cards, 10 heroes, 40 relics, 2 heroes per faction', () => {
-    expect(ownedCardIds(MAX_LEVEL).size).toBe(collectibleCards().length);
-    expect(ownedHeroes(MAX_LEVEL)).toHaveLength(10);
-    expect(relicPool(MAX_LEVEL)).toHaveLength(40);
+    for (const key of ['xp', 'level', 'unlocks', 'tutorialDone']) expect(p).not.toHaveProperty(key);
+    expect(HEROES.length).toBeGreaterThanOrEqual(10);
+    expect(RELICS.length).toBeGreaterThanOrEqual(40);
+    expect(allRelicIds()).toEqual(RELICS.map((r) => r.id));
     for (const f of ['ember', 'bastion', 'tide', 'grove', 'dusk'])
-      expect(HEROES.filter((h) => h.faction === f)).toHaveLength(2);
-  });
-});
-
-describe('the unlock track', () => {
-  it('has one bundle per level from 2 to 30', () => {
-    expect(UNLOCKS).toHaveLength(29);
-    expect(UNLOCKS.map((b) => b.level)).toEqual(Array.from({ length: 29 }, (_, i) => i + 2));
-  });
-
-  it('bundle shapes: a hero and 3 cards, 3-4 cards of one faction, 3 relics', () => {
-    const counts = { cards: 0, hero: 0, relics: 0 };
-    for (const b of UNLOCKS) {
-      counts[b.kind]++;
-      if (b.kind === 'relics') {
-        expect(b.ids, `level ${b.level}`).toHaveLength(3);
-        for (const id of b.ids) expect(allRelics).toContain(id);
-        continue;
-      }
-      const ids = b.kind === 'hero' ? b.ids.slice(1) : b.ids;
-      if (b.kind === 'hero') expect(ids.length, `level ${b.level}`).toBe(3);
-      else {
-        expect(ids.length, `level ${b.level}`).toBeGreaterThanOrEqual(3);
-        expect(ids.length, `level ${b.level}`).toBeLessThanOrEqual(4);
-      }
-      const factions = new Set(ids.map((id) => getCard(id).faction));
-      expect(factions.size, `level ${b.level}`).toBe(1);
-      for (const id of ids) expect(getCard(id).unlock).toBe('track');
-      if (b.kind === 'hero') {
-        const hero = HEROES.find((h) => h.id === b.ids[0])!;
-        expect(hero.unlock).toBe('track');
-        expect(factions.has(hero.faction)).toBe(true);
-      }
-    }
-    expect(counts).toEqual({ cards: 18, hero: 7, relics: 4 });
-  });
-
-  it('every track card and new hero appears exactly once, and no starter card does', () => {
-    const ids = UNLOCKS.flatMap((b) => b.ids);
-    expect(new Set(ids).size).toBe(ids.length);
-    const track = collectibleCards()
-      .filter((c) => c.unlock === 'track')
-      .map((c) => c.id);
-    expect(track).toHaveLength(90);
-    const trackHeroes = HEROES.filter((h) => h.unlock === 'track').map((h) => h.id);
-    expect(trackHeroes).toHaveLength(7);
-    const relics = UNLOCKS.filter((b) => b.kind === 'relics').flatMap((b) => b.ids);
-    expect(relics).toHaveLength(12);
-    expect(ids.slice().sort()).toEqual([...track, ...trackHeroes, ...relics].sort());
-    for (const id of ids) expect(unlockLevel(id)).not.toBeNull();
-    for (const id of starterCollection()) expect(unlockLevel(id)).toBeNull();
-    expect(unlockLevel('hero-pyra')).toBeNull();
-  });
-
-  it('spreads heroes and relics over the track, with rare cards later than commons', () => {
-    const heroLevels = UNLOCKS.filter((b) => b.kind === 'hero').map((b) => b.level);
-    expect(heroLevels[0]!).toBeLessThanOrEqual(4);
-    expect(heroLevels.at(-1)!).toBeGreaterThanOrEqual(24);
-    const relicLevels = UNLOCKS.filter((b) => b.kind === 'relics').map((b) => b.level);
-    expect(relicLevels[0]!).toBeLessThanOrEqual(10);
-    expect(relicLevels.at(-1)!).toBeGreaterThanOrEqual(26);
-    const mean = (rarity: string) => {
-      const ls = collectibleCards()
-        .filter((c) => c.unlock === 'track' && c.rarity === rarity)
-        .map((c) => unlockLevel(c.id)!);
-      return ls.reduce((a, b) => a + b, 0) / ls.length;
-    };
-    expect(mean('common')).toBeLessThan(mean('uncommon'));
-    expect(mean('uncommon')).toBeLessThan(mean('rare'));
-    expect(mean('rare')).toBeLessThan(mean('legendary'));
-  });
-
-  it('each bundle adds exactly its ids at its level, and not before', () => {
-    for (const b of UNLOCKS) {
-      const before = b.level - 1;
-      const cards = (l: number) => ownedCardIds(l);
-      const heroes = (l: number) => new Set(ownedHeroes(l).map((h) => h.id));
-      const relics = (l: number) => new Set(relicPool(l));
-      const added = (a: Set<string>, z: Set<string>) => [...z].filter((x) => !a.has(x)).sort();
-      const expectCards =
-        b.kind === 'relics' ? [] : b.ids.filter((id) => id !== b.ids[0] || b.kind !== 'hero');
-      expect(added(cards(before), cards(b.level)), `cards at ${b.level}`).toEqual([...expectCards].sort());
-      expect(added(heroes(before), heroes(b.level)), `heroes at ${b.level}`).toEqual(
-        b.kind === 'hero' ? [b.ids[0]!] : [],
-      );
-      expect(added(relics(before), relics(b.level)), `relics at ${b.level}`).toEqual(
-        b.kind === 'relics' ? [...b.ids].sort() : [],
-      );
-      expect(unlockedIds(b.level)).toEqual(expect.arrayContaining(b.ids));
-      expect(unlockedIds(before)).not.toContain(b.ids[0]);
-      expect(bundlesBetween(before, b.level)).toEqual([b]);
-    }
-  });
-});
-
-describe('XP and levels', () => {
-  it('level n needs 100 + 50n XP to reach n + 1', () => {
-    expect(xpThreshold(1)).toBe(0);
-    expect(xpThreshold(2)).toBe(150);
-    expect(xpThreshold(3)).toBe(350);
-    let total = 0;
-    for (let n = 1; n < MAX_LEVEL; n++) {
-      total += 100 + 50 * n;
-      expect(xpThreshold(n + 1)).toBe(total);
-      expect(levelForXp(total - 1)).toBe(n);
-      expect(levelForXp(total)).toBe(n + 1);
-    }
-  });
-
-  it('xpProgress reports progress in the level, and needed 0 at the cap', () => {
-    expect(xpProgress(0)).toEqual({ level: 1, into: 0, needed: 150 });
-    expect(xpProgress(200)).toEqual({ level: 2, into: 50, needed: 200 });
-    const cap = xpThreshold(MAX_LEVEL);
-    expect(xpProgress(cap)).toMatchObject({ level: 30, into: 0, needed: 0 });
-    expect(xpProgress(cap + 5000)).toMatchObject({ level: 30, needed: 0 });
-  });
-
-  it('one grant can jump several levels and reports every bundle passed', () => {
-    const g = grantXp(newProfile(), xpThreshold(7) + 3);
-    expect(g.from).toBe(1);
-    expect(g.to).toBe(7);
-    expect(g.bundles.map((b) => b.level)).toEqual([2, 3, 4, 5, 6, 7]);
-    expect(g.profile.level).toBe(7);
-    expect(g.profile.xp).toBe(xpThreshold(7) + 3);
-    expect(g.profile.unlocks).toEqual(unlockedIds(7));
-    // A small grant afterwards unlocks nothing.
-    expect(grantXp(g.profile, 10).bundles).toEqual([]);
-  });
-
-  it('caps at level 30 and keeps counting XP', () => {
-    const g = grantXp(newProfile(), 10_000_000);
-    expect(g.to).toBe(30);
-    expect(g.bundles).toHaveLength(29);
-    expect(g.profile.unlocks).toEqual(unlockedIds(30));
-    const again = grantXp(g.profile, 50);
-    expect(again.bundles).toEqual([]);
-    expect(again.profile.xp).toBe(g.profile.xp + 50);
-    expect(again.profile.level).toBe(30);
-  });
-
-  it('withXp recomputes level and unlocks', () => {
-    const p = withXp({ ...newProfile(), level: 9, unlocks: ['x'] }, 160);
-    expect(p.level).toBe(2);
-    expect(p.unlocks).toEqual(unlockedIds(2));
+      expect(HEROES.filter((h) => h.faction === f).length).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -421,12 +257,12 @@ describe('Ascension progress', () => {
 });
 
 describe('stats summary', () => {
-  it('lists runs per owned hero, best Ascension and Quick Play win rate per deck', () => {
+  it('lists runs per hero, best Ascension and Quick Play win rate per deck', () => {
     let p = newProfile();
     p.stats.quickPlay = { 'pre-ember': { played: 4, won: 1 }, d1: { played: 0, won: 0 } };
     p = recordRunResult(recordRunResult(p, 'hero-pyra', 0, true), 'hero-aldric', 0, false);
     const s = statsSummary(p);
-    expect(s.runs.map((r) => r.heroId)).toEqual(['hero-pyra', 'hero-kael', 'hero-aldric']);
+    expect(s.runs.map((r) => r.heroId)).toEqual(HEROES.map((h) => h.id));
     expect(s.runs[0]).toMatchObject({ played: 1, won: 1 });
     expect(s.runsPlayed).toBe(2);
     expect(s.runsWon).toBe(1);
@@ -435,13 +271,22 @@ describe('stats summary', () => {
     expect(s.quickPlay[1]!.winRate).toBe(0);
     expect(s.quickPlayPlayed).toBe(4);
     expect(s.quickPlayWon).toBe(1);
-    // Locked heroes appear once they are owned.
-    expect(statsSummary({ ...p, level: 30 }).runs).toHaveLength(10);
+    expect(s.runs.find((r) => r.heroId === 'hero-aldric')).toMatchObject({ played: 1, won: 0 });
+    expect(s.runs.find((r) => r.heroId === 'hero-marin')).toMatchObject({ played: 0, won: 0 });
   });
 });
 
-describe('the 7 unlockable heroes', () => {
-  const unlockable = HEROES.filter((h) => h.unlock === 'track');
+describe('the 7 later heroes', () => {
+  const later = [
+    'hero-brenna',
+    'hero-marin',
+    'hero-corin',
+    'hero-sylva',
+    'hero-oren',
+    'hero-vesper',
+    'hero-morrow',
+  ];
+  const unlockable = HEROES.filter((h) => later.includes(h.id));
   const mods = (id: string) => HEROES.find((h) => h.id === id)!.modifiers;
   const withHero = (id: string, extra: Parameters<typeof setup>[0] = {}) =>
     setup({ ...extra, modifiers: [mods(id), []] });
@@ -466,7 +311,6 @@ describe('the 7 unlockable heroes', () => {
         const c = getCard(id);
         expect(c.faction).toBe(h.faction);
         expect(c.token).toBe(false);
-        expect(c.unlock, `${h.id} uses ${id}`).toBe('starter');
       }
       // The deck plays as a match deck for the hero.
       const deck = [...h.starterDeck, ...h.starterDeck, ...h.starterDeck];
@@ -548,29 +392,5 @@ describe('the 7 unlockable heroes', () => {
       const turns = h.modifiers.flatMap((m) => (m.kind === 'turnStart' ? (m.turns ?? []) : []));
       for (const t of turns) expect(h.passive, h.id).toContain(ordinal(t));
     }
-  });
-});
-
-describe('meta progression on Spellfall’s card pool', () => {
-  it('the starting collection and the unlock track together cover every collectible card exactly once', () => {
-    const track = UNLOCKS.filter((b) => b.kind !== 'relics')
-      .flatMap((b) => b.ids)
-      .filter((id) => !id.startsWith('hero-'));
-    const all = [...starterCollection(), ...track].sort();
-    expect(all).toEqual(
-      collectibleCards()
-        .map((c) => c.id)
-        .sort(),
-    );
-    for (const id of track) expect(getCard(id).unlock, id).toBe('track');
-  });
-
-  it('a new profile owns 12 starter cards in each faction', () => {
-    const owned = [...ownedCardIds(newProfile())];
-    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
-      expect(
-        owned.filter((id) => getCard(id).faction === f),
-        f,
-      ).toHaveLength(12);
   });
 });

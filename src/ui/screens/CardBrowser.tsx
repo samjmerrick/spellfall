@@ -12,7 +12,6 @@ import { KEYWORD_NAME } from '../../rules/text';
 import { DuelCard } from '../duel/Card';
 import { GLYPHS } from '../factions';
 import { useDuel } from '../duel/store';
-import { unlockLevel } from '../../run';
 import { useLongPress } from '../useLongPress';
 
 export interface Filters {
@@ -128,13 +127,11 @@ function FilterBar({ value, onChange }: { value: Filters; onChange(f: Filters): 
 
 function GridCard({
   id,
-  locked,
   count,
   limit,
   onTap,
 }: {
   id: string;
-  locked: boolean;
   count?: number;
   limit?: number;
   onTap(): void;
@@ -142,18 +139,15 @@ function GridCard({
   const showDetail = useDuel((s) => s.showDetail);
   const press = useLongPress(onTap, () => showDetail(id));
   const name = getCard(id).name;
-  const level = unlockLevel(id);
-  const lockText = level ? `Unlocks at level ${level}` : 'Locked';
   return (
     <button
       type="button"
-      className={`grid-card${locked ? ' grid-card--locked' : ''}${count ? ' grid-card--in-deck' : ''}`}
-      aria-label={`${name}${locked ? ` (locked, ${lockText.toLowerCase()})` : ''}${count !== undefined ? `, ${count} in deck` : ''}`}
+      className={`grid-card${count ? ' grid-card--in-deck' : ''}`}
+      aria-label={`${name}${count !== undefined ? `, ${count} in deck` : ''}`}
       data-card-id={id}
       {...press}
     >
       <DuelCard cardId={id} />
-      {locked && <span className="grid-card__lock">{lockText}</span>}
       {count !== undefined && count > 0 && (
         <span className="grid-card__count">
           {count}/{limit}
@@ -164,12 +158,10 @@ function GridCard({
 }
 
 export function CardBrowser({
-  owned,
   counts,
   limitFor,
   onTap,
 }: {
-  owned: Set<string>;
   counts?: Map<string, number>;
   limitFor?: (id: string) => number;
   onTap(id: string): void;
@@ -192,7 +184,6 @@ export function CardBrowser({
           <GridCard
             key={id}
             id={id}
-            locked={!owned.has(id)}
             count={counts ? (counts.get(id) ?? 0) : undefined}
             limit={limitFor?.(id)}
             onTap={() => onTap(id)}

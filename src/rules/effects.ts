@@ -28,6 +28,8 @@ export interface Source {
   targets: (TargetRef | null)[];
   /** The stack item id of the resolving spell, for counters. */
   stackId?: number;
+  /** The spell that was just cast, for whenCast / whenEnemyCast triggers. */
+  castCardId?: string;
 }
 
 export function randomInt(ctx: Ctx, min: number, max: number): number {
@@ -75,6 +77,8 @@ export function selectUnits(ctx: Ctx, sel: UnitSelector, src: Source): Unit[] {
       return [...theirs].sort(byPlayOrder);
     case 'allUnits':
       return [...mine, ...theirs].sort(byPlayOrder);
+    case 'otherUnits':
+      return [...mine, ...theirs].filter((u) => u.uid !== src.unitUid).sort(byPlayOrder);
     case 'adjacentUnits': {
       const loc = src.unitUid === null ? null : findUnit(s, src.unitUid);
       if (!loc) return [];
@@ -131,7 +135,19 @@ export function healUnit(ctx: Ctx, unit: Unit, amount: number | 'full'): void {
 
 export function damageHero(ctx: Ctx, player: PlayerId, amount: number): void {
   if (amount <= 0) return;
-  ctx.s.players[player].hp -= amount;
+  const p = ctx.s.players[player];
+  // Death Ward: the hero cannot be reduced below 1 HP (a hero already at 0 or less is not saved).
+  if (p.deathWard && p.hp >= 1) {
+    const taken = Math.min(amount, p.hp - 1);
+    if (taken <= 0) {
+      ctx.events.push({ type: 'HeroWarded', player });
+      return;
+    }
+    p.hp -= taken;
+    ctx.events.push({ type: 'HeroDamaged', player, amount: taken });
+    return;
+  }
+  p.hp -= amount;
   ctx.events.push({ type: 'HeroDamaged', player, amount });
 }
 
@@ -198,6 +214,37 @@ function summon(ctx: Ctx, cardId: string, owner: PlayerId): void {
   const unit = createUnit(ctx, cardId, owner);
   board.push(unit);
   ctx.events.push({ type: 'UnitSummoned', player: owner, uid: unit.uid, cardId, position: board.length - 1 });
+}
+
+/** Moves an enemy unit to the end of `owner`'s board (if there is room). It cannot attack this turn unless Quick. */
+function steal(ctx: Ctx, unit: Unit, owner: PlayerId): void {
+  if (unit.owner === owner) return;
+  const dest = ctx.s.boards[owner];
+  if (dest.length >= BOARD_LIMIT) return;
+  const loc = findUnit(ctx.s, unit.uid);
+  if (!loc) return;
+  ctx.s.boards[loc.owner].splice(loc.index, 1);
+  const from = unit.owner;
+  unit.owner = owner;
+  unit.enteredTurn = ctx.s.turn;
+  unit.attacked = false;
+  unit.playOrder = ctx.s.nextPlayOrder++;
+  dest.push(unit);
+  ctx.events.push({ type: 'UnitControlled', uid: unit.uid, from, to: owner, position: dest.length - 1 });
+}
+
+/** Returns up to `count` units from the owner's discard pile to the board, most recent first. */
+function revive(ctx: Ctx, owner: PlayerId, count: number): void {
+  const discard = ctx.s.players[owner].discard;
+  let left = count;
+  for (let i = discard.length - 1; i >= 0 && left > 0; i--) {
+    if (ctx.s.boards[owner].length >= BOARD_LIMIT) return;
+    const id = discard[i]!;
+    if (getCard(id).type !== 'unit') continue;
+    discard.splice(i, 1);
+    summon(ctx, id, owner);
+    left--;
+  }
 }
 
 function bounce(ctx: Ctx, unit: Unit): void {
@@ -304,12 +351,49 @@ export function runPrimitive(ctx: Ctx, action: Primitive, src: Source): void {
       ctx.events.push({ type: 'Countered', id: t.id, by: src.stackId ?? -1 });
       return;
     }
+    case 'steal':
+      for (const u of selectUnits(ctx, action.target, src)) steal(ctx, u, src.owner);
+      return;
+    case 'setMaxMana': {
+      const p = ctx.s.players[src.owner];
+      const gained = Math.max(0, Math.min(10, action.amount) - p.maxMana);
+      if (gained > 0) {
+        p.maxMana += gained;
+        ctx.events.push({ type: 'ManaGained', player: src.owner, amount: gained, max: true });
+      }
+      const refill = p.maxMana - p.mana;
+      if (refill > 0) {
+        p.mana = p.maxMana;
+        ctx.events.push({ type: 'ManaGained', player: src.owner, amount: refill, max: false });
+      }
+      return;
+    }
+    case 'deathWard':
+      ctx.s.players[src.owner].deathWard = true;
+      ctx.events.push({ type: 'HeroWarded', player: src.owner });
+      return;
+    case 'extraTurn':
+      ctx.s.extraTurn = src.owner;
+      ctx.events.push({ type: 'ExtraTurn', player: src.owner });
+      return;
+    case 'revive':
+      revive(ctx, src.owner, action.count);
+      return;
+    case 'copySpell':
+      if (src.castCardId !== undefined) addToHand(ctx, src.owner, src.castCardId);
+      return;
   }
 }
 
 /** Runs one trigger of a unit's card effects (none if silenced). */
-export function runTrigger(ctx: Ctx, unit: Unit, trigger: Trigger, targets: (TargetRef | null)[] = []): void {
-  const src: Source = { owner: unit.owner, unitUid: unit.uid, targets };
+export function runTrigger(
+  ctx: Ctx,
+  unit: Unit,
+  trigger: Trigger,
+  targets: (TargetRef | null)[] = [],
+  castCardId?: string,
+): void {
+  const src: Source = { owner: unit.owner, unitUid: unit.uid, targets, castCardId };
   for (const effect of unitEffects(unit)) {
     if (effect.trigger === trigger) runPrimitive(ctx, effect.action, src);
   }

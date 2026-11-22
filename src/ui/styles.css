@@ -344,6 +344,26 @@ button {
   height: 10px;
 }
 
+/* Hand cards: keyword icons ride a column on the art, large enough to read at 360px. */
+.card--hand .card__kw {
+  position: absolute;
+  top: 6px;
+  right: 4px;
+  flex: none;
+  flex-direction: column;
+  gap: 3px;
+  padding: 2px;
+  border-radius: 6px;
+  background: rgb(10 12 18 / 0.72);
+  color: #fff;
+  z-index: 1;
+}
+
+.card--hand .card__kw .kw {
+  width: 16px;
+  height: 16px;
+}
+
 .card__foot .card__type {
   flex: 1;
 }
@@ -734,11 +754,6 @@ button {
   color: var(--muted);
 }
 
-.menu__xp {
-  font-weight: 700;
-  color: var(--accent) !important;
-}
-
 .menu__nav {
   display: grid;
   gap: 12px;
@@ -939,18 +954,6 @@ textarea {
 
 .grid-card--locked .card {
   filter: grayscale(1) brightness(0.55);
-}
-
-.grid-card__lock {
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  top: 40%;
-  padding: 2px;
-  border-radius: 6px;
-  background: rgb(0 0 0 / 0.75);
-  font-size: 10px;
-  font-weight: 700;
 }
 
 .grid-card__count {
@@ -1534,56 +1537,6 @@ textarea {
 
 /* ---------- Meta progression (M6) ---------- */
 
-.xpbar {
-  display: grid;
-  gap: 6px;
-  width: 100%;
-  max-width: 280px;
-  margin-inline: auto;
-}
-
-.stats__card .xpbar {
-  max-width: none;
-}
-
-.menu__header p.xpbar__label {
-  margin: 8px 0 0;
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.xpbar__label {
-  margin: 0;
-  font-weight: 700;
-}
-
-.xpbar__track {
-  height: 10px;
-  overflow: hidden;
-  border-radius: 5px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-}
-
-.xpbar__fill {
-  display: block;
-  height: 100%;
-  border-radius: 5px;
-  background: var(--accent);
-}
-
-.menu__header .xpbar {
-  margin-inline: 0;
-}
-
-.stats__card {
-  display: grid;
-  gap: 6px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--surface);
-}
-
 .stats__empty {
   padding: 10px 12px;
   border-radius: 10px;
@@ -1613,10 +1566,6 @@ textarea {
   background: var(--surface);
 }
 
-.stats__row--locked {
-  opacity: 0.55;
-}
-
 .stats__name {
   min-width: 0;
   font-weight: 700;
@@ -1628,18 +1577,6 @@ textarea {
   color: var(--muted);
   font-size: 13px;
   text-align: right;
-}
-
-.hero-row--locked {
-  opacity: 0.6;
-  cursor: default;
-  border-style: dashed;
-}
-
-.hero-row__lock {
-  color: var(--accent);
-  font-size: 13px;
-  font-weight: 700;
 }
 
 .ascent {
@@ -1706,81 +1643,6 @@ textarea {
   min-width: 18px;
   color: var(--accent);
   font-weight: 800;
-}
-
-.levelup {
-  position: fixed;
-  background: var(--bg);
-  z-index: 60;
-  justify-content: flex-end;
-}
-
-.levelup__scroll {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 430px;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 16px 0;
-}
-
-.levelup__title {
-  font-size: 40px !important;
-  color: var(--accent);
-}
-
-.levelup__bundle {
-  display: grid;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  border-radius: 16px;
-  background: var(--surface);
-}
-
-.levelup__level {
-  margin: 0;
-  font-size: 15px;
-  color: var(--accent);
-}
-
-.levelup__kind {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.levelup__cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.levelup__hero {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  text-align: left;
-}
-
-.levelup__relics {
-  text-align: left;
-}
-
-.levelup .primary {
-  flex: none;
-  width: 100%;
-  max-width: 430px;
 }
 
 /* ---------- Settings toggles and the iOS tip ---------- */
@@ -1892,79 +1754,6 @@ textarea {
   transition: none;
 }
 
-/* ---------- Tutorial ---------- */
-
-.coach {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  right: 4px;
-  z-index: 35;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 64px;
-  padding: 8px 10px 8px 12px;
-  border: 2px solid var(--accent);
-  border-radius: 14px;
-  background: rgb(18 20 28 / 0.96);
-  box-shadow: 0 6px 18px rgb(0 0 0 / 0.5);
-}
-
-.coach__text {
-  flex: 1;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.3;
-  font-weight: 600;
-}
-
-.coach__next {
-  flex: none;
-  min-width: 72px;
-  min-height: 44px;
-}
-
-.coach-target {
-  outline: 3px solid var(--accent);
-  outline-offset: 1px;
-  animation: coach-pulse 1s ease-in-out infinite alternate;
-}
-
-.board.coach-target {
-  outline-offset: -3px;
-}
-
-@keyframes coach-pulse {
-  from {
-    box-shadow: 0 0 0 0 rgb(255 200 60 / 0.6);
-  }
-  to {
-    box-shadow: 0 0 10px 4px rgb(255 200 60 / 0.9);
-  }
-}
-
-.menu__prompt {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface-2);
-}
-
-.menu__prompt p {
-  grid-column: 1 / -1;
-  margin: 0;
-  font-weight: 600;
-}
-
-.menu__prompt button {
-  min-width: 0;
-  min-height: 40px;
-}
-
 /* ---------- Shift (drag a unit to another lane) ---------- */
 
 /* A unit that may Shift now: a dotted inner outline and a grab cursor. */
@@ -2024,7 +1813,7 @@ textarea {
 
 .duel__field {
   display: grid;
-  grid-template-rows: minmax(96px, 1fr) 64px minmax(96px, 1fr);
+  grid-template-rows: minmax(96px, 1fr) 72px minmax(96px, 1fr);
   min-height: 0;
   border-radius: 12px;
 }
@@ -2144,18 +1933,21 @@ textarea {
 }
 
 .unit__kw {
-  grid-row: 3;
+  position: absolute;
+  top: 16px;
+  right: 2px;
   display: flex;
-  justify-content: center;
-  gap: 1px;
-  min-height: 12px;
-  padding-bottom: 12px;
-  color: color-mix(in srgb, var(--text) 88%, var(--faction));
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 6px;
+  background: rgb(10 12 18 / 0.72);
+  color: #fff;
 }
 
 .unit__kw .kw {
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
 }
 
 .unit__power,
@@ -2191,9 +1983,54 @@ textarea {
   box-shadow: 0 0 0 2px #5ee38a;
 }
 
+/* Guard: a heavy steel shield frame and a shield badge, so it is obvious it must be attacked first. */
 .unit--guard {
-  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.4);
-  border-radius: 10px 10px 18px 18px;
+  border: 4px solid #aeb8c8;
+  border-radius: 8px 8px 26px 26px / 8px 8px 20px 20px;
+  box-shadow:
+    inset 0 0 0 2px #3a4456,
+    0 0 0 1px #3a4456;
+}
+
+.unit__guard {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #aeb8c8;
+  color: #1b2230;
+  pointer-events: none;
+}
+
+.unit__guard svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Sleeping: cannot attack now (just played, already attacked, or no Power). */
+.unit--sleeping {
+  filter: saturate(0.45) brightness(0.72);
+}
+
+.unit__zz {
+  position: absolute;
+  top: -8px;
+  left: -5px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #3b4a78;
+  color: #cfd8ff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 15px;
+  font-style: italic;
+  pointer-events: none;
+  filter: none;
 }
 
 .unit--barrier::after {
@@ -2209,7 +2046,14 @@ textarea {
 .unit--ready {
   box-shadow:
     0 0 0 2px var(--accent),
-    0 0 12px rgb(245 184 61 / 0.5);
+    0 0 14px 2px rgb(245 184 61 / 0.7);
+}
+
+.unit--guard.unit--ready {
+  box-shadow:
+    inset 0 0 0 2px #3a4456,
+    0 0 0 2px var(--accent),
+    0 0 14px 2px rgb(245 184 61 / 0.7);
 }
 
 .unit--picked {
@@ -2231,14 +2075,63 @@ textarea {
 
 .stack-strip {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   min-width: 0;
   padding: 4px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
+}
+
+/* The enemy hero as a target: in the middle strip, within thumb reach. */
+.strip-hero {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 56px;
+  padding: 0;
+  border-radius: 14px;
+  border: 2px solid var(--hp);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.strip-hero__icon {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.strip-hero__hp {
+  color: var(--hp);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.stack-strip__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.duel-bar__hero--static {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}
+
+.overlay--hold {
+  pointer-events: none;
 }
 
 .stack-strip__turn,
@@ -2365,15 +2258,4 @@ textarea {
 
 .duel .icon-button {
   flex: none;
-}
-
-/* The coach sits below the opponent bar so the enemy hero stays visible and tappable; taps pass through
-   the banner except on Next. */
-.duel .coach {
-  top: 56px;
-  pointer-events: none;
-}
-
-.duel .coach__next {
-  pointer-events: auto;
 }

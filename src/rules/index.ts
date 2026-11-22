@@ -22,7 +22,7 @@ export {
   generatedText,
   UPGRADED,
   PREBUILT_DECKS,
-  starterCollection,
+  collectibleCardIds,
   type CollectibleCard,
 } from './content';
 export * from './types';
