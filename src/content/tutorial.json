@@ -1,126 +1,97 @@
 {
   "seed": 19,
+  "playerHand": ["ember-spark-imp", "ember-kindle", "ember-ash-raider"],
   "playerDeck": [
-    "ember-spark-imp",
-    "ember-spark-imp",
-    "ember-kindle",
     "ember-fireball",
-    "ember-ash-raider",
-    "ember-blaze-runner",
-    "ember-cinder-bolt"
+    "ember-spark-imp",
+    "ember-spark-imp",
+    "ember-spark-imp",
+    "ember-spark-imp",
+    "ember-spark-imp"
   ],
+  "opponentHand": ["bastion-militia", "bastion-recruit", "bastion-mend", "bastion-recruit"],
   "opponentDeck": [
     "bastion-recruit",
     "bastion-recruit",
     "bastion-recruit",
-    "bastion-militia",
-    "bastion-militia",
-    "bastion-shieldbearer",
-    "bastion-squire"
+    "bastion-recruit",
+    "bastion-recruit",
+    "bastion-recruit"
   ],
-  "laneEffects": ["lane-forge", "lane-plain", "lane-plain"],
-  "opponentModifiers": [
-    {
-      "kind": "heroHp",
-      "amount": -10
-    }
-  ],
-  "opponentPlan": [
-    [
-      {
-        "card": "bastion-recruit",
-        "lane": 1,
-        "slot": 0
-      }
-    ],
-    [
-      {
-        "card": "bastion-militia",
-        "lane": 0,
-        "slot": 0
-      }
-    ],
-    [
-      {
-        "card": "bastion-recruit",
-        "lane": 2,
-        "slot": 0
-      }
-    ]
+  "opponentModifiers": [{ "kind": "heroHp", "amount": -13 }],
+  "opponentMoves": [
+    { "turn": 2, "card": "neutral-spark" },
+    { "turn": 2, "card": "bastion-militia" },
+    { "turn": 4, "attacker": "bastion-militia", "target": "ember-spark-imp" },
+    { "turn": 4, "card": "bastion-recruit" },
+    { "turn": 5, "card": "bastion-mend", "target": "hero" }
   ],
   "steps": [
     {
       "kind": "info",
-      "text": "Welcome! Each round you plan in secret, then both sides reveal and fight."
+      "text": "Welcome to Spellfall! Take turns playing cards and attacking. You pick every target."
     },
     {
-      "kind": "info",
-      "text": "Units fight the enemy units opposite them in the same lane. Spare damage hits the hero."
+      "kind": "do",
+      "text": "Drag Spark Imp from your hand onto your board.",
+      "action": "playUnit",
+      "card": "ember-spark-imp"
     },
+    { "kind": "do", "text": "New units can't attack until your next turn. Tap End Turn.", "action": "pass" },
+    { "kind": "wait", "text": "The opponent's turn." },
+    { "kind": "info", "text": "Your mana refills each turn and grows by 1. Now your Spark Imp can attack." },
     {
-      "kind": "info",
-      "text": "You have 1 mana this round. The Left lane is a Forge: units there get +1 Power."
-    },
-    {
-      "kind": "play",
-      "text": "Drag Spark Imp onto the glowing Left slot.",
+      "kind": "do",
+      "text": "Drag Spark Imp onto the enemy hero to attack.",
+      "action": "attack",
       "card": "ember-spark-imp",
-      "lane": 0,
-      "slot": 0
-    },
-    {
-      "kind": "endTurn",
-      "text": "Plans are secret until you tap End Turn."
-    },
-    {
-      "kind": "watch",
-      "text": "Cards reveal, then each lane fights."
+      "target": "enemyHero"
     },
     {
       "kind": "info",
-      "text": "Nobody blocked your Imp, so all 3 of its Power hit their hero."
+      "text": "Attacks and spells wait on the stack so the opponent can answer. This time they let it land."
     },
     {
-      "kind": "play",
-      "text": "Round 2, 2 mana. Drag a second Spark Imp onto the glowing slot.",
-      "card": "ember-spark-imp",
-      "lane": 0,
-      "slot": 1
+      "kind": "do",
+      "text": "Keep your mana: up to 3 unspent mana is saved as spell mana, for spells only. End your turn.",
+      "action": "pass"
     },
+    { "kind": "wait", "text": "The opponent's turn." },
     {
-      "kind": "cast",
-      "text": "Spells target while you plan. Drag Kindle onto the Imp you just placed.",
+      "kind": "do",
+      "text": "Their Militia attacks your Imp! Answer: drag Kindle onto your Spark Imp. Burst spells work at once.",
+      "action": "castSpell",
       "card": "ember-kindle",
-      "target": {
-        "card": "ember-spark-imp",
-        "planned": true
-      }
+      "target": "ember-spark-imp"
+    },
+    { "kind": "do", "text": "Now tap Resolve to let the attack happen.", "action": "pass" },
+    { "kind": "wait", "text": "The opponent's turn." },
+    {
+      "kind": "do",
+      "text": "Ash Raider is Quick: it can attack the turn it arrives. Play it.",
+      "action": "playUnit",
+      "card": "ember-ash-raider"
     },
     {
-      "kind": "endTurn",
-      "text": "Tap End Turn."
-    },
-    {
-      "kind": "watch",
-      "text": "Watch the lane: their Militia soaks damage first."
+      "kind": "do",
+      "text": "Attack the enemy hero with Ash Raider.",
+      "action": "attack",
+      "card": "ember-ash-raider",
+      "target": "enemyHero"
     },
     {
       "kind": "info",
-      "text": "Their Militia soaked 3 damage and fell. The rest hit their hero."
+      "text": "They answered with Mend. The stack resolves newest first: Mend heals, then your attack lands."
     },
+    { "kind": "do", "text": "Tap Resolve.", "action": "pass" },
+    { "kind": "do", "text": "End your turn.", "action": "pass" },
+    { "kind": "wait", "text": "The opponent's turn." },
     {
-      "kind": "cast",
-      "text": "Round 3. Their hero is low. Drag Fireball onto the board for 3 damage to their hero.",
+      "kind": "do",
+      "text": "Finish it: drag Fireball onto the enemy hero.",
+      "action": "castSpell",
       "card": "ember-fireball",
-      "target": null
-    },
-    {
-      "kind": "endTurn",
-      "text": "Tap End Turn to finish them."
-    },
-    {
-      "kind": "watch",
-      "text": "Reveal!"
+      "target": "enemyHero"
     }
   ]
 }

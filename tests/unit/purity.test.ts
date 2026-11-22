@@ -9,8 +9,8 @@ function files(dir: string): string[] {
 }
 
 describe('engine purity', () => {
-  it('src/engine, src/run and src/ai import nothing from src/ui, React or the DOM', () => {
-    for (const file of ['src/engine', 'src/run', 'src/ai'].flatMap(files)) {
+  it('src/rules, src/run and src/ai import nothing from src/ui, React or the DOM', () => {
+    for (const file of ['src/rules', 'src/run', 'src/ai'].flatMap(files)) {
       const src = readFileSync(file, 'utf8');
       const imports = [...src.matchAll(/from\s+'([^']+)'/g)].map((m) => m[1]!);
       for (const spec of imports) {

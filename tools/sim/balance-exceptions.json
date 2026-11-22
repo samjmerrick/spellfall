@@ -1,9 +1,0 @@
-{
-  "factions": {},
-  "cards": {},
-  "lanes": {
-    "lane-forge": "The tutorial lane: a bare +1 Power on purpose, so the tutorial can teach lane effects. Bots pile into any lane with a plain Power bonus, so its unit share is high.",
-    "lane-sanctuary": "Heroes take no damage from this lane by design; it pays out in healing for the player with more power instead.",
-    "lane-road": "Every unit there has Pierce, so all Power goes to the hero: a pure race lane, and its hero damage is high by design."
-  }
-}

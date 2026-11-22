@@ -1,5 +1,26 @@
 [
   {
+    "id": "neutral-spark",
+    "name": "The Spark",
+    "faction": "neutral",
+    "type": "spell",
+    "cost": 0,
+    "speed": "burst",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "gainMana",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "Gain 1 mana this turn.",
+    "rarity": "common",
+    "unlock": "starter",
+    "token": true
+  },
+  {
     "id": "ember-spark-imp",
     "name": "Spark Imp",
     "faction": "ember",
@@ -7,8 +28,6 @@
     "cost": 1,
     "power": 2,
     "health": 1,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -19,11 +38,10 @@
     "faction": "ember",
     "type": "unit",
     "cost": 1,
-    "power": 2,
+    "power": 1,
     "health": 1,
-    "keywords": ["pierce", "ephemeral"],
-    "effects": [],
-    "text": "Pierce. Ephemeral.",
+    "keywords": ["quick"],
+    "text": "Quick.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -35,9 +53,8 @@
     "cost": 1,
     "power": 3,
     "health": 1,
-    "keywords": ["ephemeral"],
-    "effects": [],
-    "text": "Ephemeral.",
+    "keywords": ["quick", "ephemeral"],
+    "text": "Quick. Ephemeral.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -49,9 +66,8 @@
     "cost": 2,
     "power": 3,
     "health": 1,
-    "keywords": [],
-    "effects": [],
-    "text": "",
+    "keywords": ["quick"],
+    "text": "Quick.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -62,10 +78,9 @@
     "type": "unit",
     "cost": 2,
     "power": 2,
-    "health": 2,
-    "keywords": ["pierce"],
-    "effects": [],
-    "text": "Pierce.",
+    "health": 1,
+    "keywords": ["overwhelm"],
+    "text": "Overwhelm.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -77,18 +92,22 @@
     "cost": 2,
     "power": 2,
     "health": 2,
-    "keywords": [],
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
-          "target": "randomEnemyUnitInLane",
+          "target": "target",
           "amount": 1
         }
       }
     ],
-    "text": "On Reveal: deal 1 damage to a random enemy unit in this lane.",
+    "text": "On Play: deal 1 damage to an enemy unit.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -100,10 +119,9 @@
     "cost": 3,
     "power": 4,
     "health": 2,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
           "target": "enemyHero",
@@ -111,7 +129,34 @@
         }
       }
     ],
-    "text": "On Reveal: deal 1 damage to the enemy hero.",
+    "text": "On Play: deal 1 damage to the enemy hero.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-skyfire-archer",
+    "name": "Skyfire Archer",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 3,
+    "power": 3,
+    "health": 2,
+    "targets": [
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 1
+        }
+      }
+    ],
+    "text": "On Play: deal 1 damage to an enemy.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -123,25 +168,10 @@
     "cost": 3,
     "power": 5,
     "health": 3,
-    "keywords": ["ephemeral"],
-    "effects": [],
-    "text": "Ephemeral.",
+    "keywords": ["quick", "ephemeral"],
+    "text": "Quick. Ephemeral.",
     "rarity": "uncommon",
     "unlock": "track"
-  },
-  {
-    "id": "ember-skyfire-archer",
-    "name": "Skyfire Archer",
-    "faction": "ember",
-    "type": "unit",
-    "cost": 3,
-    "power": 3,
-    "health": 3,
-    "keywords": ["pierce"],
-    "effects": [],
-    "text": "Pierce.",
-    "rarity": "common",
-    "unlock": "starter"
   },
   {
     "id": "ember-magma-brute",
@@ -151,8 +181,6 @@
     "cost": 4,
     "power": 5,
     "health": 4,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -165,20 +193,19 @@
     "cost": 4,
     "power": 3,
     "health": 4,
-    "keywords": [],
     "effects": [
       {
         "trigger": "ongoing",
         "action": {
           "op": "buff",
-          "target": "otherFriendlyUnitsInLane",
+          "target": "adjacentUnits",
           "power": 1,
           "health": 0,
-          "duration": "round"
+          "duration": "permanent"
         }
       }
     ],
-    "text": "Ongoing: other friendly units in this lane have +1 Power.",
+    "text": "Ongoing: adjacent units have +1 Power.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -189,8 +216,7 @@
     "type": "unit",
     "cost": 5,
     "power": 5,
-    "health": 4,
-    "keywords": [],
+    "health": 5,
     "effects": [
       {
         "trigger": "lastBreath",
@@ -213,9 +239,8 @@
     "cost": 6,
     "power": 6,
     "health": 5,
-    "keywords": ["pierce"],
-    "effects": [],
-    "text": "Pierce.",
+    "keywords": ["overwhelm"],
+    "text": "Overwhelm.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -225,20 +250,19 @@
     "faction": "ember",
     "type": "unit",
     "cost": 7,
-    "power": 8,
-    "health": 5,
-    "keywords": [],
+    "power": 7,
+    "health": 6,
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
-          "target": "enemyUnitsInLane",
+          "target": "allEnemyUnits",
           "amount": 2
         }
       }
     ],
-    "text": "On Reveal: deal 2 damage to each enemy unit in this lane.",
+    "text": "On Play: deal 2 damage to all enemy units.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -248,18 +272,23 @@
     "faction": "ember",
     "type": "spell",
     "cost": 1,
-    "targeting": "enemyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
           "target": "target",
-          "amount": 3
+          "amount": 2
         }
       }
     ],
-    "text": "Deal 3 damage to an enemy unit.",
+    "text": "Deal 2 damage to an enemy unit.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -269,7 +298,12 @@
     "faction": "ember",
     "type": "spell",
     "cost": 1,
-    "targeting": "friendlyUnit",
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -278,11 +312,11 @@
           "target": "target",
           "power": 2,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "Give a friendly unit +2 Power this round.",
+    "text": "Give a friendly unit +2 Power this turn.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -291,19 +325,24 @@
     "name": "Fireball",
     "faction": "ember",
     "type": "spell",
-    "cost": 2,
-    "targeting": "none",
+    "cost": 3,
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
-          "target": "enemyHero",
+          "target": "target",
           "amount": 4
         }
       }
     ],
-    "text": "Deal 4 damage to the enemy hero.",
+    "text": "Deal 4 damage to an enemy.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -313,20 +352,20 @@
     "faction": "ember",
     "type": "spell",
     "cost": 3,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "buff",
-          "target": "friendlyUnitsInLane",
+          "target": "allFriendlyUnits",
           "power": 2,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "Give friendly units in a lane +2 Power this round.",
+    "text": "Give all friendly units +2 Power this turn.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -336,18 +375,18 @@
     "faction": "ember",
     "type": "spell",
     "cost": 4,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
-          "target": "enemyUnitsInLane",
-          "amount": 3
+          "target": "allEnemyUnits",
+          "amount": 2
         }
       }
     ],
-    "text": "Deal 3 damage to each enemy unit in a lane.",
+    "text": "Deal 2 damage to all enemy units.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -356,8 +395,16 @@
     "name": "Meteor",
     "faction": "ember",
     "type": "spell",
-    "cost": 4,
-    "targeting": "enemyUnit",
+    "cost": 5,
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      },
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -371,12 +418,12 @@
         "trigger": "spell",
         "action": {
           "op": "damage",
-          "target": "enemyHero",
+          "target": "target2",
           "amount": 2
         }
       }
     ],
-    "text": "Deal 5 damage to an enemy unit and deal 2 damage to the enemy hero.",
+    "text": "Deal 5 damage to an enemy unit and deal 2 damage to an enemy.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -388,8 +435,6 @@
     "cost": 1,
     "power": 1,
     "health": 2,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -401,9 +446,8 @@
     "type": "unit",
     "cost": 1,
     "power": 1,
-    "health": 1,
+    "health": 2,
     "keywords": ["guard"],
-    "effects": [],
     "text": "Guard.",
     "rarity": "common",
     "unlock": "starter"
@@ -417,7 +461,6 @@
     "power": 1,
     "health": 1,
     "keywords": ["rally"],
-    "effects": [],
     "text": "Rally.",
     "rarity": "common",
     "unlock": "starter"
@@ -430,8 +473,6 @@
     "cost": 2,
     "power": 2,
     "health": 3,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -443,9 +484,8 @@
     "type": "unit",
     "cost": 2,
     "power": 2,
-    "health": 3,
+    "health": 2,
     "keywords": ["rally"],
-    "effects": [],
     "text": "Rally.",
     "rarity": "common",
     "unlock": "starter"
@@ -458,10 +498,9 @@
     "cost": 2,
     "power": 2,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "heal",
           "target": "friendlyHero",
@@ -469,7 +508,7 @@
         }
       }
     ],
-    "text": "On Reveal: heal your hero by 2.",
+    "text": "On Play: heal your hero by 2.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -480,9 +519,8 @@
     "type": "unit",
     "cost": 3,
     "power": 2,
-    "health": 4,
+    "health": 5,
     "keywords": ["guard"],
-    "effects": [],
     "text": "Guard.",
     "rarity": "common",
     "unlock": "starter"
@@ -495,10 +533,9 @@
     "cost": 3,
     "power": 2,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "summon",
           "cardId": "bastion-levy",
@@ -506,7 +543,7 @@
         }
       }
     ],
-    "text": "On Reveal: summon a 1/1 Levy in this lane.",
+    "text": "On Play: summon a 1/1 Levy.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -516,10 +553,9 @@
     "faction": "bastion",
     "type": "unit",
     "cost": 3,
-    "power": 2,
+    "power": 3,
     "health": 3,
     "keywords": ["barrier"],
-    "effects": [],
     "text": "Barrier.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -532,20 +568,19 @@
     "cost": 4,
     "power": 3,
     "health": 4,
-    "keywords": [],
     "effects": [
       {
         "trigger": "ongoing",
         "action": {
           "op": "buff",
-          "target": "otherFriendlyUnitsInLane",
+          "target": "adjacentUnits",
           "power": 0,
           "health": 1,
-          "duration": "round"
+          "duration": "permanent"
         }
       }
     ],
-    "text": "Ongoing: other friendly units in this lane have +1 Health.",
+    "text": "Ongoing: adjacent units have +1 Health.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -558,7 +593,6 @@
     "power": 3,
     "health": 5,
     "keywords": ["guard"],
-    "effects": [],
     "text": "Guard.",
     "rarity": "common",
     "unlock": "starter"
@@ -572,7 +606,6 @@
     "power": 4,
     "health": 6,
     "keywords": ["guard"],
-    "effects": [],
     "text": "Guard.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -585,10 +618,9 @@
     "cost": 5,
     "power": 4,
     "health": 5,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "heal",
           "target": "allFriendlyUnits",
@@ -596,7 +628,7 @@
         }
       },
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "heal",
           "target": "friendlyHero",
@@ -604,7 +636,7 @@
         }
       }
     ],
-    "text": "End of Round: heal all friendly units by 2 and heal your hero by 1.",
+    "text": "End of Turn: heal all friendly units by 2 and heal your hero by 1.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -617,7 +649,6 @@
     "power": 5,
     "health": 6,
     "keywords": ["guard", "rally"],
-    "effects": [],
     "text": "Guard. Rally.",
     "rarity": "rare",
     "unlock": "track"
@@ -630,10 +661,9 @@
     "cost": 7,
     "power": 6,
     "health": 6,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "buff",
           "target": "otherFriendlyUnits",
@@ -643,7 +673,7 @@
         }
       }
     ],
-    "text": "On Reveal: give all other friendly units +1/+1.",
+    "text": "On Play: give other friendly units +1/+1.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -653,20 +683,20 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 1,
-    "targeting": "lane",
+    "speed": "fast",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "buff",
-          "target": "friendlyUnitsInLane",
+          "target": "allFriendlyUnits",
           "power": 1,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "Give friendly units in a lane +1 Power this round.",
+    "text": "Give all friendly units +1 Power this turn.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -676,39 +706,49 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 1,
-    "targeting": "none",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyCharacter"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "heal",
-          "target": "friendlyHero",
+          "target": "target",
           "amount": 4
         }
       }
     ],
-    "text": "Heal your hero by 4.",
+    "text": "Heal a friendly character by 4.",
     "rarity": "common",
     "unlock": "starter"
   },
   {
-    "id": "bastion-call-to-arms",
-    "name": "Call to Arms",
+    "id": "bastion-divine-shield",
+    "name": "Divine Shield",
     "faction": "bastion",
     "type": "spell",
-    "cost": 2,
-    "targeting": "lane",
+    "cost": 1,
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "summon",
-          "cardId": "bastion-levy",
-          "count": 2
+          "op": "grantKeyword",
+          "target": "target",
+          "keyword": "barrier"
         }
       }
     ],
-    "text": "Summon two 1/1 Levies in a lane.",
+    "text": "Give a friendly unit Barrier.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -718,7 +758,12 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 2,
-    "targeting": "friendlyUnit",
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -736,23 +781,23 @@
     "unlock": "starter"
   },
   {
-    "id": "bastion-divine-shield",
-    "name": "Divine Shield",
+    "id": "bastion-call-to-arms",
+    "name": "Call to Arms",
     "faction": "bastion",
     "type": "spell",
     "cost": 2,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "grantKeyword",
-          "target": "friendlyUnitsInLane",
-          "keyword": "barrier"
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 2
         }
       }
     ],
-    "text": "Give friendly units in a lane Barrier.",
+    "text": "Summon two 1/1 Levies.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -764,8 +809,6 @@
     "cost": 1,
     "power": 1,
     "health": 1,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track",
@@ -779,10 +822,9 @@
     "cost": 2,
     "power": 2,
     "health": 1,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
           "target": "enemyHero",
@@ -790,7 +832,7 @@
         }
       }
     ],
-    "text": "On Reveal: deal 1 damage to the enemy hero.",
+    "text": "On Play: deal 1 damage to the enemy hero.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -800,7 +842,12 @@
     "faction": "ember",
     "type": "spell",
     "cost": 2,
-    "targeting": "enemyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -831,20 +878,19 @@
     "cost": 3,
     "power": 3,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "buff",
-          "target": "otherFriendlyUnitsInLane",
+          "target": "otherFriendlyUnits",
           "power": 1,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "On Reveal: give other friendly units in this lane +1 Power this round.",
+    "text": "On Play: give other friendly units +1 Power this turn.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -853,14 +899,14 @@
     "name": "Scorch",
     "faction": "ember",
     "type": "spell",
-    "cost": 3,
-    "targeting": "lane",
+    "cost": 4,
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
-          "target": "enemyUnitsInLane",
+          "target": "allEnemyUnits",
           "amount": 1
         }
       },
@@ -873,7 +919,7 @@
         }
       }
     ],
-    "text": "Deal 1 damage to each enemy unit in a lane and deal 2 damage to the enemy hero.",
+    "text": "Deal 1 damage to all enemy units and deal 2 damage to the enemy hero.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -885,9 +931,8 @@
     "cost": 4,
     "power": 4,
     "health": 3,
-    "keywords": ["pierce"],
-    "effects": [],
-    "text": "Pierce.",
+    "keywords": ["overwhelm"],
+    "text": "Overwhelm.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -897,7 +942,7 @@
     "faction": "ember",
     "type": "spell",
     "cost": 3,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -928,8 +973,6 @@
     "cost": 5,
     "power": 6,
     "health": 5,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track"
@@ -942,10 +985,9 @@
     "cost": 5,
     "power": 4,
     "health": 5,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "damage",
           "target": "enemyHero",
@@ -953,7 +995,7 @@
         }
       }
     ],
-    "text": "End of Round: deal 1 damage to the enemy hero.",
+    "text": "End of Turn: deal 1 damage to the enemy hero.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -963,7 +1005,7 @@
     "faction": "ember",
     "type": "spell",
     "cost": 6,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -986,9 +1028,8 @@
     "cost": 8,
     "power": 7,
     "health": 6,
-    "keywords": ["pierce"],
-    "effects": [],
-    "text": "Pierce.",
+    "keywords": ["overwhelm"],
+    "text": "Overwhelm.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -998,7 +1039,12 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 2,
-    "targeting": "friendlyUnit",
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -1032,7 +1078,6 @@
     "power": 3,
     "health": 3,
     "keywords": ["guard", "rally"],
-    "effects": [],
     "text": "Guard. Rally.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -1043,7 +1088,7 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 3,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -1075,7 +1120,6 @@
     "power": 3,
     "health": 4,
     "keywords": ["guard", "barrier"],
-    "effects": [],
     "text": "Guard. Barrier.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -1086,7 +1130,7 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 4,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -1097,7 +1141,7 @@
         }
       }
     ],
-    "text": "Summon three 1/1 Levies in a lane.",
+    "text": "Summon three 1/1 Levies.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1109,10 +1153,9 @@
     "cost": 4,
     "power": 4,
     "health": 4,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "heal",
           "target": "friendlyHero",
@@ -1120,7 +1163,7 @@
         }
       }
     ],
-    "text": "End of Round: heal your hero by 2.",
+    "text": "End of Turn: heal your hero by 2.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -1130,7 +1173,7 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 5,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -1156,7 +1199,6 @@
     "power": 4,
     "health": 5,
     "keywords": ["barrier"],
-    "effects": [],
     "text": "Barrier.",
     "rarity": "common",
     "unlock": "track"
@@ -1167,7 +1209,7 @@
     "faction": "bastion",
     "type": "spell",
     "cost": 6,
-    "targeting": "none",
+    "speed": "fast",
     "effects": [
       {
         "trigger": "spell",
@@ -1184,11 +1226,11 @@
           "target": "allFriendlyUnits",
           "power": 2,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "Give all friendly units Barrier and give all friendly units +2 Power this round.",
+    "text": "Give all friendly units Barrier and give all friendly units +2 Power this turn.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -1203,7 +1245,7 @@
     "keywords": ["guard"],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "grantKeyword",
           "target": "otherFriendlyUnits",
@@ -1211,7 +1253,7 @@
         }
       }
     ],
-    "text": "Guard. On Reveal: give all other friendly units Barrier.",
+    "text": "Guard. On Play: give other friendly units Barrier.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -1223,8 +1265,6 @@
     "cost": 1,
     "power": 1,
     "health": 2,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -1237,9 +1277,8 @@
     "cost": 1,
     "power": 2,
     "health": 1,
-    "keywords": ["shift"],
-    "effects": [],
-    "text": "Shift.",
+    "keywords": ["elusive"],
+    "text": "Elusive.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1249,7 +1288,7 @@
     "faction": "tide",
     "type": "spell",
     "cost": 1,
-    "targeting": "none",
+    "speed": "burst",
     "effects": [
       {
         "trigger": "spell",
@@ -1268,18 +1307,24 @@
     "name": "Undertow",
     "faction": "tide",
     "type": "spell",
-    "cost": 1,
-    "targeting": "enemyUnit",
+    "cost": 2,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit",
+        "maxCost": 3
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "move",
+          "op": "bounce",
           "target": "target"
         }
       }
     ],
-    "text": "Move an enemy unit to another lane.",
+    "text": "Return an enemy unit costing 3 or less to its owner's hand.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -1292,7 +1337,6 @@
     "power": 2,
     "health": 2,
     "keywords": ["barrier"],
-    "effects": [],
     "text": "Barrier.",
     "rarity": "common",
     "unlock": "starter"
@@ -1305,9 +1349,8 @@
     "cost": 2,
     "power": 2,
     "health": 3,
-    "keywords": ["shift"],
-    "effects": [],
-    "text": "Shift.",
+    "keywords": ["elusive"],
+    "text": "Elusive.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1319,17 +1362,16 @@
     "cost": 2,
     "power": 1,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "draw",
           "count": 1
         }
       }
     ],
-    "text": "On Reveal: draw a card.",
+    "text": "On Play: draw a card.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1339,7 +1381,12 @@
     "faction": "tide",
     "type": "spell",
     "cost": 2,
-    "targeting": "friendlyUnit",
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -1367,7 +1414,12 @@
     "faction": "tide",
     "type": "spell",
     "cost": 1,
-    "targeting": "enemyUnit",
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -1376,11 +1428,11 @@
           "target": "target",
           "power": -3,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "Give an enemy unit -3 Power this round.",
+    "text": "Give an enemy unit -3 Power this turn.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1392,9 +1444,8 @@
     "cost": 2,
     "power": 3,
     "health": 1,
-    "keywords": ["shift"],
-    "effects": [],
-    "text": "Shift.",
+    "keywords": ["elusive"],
+    "text": "Elusive.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1407,7 +1458,6 @@
     "power": 2,
     "health": 4,
     "keywords": ["barrier"],
-    "effects": [],
     "text": "Barrier.",
     "rarity": "common",
     "unlock": "starter"
@@ -1420,9 +1470,8 @@
     "cost": 3,
     "power": 3,
     "health": 4,
-    "keywords": ["shift"],
-    "effects": [],
-    "text": "Shift.",
+    "keywords": ["elusive"],
+    "text": "Elusive.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1432,17 +1481,21 @@
     "faction": "tide",
     "type": "spell",
     "cost": 3,
-    "targeting": "lane",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "stackItem"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "move",
-          "target": "enemyUnitsInLane"
+          "op": "counter"
         }
       }
     ],
-    "text": "Move each enemy unit in a lane to another lane.",
+    "text": "Counter a spell.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1452,7 +1505,7 @@
     "faction": "tide",
     "type": "spell",
     "cost": 2,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -1474,18 +1527,17 @@
     "cost": 3,
     "power": 2,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "grantKeyword",
-          "target": "friendlyUnitsInLane",
+          "target": "adjacentUnits",
           "keyword": "barrier"
         }
       }
     ],
-    "text": "On Reveal: give friendly units in this lane Barrier.",
+    "text": "On Play: give adjacent units Barrier.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1497,20 +1549,19 @@
     "cost": 3,
     "power": 3,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "buff",
           "target": "randomEnemyUnit",
           "power": -2,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "text": "On Reveal: give a random enemy unit -2 Power this round.",
+    "text": "On Play: give a random enemy unit -2 Power this turn.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1523,7 +1574,6 @@
     "power": 3,
     "health": 5,
     "keywords": ["barrier"],
-    "effects": [],
     "text": "Barrier.",
     "rarity": "common",
     "unlock": "starter"
@@ -1534,25 +1584,30 @@
     "faction": "tide",
     "type": "spell",
     "cost": 4,
-    "targeting": "enemyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
           "target": "target",
-          "amount": 4
+          "amount": 3
         }
       },
       {
         "trigger": "spell",
         "action": {
-          "op": "move",
-          "target": "target"
+          "op": "draw",
+          "count": 1
         }
       }
     ],
-    "text": "Deal 4 damage to an enemy unit and move it to another lane.",
+    "text": "Deal 3 damage to an enemy unit and draw a card.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -1564,17 +1619,16 @@
     "cost": 4,
     "power": 4,
     "health": 4,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "draw",
           "count": 2
         }
       }
     ],
-    "text": "On Reveal: draw 2 cards.",
+    "text": "On Play: draw 2 cards.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -1583,29 +1637,29 @@
     "name": "High Tide",
     "faction": "tide",
     "type": "spell",
-    "cost": 4,
-    "targeting": "lane",
+    "cost": 3,
+    "speed": "fast",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "buff",
-          "target": "friendlyUnitsInLane",
-          "power": 2,
+          "target": "allFriendlyUnits",
+          "power": 1,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       },
       {
         "trigger": "spell",
         "action": {
           "op": "grantKeyword",
-          "target": "friendlyUnitsInLane",
+          "target": "allFriendlyUnits",
           "keyword": "barrier"
         }
       }
     ],
-    "text": "Give friendly units in a lane +2 Power this round and give friendly units in a lane Barrier.",
+    "text": "Give all friendly units +1 Power this turn and give all friendly units Barrier.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1617,8 +1671,6 @@
     "cost": 4,
     "power": 4,
     "health": 5,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track"
@@ -1631,9 +1683,8 @@
     "cost": 5,
     "power": 5,
     "health": 6,
-    "keywords": ["shift"],
-    "effects": [],
-    "text": "Shift.",
+    "keywords": ["elusive"],
+    "text": "Elusive.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -1643,7 +1694,7 @@
     "faction": "tide",
     "type": "spell",
     "cost": 5,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -1652,7 +1703,7 @@
           "target": "allEnemyUnits",
           "power": -2,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       },
       {
@@ -1663,7 +1714,7 @@
         }
       }
     ],
-    "text": "Give all enemy units -2 Power this round and draw a card.",
+    "text": "Give all enemy units -2 Power this turn and draw a card.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -1675,17 +1726,22 @@
     "cost": 5,
     "power": 5,
     "health": 5,
-    "keywords": [],
+    "targets": [
+      {
+        "kind": "enemyUnit",
+        "maxCost": 3
+      }
+    ],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
-          "op": "move",
-          "target": "randomEnemyUnitInLane"
+          "op": "bounce",
+          "target": "target"
         }
       }
     ],
-    "text": "On Reveal: move a random enemy unit in this lane to another lane.",
+    "text": "On Play: return an enemy unit costing 3 or less to its owner's hand.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1700,14 +1756,14 @@
     "keywords": ["barrier"],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "draw",
           "count": 1
         }
       }
     ],
-    "text": "Barrier. On Reveal: draw a card.",
+    "text": "Barrier. On Play: draw a card.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -1719,8 +1775,6 @@
     "cost": 6,
     "power": 6,
     "health": 7,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track"
@@ -1731,14 +1785,14 @@
     "faction": "tide",
     "type": "spell",
     "cost": 6,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
-          "target": "enemyUnitsInLane",
-          "amount": 3
+          "target": "allEnemyUnits",
+          "amount": 2
         }
       },
       {
@@ -1749,7 +1803,7 @@
         }
       }
     ],
-    "text": "Deal 3 damage to each enemy unit in a lane and draw a card.",
+    "text": "Deal 2 damage to all enemy units and draw a card.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -1761,9 +1815,8 @@
     "cost": 6,
     "power": 5,
     "health": 6,
-    "keywords": ["shift", "barrier"],
-    "effects": [],
-    "text": "Shift. Barrier.",
+    "keywords": ["elusive", "barrier"],
+    "text": "Elusive. Barrier.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -1776,7 +1829,6 @@
     "power": 6,
     "health": 8,
     "keywords": ["barrier"],
-    "effects": [],
     "text": "Barrier.",
     "rarity": "rare",
     "unlock": "track"
@@ -1789,17 +1841,17 @@
     "cost": 8,
     "power": 5,
     "health": 7,
-    "keywords": ["shift", "barrier"],
+    "keywords": ["elusive", "barrier"],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "draw",
           "count": 2
         }
       },
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "grantKeyword",
           "target": "otherFriendlyUnits",
@@ -1807,7 +1859,7 @@
         }
       }
     ],
-    "text": "Shift. Barrier. On Reveal: draw 2 cards and give all other friendly units Barrier.",
+    "text": "Elusive. Barrier. On Play: draw 2 cards and give other friendly units Barrier.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -1820,7 +1872,6 @@
     "power": 1,
     "health": 1,
     "keywords": ["growth"],
-    "effects": [],
     "text": "Growth.",
     "rarity": "common",
     "unlock": "starter"
@@ -1833,8 +1884,6 @@
     "cost": 1,
     "power": 1,
     "health": 2,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -1845,17 +1894,17 @@
     "faction": "grove",
     "type": "spell",
     "cost": 1,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "gainMana",
+          "op": "gainMaxMana",
           "amount": 1
         }
       }
     ],
-    "text": "Gain 1 extra mana next round.",
+    "text": "Gain an empty mana slot.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1865,7 +1914,12 @@
     "faction": "grove",
     "type": "spell",
     "cost": 1,
-    "targeting": "friendlyUnit",
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -1890,8 +1944,6 @@
     "cost": 2,
     "power": 2,
     "health": 3,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -1904,17 +1956,16 @@
     "cost": 2,
     "power": 1,
     "health": 2,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
-          "op": "gainMana",
+          "op": "gainMaxMana",
           "amount": 1
         }
       }
     ],
-    "text": "On Reveal: gain 1 extra mana next round.",
+    "text": "On Play: gain an empty mana slot.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1927,7 +1978,6 @@
     "power": 1,
     "health": 3,
     "keywords": ["growth"],
-    "effects": [],
     "text": "Growth.",
     "rarity": "common",
     "unlock": "starter"
@@ -1938,7 +1988,12 @@
     "faction": "grove",
     "type": "spell",
     "cost": 2,
-    "targeting": "friendlyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -1967,7 +2022,12 @@
     "faction": "grove",
     "type": "spell",
     "cost": 2,
-    "targeting": "enemyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -1976,7 +2036,7 @@
           "target": "target",
           "power": -2,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       },
       {
@@ -1988,7 +2048,7 @@
         }
       }
     ],
-    "text": "Give an enemy unit -2 Power this round and deal 2 damage to it.",
+    "text": "Give an enemy unit -2 Power this turn and deal 2 damage to it.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2000,18 +2060,17 @@
     "cost": 2,
     "power": 2,
     "health": 2,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
-          "target": "randomEnemyUnitInLane",
+          "target": "randomEnemyUnit",
           "amount": 1
         }
       }
     ],
-    "text": "On Reveal: deal 1 damage to a random enemy unit in this lane.",
+    "text": "On Play: deal 1 damage to a random enemy unit.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2024,7 +2083,6 @@
     "power": 2,
     "health": 4,
     "keywords": ["regenerate"],
-    "effects": [],
     "text": "Regenerate.",
     "rarity": "common",
     "unlock": "starter"
@@ -2037,8 +2095,6 @@
     "cost": 3,
     "power": 4,
     "health": 3,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -2048,21 +2104,21 @@
     "name": "Overgrowth",
     "faction": "grove",
     "type": "spell",
-    "cost": 3,
-    "targeting": "lane",
+    "cost": 4,
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "buff",
-          "target": "friendlyUnitsInLane",
+          "target": "allFriendlyUnits",
           "power": 1,
           "health": 1,
           "duration": "permanent"
         }
       }
     ],
-    "text": "Give friendly units in a lane +1/+1.",
+    "text": "Give all friendly units +1/+1.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -2074,18 +2130,17 @@
     "cost": 3,
     "power": 2,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "heal",
-          "target": "friendlyUnitsInLane",
+          "target": "allFriendlyUnits",
           "amount": 1
         }
       }
     ],
-    "text": "End of Round: heal friendly units in this lane by 1.",
+    "text": "End of Turn: heal all friendly units by 1.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2095,7 +2150,7 @@
     "faction": "grove",
     "type": "spell",
     "cost": 3,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -2106,7 +2161,7 @@
         }
       }
     ],
-    "text": "Summon two 1/1 Saplings in a lane.",
+    "text": "Summon two 1/1 Saplings.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2116,17 +2171,17 @@
     "faction": "grove",
     "type": "spell",
     "cost": 3,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "gainMana",
+          "op": "gainMaxMana",
           "amount": 2
         }
       }
     ],
-    "text": "Gain 2 extra mana next round.",
+    "text": "Gain 2 empty mana slots.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2138,8 +2193,6 @@
     "cost": 4,
     "power": 4,
     "health": 5,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -2153,7 +2206,6 @@
     "power": 3,
     "health": 5,
     "keywords": ["regenerate"],
-    "effects": [],
     "text": "Regenerate.",
     "rarity": "common",
     "unlock": "track"
@@ -2164,7 +2216,12 @@
     "faction": "grove",
     "type": "spell",
     "cost": 4,
-    "targeting": "friendlyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -2192,14 +2249,14 @@
     "keywords": ["growth"],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
-          "op": "gainMana",
+          "op": "gainMaxMana",
           "amount": 1
         }
       }
     ],
-    "text": "Growth. On Reveal: gain 1 extra mana next round.",
+    "text": "Growth. On Play: gain an empty mana slot.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2212,7 +2269,6 @@
     "power": 1,
     "health": 6,
     "keywords": ["regenerate"],
-    "effects": [],
     "text": "Regenerate.",
     "rarity": "common",
     "unlock": "track"
@@ -2225,8 +2281,6 @@
     "cost": 5,
     "power": 5,
     "health": 6,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track"
@@ -2236,21 +2290,21 @@
     "name": "Stampede",
     "faction": "grove",
     "type": "spell",
-    "cost": 5,
-    "targeting": "lane",
+    "cost": 6,
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "buff",
-          "target": "friendlyUnitsInLane",
+          "target": "allFriendlyUnits",
           "power": 2,
           "health": 2,
           "duration": "permanent"
         }
       }
     ],
-    "text": "Give friendly units in a lane +2/+2.",
+    "text": "Give all friendly units +2/+2.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -2262,18 +2316,16 @@
     "cost": 5,
     "power": 4,
     "health": 4,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "summon",
-          "cardId": "grove-sapling",
-          "count": 1
+          "cardId": "grove-sapling"
         }
       }
     ],
-    "text": "On Reveal: summon a 1/1 Sapling in this lane.",
+    "text": "On Play: summon a 1/1 Sapling.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2288,7 +2340,7 @@
     "keywords": ["regenerate"],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "heal",
           "target": "friendlyHero",
@@ -2296,7 +2348,7 @@
         }
       }
     ],
-    "text": "Regenerate. End of Round: heal your hero by 1.",
+    "text": "Regenerate. End of Turn: heal your hero by 1.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2308,8 +2360,6 @@
     "cost": 6,
     "power": 7,
     "health": 6,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track"
@@ -2323,7 +2373,6 @@
     "power": 4,
     "health": 6,
     "keywords": ["growth", "regenerate"],
-    "effects": [],
     "text": "Growth. Regenerate.",
     "rarity": "rare",
     "unlock": "track"
@@ -2334,7 +2383,12 @@
     "faction": "grove",
     "type": "spell",
     "cost": 6,
-    "targeting": "enemyUnit",
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -2357,8 +2411,6 @@
     "cost": 8,
     "power": 7,
     "health": 6,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "rare",
     "unlock": "track"
@@ -2374,7 +2426,7 @@
     "keywords": ["growth", "regenerate"],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "buff",
           "target": "otherFriendlyUnits",
@@ -2384,7 +2436,7 @@
         }
       }
     ],
-    "text": "Growth. Regenerate. End of Round: give all other friendly units +1/+1.",
+    "text": "Growth. Regenerate. End of Turn: give other friendly units +1/+1.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -2397,7 +2449,6 @@
     "power": 1,
     "health": 1,
     "keywords": ["growth"],
-    "effects": [],
     "text": "Growth.",
     "rarity": "common",
     "unlock": "track",
@@ -2411,7 +2462,6 @@
     "cost": 1,
     "power": 1,
     "health": 1,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2434,8 +2484,6 @@
     "cost": 1,
     "power": 2,
     "health": 1,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -2445,19 +2493,23 @@
     "name": "Hex",
     "faction": "dusk",
     "type": "spell",
-    "cost": 1,
-    "targeting": "enemyUnit",
+    "cost": 2,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
         "action": {
-          "op": "damage",
-          "target": "target",
-          "amount": 2
+          "op": "silence",
+          "target": "target"
         }
       }
     ],
-    "text": "Deal 2 damage to an enemy unit.",
+    "text": "Silence an enemy unit.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -2467,7 +2519,12 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 1,
-    "targeting": "friendlyUnit",
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -2497,7 +2554,6 @@
     "power": 1,
     "health": 2,
     "keywords": ["lifesteal"],
-    "effects": [],
     "text": "Lifesteal.",
     "rarity": "common",
     "unlock": "starter"
@@ -2510,18 +2566,16 @@
     "cost": 2,
     "power": 2,
     "health": 2,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
         "action": {
           "op": "summon",
-          "cardId": "dusk-shade",
-          "count": 1
+          "cardId": "dusk-shade"
         }
       }
     ],
-    "text": "Last Breath: summon a 1/1 Shade in this lane.",
+    "text": "Last Breath: summon a 1/1 Shade.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -2533,8 +2587,6 @@
     "cost": 2,
     "power": 3,
     "health": 2,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -2545,7 +2597,12 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 2,
-    "targeting": "enemyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -2574,7 +2631,7 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 2,
-    "targeting": "none",
+    "speed": "fast",
     "effects": [
       {
         "trigger": "spell",
@@ -2605,7 +2662,6 @@
     "cost": 2,
     "power": 1,
     "health": 1,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2628,8 +2684,6 @@
     "cost": 3,
     "power": 3,
     "health": 3,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "starter"
@@ -2643,7 +2697,6 @@
     "power": 2,
     "health": 3,
     "keywords": ["lifesteal"],
-    "effects": [],
     "text": "Lifesteal.",
     "rarity": "common",
     "unlock": "starter"
@@ -2656,18 +2709,17 @@
     "cost": 3,
     "power": 3,
     "health": 2,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
-          "target": "randomEnemyUnitInLane",
+          "target": "randomEnemyUnit",
           "amount": 2
         }
       }
     ],
-    "text": "On Reveal: deal 2 damage to a random enemy unit in this lane.",
+    "text": "On Play: deal 2 damage to a random enemy unit.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2677,7 +2729,12 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 3,
-    "targeting": "enemyUnit",
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -2698,7 +2755,7 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 3,
-    "targeting": "lane",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -2709,7 +2766,7 @@
         }
       }
     ],
-    "text": "Summon two 1/1 Shades in a lane.",
+    "text": "Summon two 1/1 Shades.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2721,7 +2778,6 @@
     "cost": 3,
     "power": 3,
     "health": 3,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2744,7 +2800,6 @@
     "power": 3,
     "health": 3,
     "keywords": ["lifesteal"],
-    "effects": [],
     "text": "Lifesteal.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -2757,7 +2812,6 @@
     "cost": 4,
     "power": 3,
     "health": 4,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2768,7 +2822,7 @@
         }
       }
     ],
-    "text": "Last Breath: summon two 1/1 Shades in this lane.",
+    "text": "Last Breath: summon two 1/1 Shades.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2778,7 +2832,12 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 4,
-    "targeting": "enemyUnit",
+    "speed": "slow",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
     "effects": [
       {
         "trigger": "spell",
@@ -2800,7 +2859,6 @@
     "cost": 4,
     "power": 2,
     "health": 5,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2821,7 +2879,7 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 4,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -2852,10 +2910,9 @@
     "cost": 5,
     "power": 3,
     "health": 5,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "endOfRound",
+        "trigger": "endOfTurn",
         "action": {
           "op": "damage",
           "target": "allEnemyUnits",
@@ -2863,7 +2920,7 @@
         }
       }
     ],
-    "text": "End of Round: deal 1 damage to all enemy units.",
+    "text": "End of Turn: deal 1 damage to all enemy units.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -2875,7 +2932,6 @@
     "cost": 5,
     "power": 5,
     "health": 5,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2895,19 +2951,19 @@
     "name": "Plague",
     "faction": "dusk",
     "type": "spell",
-    "cost": 5,
-    "targeting": "lane",
+    "cost": 4,
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
         "action": {
           "op": "damage",
-          "target": "allUnitsInLane",
-          "amount": 3
+          "target": "allUnits",
+          "amount": 2
         }
       }
     ],
-    "text": "Deal 3 damage to each unit in a lane.",
+    "text": "Deal 2 damage to all units.",
     "rarity": "uncommon",
     "unlock": "track"
   },
@@ -2920,7 +2976,6 @@
     "power": 4,
     "health": 5,
     "keywords": ["lifesteal"],
-    "effects": [],
     "text": "Lifesteal.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -2933,7 +2988,6 @@
     "cost": 6,
     "power": 5,
     "health": 6,
-    "keywords": [],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2944,7 +2998,7 @@
         }
       }
     ],
-    "text": "Last Breath: summon two 1/1 Shades in this lane.",
+    "text": "Last Breath: summon two 1/1 Shades.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2954,7 +3008,7 @@
     "faction": "dusk",
     "type": "spell",
     "cost": 6,
-    "targeting": "none",
+    "speed": "slow",
     "effects": [
       {
         "trigger": "spell",
@@ -2986,7 +3040,6 @@
     "power": 5,
     "health": 5,
     "keywords": ["lifesteal"],
-    "effects": [],
     "text": "Lifesteal.",
     "rarity": "uncommon",
     "unlock": "track"
@@ -2999,17 +3052,16 @@
     "cost": 7,
     "power": 5,
     "health": 6,
-    "keywords": [],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "destroy",
           "target": "randomEnemyUnit"
         }
       }
     ],
-    "text": "On Reveal: destroy a random enemy unit.",
+    "text": "On Play: destroy a random enemy unit.",
     "rarity": "rare",
     "unlock": "track"
   },
@@ -3024,7 +3076,7 @@
     "keywords": ["lifesteal"],
     "effects": [
       {
-        "trigger": "onReveal",
+        "trigger": "onPlay",
         "action": {
           "op": "damage",
           "target": "allEnemyUnits",
@@ -3032,7 +3084,7 @@
         }
       }
     ],
-    "text": "Lifesteal. On Reveal: deal 2 damage to all enemy units.",
+    "text": "Lifesteal. On Play: deal 2 damage to all enemy units.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -3044,8 +3096,6 @@
     "cost": 1,
     "power": 1,
     "health": 1,
-    "keywords": [],
-    "effects": [],
     "text": "",
     "rarity": "common",
     "unlock": "track",

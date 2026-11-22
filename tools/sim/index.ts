@@ -1,28 +1,34 @@
+// Bot-vs-bot matches on Spellfall's rules: pnpm sim [n=200] [levelA=normal] [levelB=normal] [factionA] [factionB]
+// Without factions, every pairing is played in turn. Seats alternate so neither side always goes first.
 import type { Difficulty } from '../../src/ai';
-import { factionDeck } from './decks';
-import { playBotMatch } from './runner';
+import { FACTIONS } from '../../src/rules';
+import { aiMatch, factionDeck } from './rules-bot';
 
-// pnpm sim [matches=1000] [p1=easy] [p2=easy]
-const n = Number(process.argv[2] ?? 1000);
-const ai: [Difficulty, Difficulty] = [
-  (process.argv[3] as Difficulty) ?? 'easy',
-  (process.argv[4] as Difficulty) ?? 'easy',
-];
-const decks: [string[], string[]] = [factionDeck('ember'), factionDeck('bastion')];
-const wins = [0, 0];
+const n = Number(process.argv[2] ?? 200);
+const a = (process.argv[3] ?? 'normal') as Difficulty;
+const b = (process.argv[4] ?? 'normal') as Difficulty;
+const fa = process.argv[5];
+const fb = process.argv[6];
+let winsA = 0;
 let draws = 0;
-let rounds = 0;
-let byRounds = 0;
+let turns = 0;
+let firstWins = 0;
 const start = performance.now();
 for (let seed = 1; seed <= n; seed++) {
-  const { final } = playBotMatch({ decks }, seed, ai);
-  rounds += final.round;
-  if (final.result?.reason === 'rounds') byRounds++;
-  if (final.result?.winner === null) draws++;
-  else wins[final.result!.winner]!++;
+  const da = fa ?? FACTIONS[seed % 5]!;
+  const db = fb ?? FACTIONS[Math.floor(seed / 5) % 5]!;
+  const seatA = (seed % 2) as 0 | 1;
+  const decks: [string[], string[]] =
+    seatA === 0 ? [factionDeck(da), factionDeck(db)] : [factionDeck(db), factionDeck(da)];
+  const levels: [Difficulty, Difficulty] = seatA === 0 ? [a, b] : [b, a];
+  const { state } = aiMatch(decks, levels, seed);
+  const w = state.result!.winner;
+  if (w === null) draws++;
+  else if (w === seatA) winsA++;
+  if (w !== null && w === state.firstPlayer) firstWins++;
+  turns += state.turn;
 }
 const ms = performance.now() - start;
-console.log(`${n} matches, Ember (P1, ${ai[0]}) vs Bastion (P2, ${ai[1]})`);
-console.log(`P1 wins ${wins[0]}, P2 wins ${wins[1]}, draws ${draws}`);
-console.log(`average length ${(rounds / n).toFixed(2)} rounds; ${byRounds} went the full 8 rounds`);
-console.log(`${(ms / n).toFixed(2)} ms per match`);
+console.log(
+  `${n} matches, ${a} vs ${b}${fa ? ` (${fa} vs ${fb})` : ''}: ${a} side won ${winsA} (${((100 * winsA) / n).toFixed(1)}%), draws ${draws}, first player won ${((100 * firstWins) / n).toFixed(1)}%, ${(turns / n).toFixed(1)} turns per match, ${(ms / n).toFixed(1)} ms per match`,
+);

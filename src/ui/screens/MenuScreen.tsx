@@ -3,7 +3,7 @@ import type { Profile } from '../../save';
 import { useApp } from '../app';
 import { currentIosEnv, shouldShowIosTip } from '../ios';
 import { useRun } from '../runStore';
-import { useMatch } from '../store';
+import { useDuel } from '../duel/store';
 import { XpBar } from './XpBar';
 
 /** A fresh profile: the tutorial has not been played or skipped and nothing else has either. */
@@ -26,7 +26,7 @@ export function MenuScreen() {
   const runError = useRun((s) => s.error);
   const dismissIosTip = useApp((s) => s.dismissIosTip);
   const completeTutorial = useApp((s) => s.completeTutorial);
-  const startTutorial = useMatch((s) => s.startTutorial);
+  const startTutorial = useDuel((s) => s.startTutorial);
   // A new player gets the prompt in place of the Tutorial button.
   const newPlayer = isNewPlayer(profile);
   const showTip = shouldShowIosTip(currentIosEnv(), profile.iosTipSeen);

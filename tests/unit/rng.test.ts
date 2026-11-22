@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nextFloat, nextInt, seedRng } from '../../src/engine/rng';
+import { nextFloat, nextInt, seedRng } from '../../src/rules/rng';
 
 function sequence(seed: number, n: number): number[] {
   let s = seedRng(seed);

@@ -6,7 +6,7 @@
 
 Spellfall is a single-player, portrait-mode card battler for phones: an open board where you choose every attack's target (Hearthstone), spell speeds, priority and a stack that let the opponent answer on either turn (Legends of Runeterra), and five colour factions with a 20 HP life total.
 
-Spellfall is a fork of Lanefall, a 3-lane simultaneous-reveal game. The Lanefall spec is kept in `docs/v1/spec.md` for reference; this document replaces it. Until milestone V2 the code still plays Lanefall's rules (see Transition from Lanefall).
+Spellfall is a fork of Lanefall, a 3-lane simultaneous-reveal game. The Lanefall spec is kept in `docs/v1/spec.md` for reference; this document replaces it (see Transition from Lanefall).
 
 **Design pillars**
 
@@ -212,7 +212,6 @@ Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand an
 ```
 src/
   rules/     Spellfall rules: state, actions, priority, stack, combat, effects, seeded RNG (no React, no DOM)
-  engine/    Lanefall rules, still driving runs and the tutorial until V5/V7, then deleted
   content/   cards.json, relics.json, heroes.json, enemies.json, unlocks.json, …
   run/       map generation, rewards, shops, events, meta progression
   ai/        opponent planners (Easy, Normal, Hard)
@@ -235,7 +234,7 @@ viewFor(state: GameState, player: PlayerId): PlayerView   // hides the opponent'
 
 - `GameState` is plain, serialisable JSON, including the RNG state, so any match can be saved and resumed at any priority point. It holds `turn`, `activePlayer`, `priority`, `stack`, both players and the result.
 - Every action (mulligan, play unit, cast spell, declare attack, pass, end turn) is one `applyAction` step that returns an ordered list of events (`CardPlayed`, `StackItemAdded`, `StackResolving`, `DamageDealt`, `UnitDied`, `HeroDamaged`, `Fizzled`, `TurnStarted` and so on). The UI animates them in order and never works out game results itself.
-- All randomness uses one seeded generator stored in the state. A lint rule bans `Math.random` and `Date` inside `src/rules`, `src/engine`, `src/run` and `src/ai`.
+- All randomness uses one seeded generator stored in the state. A lint rule bans `Math.random` and `Date` inside `src/rules`, `src/run` and `src/ai`.
 - The AI and the UI only ever read a `PlayerView`, so neither can see hidden cards, except where a boss rule says so.
 - Card effects are data: a new card needs new JSON, not new engine code, in most cases.
 
@@ -263,7 +262,7 @@ The AI plays from its `PlayerView`: it never sees your hand or deck order, excep
 
 ## Transition from Lanefall
 
-Spellfall starts as a copy of Lanefall with its full history. The new rules are built beside the old ones, so `main` always deploys a working game:
+Spellfall started as a copy of Lanefall with its full history. The new rules were built beside the old ones, so `main` always deployed a working game; from V7 nothing of Lanefall's engine, AI, match screen or lane content remains:
 
 | Area                                                    | Fate                                                                                                    |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |

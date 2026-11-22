@@ -1,87 +1,111 @@
-// Hard AI: take Normal's 20 best plans, then score each against 30 sampled opponent plans and pick the
-// best average. The opponent's hand is hidden: each sample deals them a guessed hand from the cards
-// they have not played (their hand and deck together), then picks one of their strongest plays.
-//
-// Work is a fixed amount, so the result is deterministic for a given AI RNG. A clock can be passed
-// (the UI's worker does): if the budget runs out, the best plan so far is returned. Samples run in
-// the outer loop, so every candidate has been scored against the same opponents at any cut-off.
-import { other, type GameState, type PlannedAction, type PlayerId } from '../engine';
-import { nextInt, shuffle, type RngState } from '../engine/rng';
-import type { PlanResult } from './easy';
+// Hard AI: determinised look-ahead. The opponent's hidden hand and deck are filled with cards it could hold
+// (from the factions it has shown), Normal's best few actions are tried, and each is played out with Normal
+// for both sides to the end of the opponent's next turn. The action with the best average score wins.
+import { nextInt, type RngState } from '../rules/rng';
 import {
-  enumeratePlans,
-  arrangeSlots,
-  evaluate,
-  hideOpponent,
-  mulliganChoice,
-  simulate,
-  toActions,
-  type AiHooks,
-} from './normal';
+  collectibleCards,
+  getCard,
+  HIDDEN,
+  other,
+  type GameState,
+  type PlayerId,
+  type PlayerView,
+} from '../rules';
+import { actNormal, rankActions, simulate, type ActResult } from './index';
+import { score } from './score';
 
-export const HARD_CANDIDATES = 20;
-export const HARD_SAMPLES = 30;
-/** Opponent plans considered per sample; one of these is picked at random. */
-const OPPONENT_OPTIONS = 6;
-export const HARD_BUDGET_MS = 500;
+/** Reads the time in ms; the UI passes one so Hard stops at its budget. Without it, Hard is deterministic. */
+export type Clock = () => number;
 
-export interface Clock {
-  now(): number;
-  budgetMs?: number;
+export const HARD = {
+  candidates: 4,
+  samples: 4,
+  budgetMs: 400,
+  /** Actions per rollout before it is cut off and scored. */
+  rolloutCap: 40,
+};
+
+/** Factions the opponent has shown (board, discard, stack); all factions if none yet. */
+function shownFactions(view: PlayerView): Set<string> {
+  const opp = other(view.viewer);
+  const ids = [
+    ...view.boards[opp].map((u) => u.cardId),
+    ...view.players[opp].discard,
+    ...view.stack
+      .filter((i) => i.kind === 'spell' && i.owner === opp)
+      .map((i) => (i as { cardId: string }).cardId),
+  ];
+  const f = new Set(ids.map((id) => getCard(id).faction).filter((x) => x !== 'neutral'));
+  return f.size > 0 ? f : new Set(['ember', 'tide', 'grove', 'bastion', 'dusk']);
 }
 
-/** A copy of `s` where the opponent holds a random hand drawn from their unseen cards. */
-function guessOpponent(s: GameState, player: PlayerId, rng: RngState): [GameState, RngState] {
-  const opp = other(player);
-  const p = s.players[opp];
-  const unseen = [...p.hand.map((h) => h.cardId), ...p.deck];
-  const [cards, next] = shuffle(rng, unseen);
-  const hand = p.hand.map((h, i) => ({ uid: h.uid, cardId: cards[i]! }));
-  const players = [...s.players] as GameState['players'];
-  players[opp] = { ...p, hand };
-  return [{ ...s, players }, next];
-}
-
-export function planHard(
-  state: GameState,
-  player: PlayerId,
-  rng: RngState,
-  hooks: AiHooks = {},
-  clock?: Clock,
-): PlanResult {
-  if (state.phase === 'mulligan') return { actions: [mulliganChoice(state, player)], rng };
-  const start = clock?.now() ?? 0;
-  const outOfTime = () => clock !== undefined && clock.now() - start > (clock.budgetMs ?? HARD_BUDGET_MS);
-  const base = hideOpponent(state, player);
-  const opp = other(player);
-
-  // Opponent plans to test against: the real plan for a boss that sees it, otherwise samples.
-  const samples: { s: GameState; plan: PlannedAction[] }[] = [];
-  if (hooks.seesPlan) samples.push({ s: base, plan: state.players[opp].plan });
-
-  // Candidates: Normal's best plans against an empty opponent plan.
-  const candidates = enumeratePlans(base, player)
-    .map((plan) => ({ plan, score: evaluate(simulate(base, player, plan), player) }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, HARD_CANDIDATES)
-    .map((c) => ({ plan: c.plan, total: 0 }));
-
+/** A full state consistent with the view: hidden cards replaced by plausible ones. */
+export function determinise(view: PlayerView, rng: RngState): [GameState, RngState] {
+  const s = structuredClone(view) as GameState & { viewer?: PlayerId };
+  delete s.viewer;
+  const factions = shownFactions(view);
+  const pool = collectibleCards().filter((c) => factions.has(c.faction));
   let r = rng;
-  const sampleCount = hooks.seesPlan ? 1 : HARD_SAMPLES;
-  for (let i = 0; i < sampleCount && !outOfTime(); i++) {
-    let sample = samples[i];
-    if (!sample) {
-      let guessed: GameState;
-      [guessed, r] = guessOpponent(base, player, r);
-      const options = enumeratePlans(guessed, opp, OPPONENT_OPTIONS);
-      let pick: number;
-      [pick, r] = nextInt(r, 0, options.length - 1);
-      sample = { s: guessed, plan: options[pick]! };
-    }
-    for (const c of candidates) c.total += evaluate(simulate(sample.s, player, c.plan, sample.plan), player);
-  }
+  const pick = () => {
+    const [i, next] = nextInt(r, 0, pool.length - 1);
+    r = next;
+    return pool[i]!.id;
+  };
+  const opp = other(view.viewer);
+  s.players[opp].hand = s.players[opp].hand.map((c) => (c.cardId === HIDDEN ? { ...c, cardId: pick() } : c));
+  s.players[opp].deck = s.players[opp].deck.map((id) => (id === HIDDEN ? pick() : id));
+  return [s, r];
+}
 
-  let best = candidates[0]!;
-  for (const c of candidates) if (c.total > best.total) best = c;
-  return { actions: toActions(player, arrangeSlots(base, player, best.plan)), rng: r };
+/** Plays Normal for both sides from `s` until `stopAfterTurn` ends (or the cap), then scores for `me`. */
+function rollout(s: GameState, me: PlayerId, stopAfterTurn: number): number {
+  let g = s;
+  for (let i = 0; i < HARD.rolloutCap && g.phase === 'main' && g.turn <= stopAfterTurn; i++) {
+    const p = g.priority;
+    const v = { ...g, viewer: p } as PlayerView;
+    const { action } = actNormal(v, 0);
+    const next = simulate(g, action, false);
+    if (!next) break;
+    g = next;
+  }
+  return score(g, me);
+}
+
+export function actHard(view: PlayerView, rng: RngState, clock?: Clock): ActResult {
+  const me = view.viewer;
+  if (view.phase === 'mulligan') return actNormal(view, rng);
+  const ranked = rankActions(view);
+  // Only one sensible option: no search needed.
+  if (ranked.length <= 1) return { action: ranked[0]?.action ?? { type: 'pass', player: me }, rng };
+  const candidates = ranked.slice(0, HARD.candidates).map((c) => c.action);
+  if (!candidates.some((a) => a.type === 'pass')) candidates.push({ type: 'pass', player: me });
+  const totals = candidates.map(() => 0);
+  const counts = candidates.map(() => 0);
+  const start = clock?.() ?? 0;
+  // Look as far as the end of the opponent's next turn.
+  const horizon = view.turn + (view.activePlayer === me ? 1 : 0);
+  let r = rng;
+  for (let sample = 0; sample < HARD.samples; sample++) {
+    const [world, next] = determinise(view, r);
+    r = next;
+    for (let i = 0; i < candidates.length; i++) {
+      if (clock && clock() - start > HARD.budgetMs) break;
+      const after = simulate(world, candidates[i]!, false);
+      if (!after) continue;
+      totals[i]! += rollout(after, me, horizon);
+      counts[i]! += 1;
+    }
+    if (clock && clock() - start > HARD.budgetMs) break;
+  }
+  let best = 0;
+  let bestValue = -Infinity;
+  candidates.forEach((_, i) => {
+    if (counts[i] === 0) return;
+    const v = totals[i]! / counts[i]!;
+    if (v > bestValue) {
+      bestValue = v;
+      best = i;
+    }
+  });
+  return { action: candidates[best]!, rng: r };
 }

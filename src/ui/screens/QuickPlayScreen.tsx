@@ -1,4 +1,4 @@
-import type { Difficulty } from '../../ai/next';
+import type { Difficulty } from '../../ai';
 import { isDeckLegal } from '../../rules';
 import { deckChoices, ownedCards, useApp } from '../app';
 import { useDuel } from '../duel/store';

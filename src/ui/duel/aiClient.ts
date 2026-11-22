@@ -1,5 +1,5 @@
 // Runs the Spellfall AI in a Web Worker so thinking never blocks the UI; falls back to the main thread.
-import { act, type ActResult, type Difficulty } from '../../ai/next';
+import { act, type ActResult, type Difficulty } from '../../ai';
 import type { PlayerView } from '../../rules';
 import type { DuelAiRequest } from './ai.worker';
 
