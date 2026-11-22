@@ -23,7 +23,7 @@ function getWorker(): Worker | null {
 
 export function runDuelAi(difficulty: Difficulty, view: PlayerView, rng: number): Promise<ActResult> {
   const w = getWorker();
-  if (!w) return Promise.resolve(act(difficulty, view, rng));
+  if (!w) return Promise.resolve(act(difficulty, view, rng, () => performance.now()));
   const id = nextId++;
   const req: DuelAiRequest = { id, difficulty, view, rng };
   return new Promise((resolve) => {

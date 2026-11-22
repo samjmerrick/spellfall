@@ -55,7 +55,8 @@ async function tapTarget(page: Page): Promise<boolean> {
 export async function playCard(page: Page, filter = '.hand__slot--playable'): Promise<boolean> {
   const card = page.locator(filter).first();
   if ((await card.count()) === 0) return false;
-  await card.click();
+  // Hand cards overlap like a fan: tap the visible left edge, as a player would.
+  await card.click({ position: { x: 10, y: 40 } });
   if (!(await tapTarget(page))) {
     await page.locator('.stack-strip').click();
     return false;
