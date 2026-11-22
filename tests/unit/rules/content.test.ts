@@ -23,11 +23,28 @@ describe('content', () => {
     for (const c of parsed) expect(c.text, c.id).toBe(generatedText(c));
   });
 
-  it('has the V1 starter set: Ember and Bastion, 20 each, plus tokens', () => {
-    const by = (f: string) => collectibleCards().filter((c) => c.faction === f);
-    expect(by('ember')).toHaveLength(20);
-    expect(by('bastion')).toHaveLength(20);
-    expect(CARDS.filter((c) => c.token).map((c) => c.id)).toEqual(['neutral-spark', 'bastion-levy']);
+  it('has 30 collectible cards per faction, plus tokens', () => {
+    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
+      expect(
+        collectibleCards().filter((c) => c.faction === f),
+        f,
+      ).toHaveLength(30);
+    expect(CARDS.filter((c) => c.token).map((c) => c.id)).toEqual([
+      'neutral-spark',
+      'bastion-levy',
+      'grove-sapling',
+      'dusk-shade',
+    ]);
+  });
+
+  it('follows the per-faction mana curve and spell share (spec: Balance baselines)', () => {
+    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk']) {
+      const pool = collectibleCards().filter((c) => c.faction === f);
+      const spells = pool.filter((c) => c.type === 'spell').length;
+      expect(spells, f).toBeGreaterThanOrEqual(7);
+      expect(spells, f).toBeLessThanOrEqual(13);
+      expect(pool.filter((c) => c.cost >= 7).length, f).toBeLessThanOrEqual(4);
+    }
   });
 
   it('upgraded cards exist for every collectible card', () => {
@@ -178,12 +195,9 @@ function playEveryWay(card: CardDef): void {
     place(s, 1, 'ember-magma-brute', { damage: 1 });
     if (card.targets.some((t) => t.kind === 'stackItem')) {
       // Something to counter: an enemy Fast spell on the stack, with priority back to player 0.
-      const s2 = act(pass(s), {
-        type: 'castSpell',
-        player: 1,
-        uid: give(s, 1, 'bastion-rally-cry'),
-        targets: [],
-      });
+      const uid = give(s, 1, 'bastion-rally-cry');
+      const s2 = act(pass(s), { type: 'castSpell', player: 1, uid, targets: [] });
+      s2.players[0].mana = 10;
       return s2;
     }
     return s;
@@ -213,5 +227,15 @@ describe('every card and its upgrade can be played', () => {
     const r = act(s, { type: 'castSpell', player: 0, uid: give(s, 0, 'neutral-spark'), targets: [] });
     expect(r.players[0].mana).toBe(1);
     expect(hero(0)).toEqual({ kind: 'hero', player: 0 });
+  });
+});
+
+describe('art', () => {
+  it('every card has its line icon in src/content/art', async () => {
+    const { existsSync } = await import('node:fs');
+    for (const c of CARDS) {
+      if (c.faction === 'neutral') continue;
+      expect(existsSync(`src/content/art/${c.id}.svg`), c.id).toBe(true);
+    }
   });
 });

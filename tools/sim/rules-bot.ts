@@ -14,11 +14,15 @@ import {
 import { act, type Difficulty } from '../../src/ai/next';
 
 /** 30-card mono-faction decks from the collectible cards: every card once, then the commons again. */
+const deckCache = new Map<string, string[]>();
 export function factionDeck(faction: string): string[] {
+  const hit = deckCache.get(faction);
+  if (hit) return hit;
   const cards = collectibleCards().filter((c) => c.faction === faction);
   const deck = cards.map((c) => c.id);
   const commons = cards.filter((c) => c.rarity === 'common');
   for (let i = 0; deck.length < 30; i++) deck.push(commons[i % commons.length]!.id);
+  deckCache.set(faction, deck);
   return deck;
 }
 

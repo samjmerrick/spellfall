@@ -11,5 +11,5 @@ export interface DuelAiRequest {
 
 self.onmessage = (e: MessageEvent<DuelAiRequest>) => {
   const { id, difficulty, view, rng } = e.data;
-  self.postMessage({ id, result: act(difficulty, view, rng) });
+  self.postMessage({ id, result: act(difficulty, view, rng, () => performance.now()) });
 };

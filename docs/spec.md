@@ -211,7 +211,7 @@ Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand an
 ```
 src/
   rules/     Spellfall rules: state, actions, priority, stack, combat, effects, seeded RNG (no React, no DOM)
-  engine/    Lanefall rules, still driving runs and the tutorial until V4/V7, then deleted
+  engine/    Lanefall rules, still driving runs and the tutorial until V5/V7, then deleted
   content/   cards.json, relics.json, heroes.json, enemies.json, unlocks.json, …
   run/       map generation, rewards, shops, events, meta progression
   ai/        opponent planners (Easy, Normal, Hard)
@@ -267,11 +267,11 @@ Spellfall starts as a copy of Lanefall with its full history. The new rules are 
 | Area                                                    | Fate                                                                                                    |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Tooling, CI, Pages deploy, PWA, lint, Playwright        | Kept                                                                                                    |
-| `src/save`                                              | Kept; own database and code prefixes (V0); profile schema restarts at a fresh version when cards change (V3) |
-| `src/run`, run and meta content                         | Kept; lane-, round- and Reserve-based relics, passives and boss rules rewritten (V4, V6)                 |
+| `src/save`                                              | Kept; own database and code prefixes (V0); saved decks migrated to Spellfall's cards (V4) |
+| `src/run`, run and meta content                         | Kept; lane-, round- and Reserve-based relics, passives and boss rules rewritten (V5, V6)                 |
 | Content pipeline (Zod, generated card text, art icons)  | Kept; schema changes in `src/rules`                                                                     |
-| `src/engine`                                            | Replaced by `src/rules` (built in V1; Quick Play switches in V2, runs in V4, the tutorial in V7, then deleted); `rng`, `deck`, `text` and much of `effects` are reused |
-| `src/ai`                                                | Rewritten for one-action-at-a-time play (V2, V5)                                                        |
+| `src/engine`                                            | Replaced by `src/rules` (built in V1; Quick Play switches in V2, runs in V5, the tutorial in V7, then deleted); `rng`, `deck`, `text` and much of `effects` are reused |
+| `src/ai`                                                | Rewritten for one-action-at-a-time play in `src/ai/next` (V2, Hard in V3)                               |
 | `src/ui`                                                | Menus, run screens, deck builder, collection, settings, card rendering, drag and motion kept; match screen, board, store, view and tutorial coach rewritten (V2, V7) |
 | Tests and simulator                                     | Run, meta, save, deck and content tests kept; rules, combat, lane and AI tests and the balance report rewritten |
 
@@ -297,42 +297,44 @@ Everything in Core rules in `src/rules/`: turns, mana and spell mana, priority, 
 
 ### V2: One playable match
 
-The new match screen (board rows, stack strip, attack and target drags, main button, auto-pass), Easy and Normal AI, and the result screen, all on `src/rules`. Quick Play moves to the new rules with the starter pre-built decks (saved decks return in V3; Hard plays as Normal until V5). Runs and the tutorial keep Lanefall's match screen and `src/engine` until they are ported (V4, V7); `src/engine` and the lane content are deleted then.
+The new match screen (board rows, stack strip, attack and target drags, main button, auto-pass), Easy and Normal AI, and the result screen, all on `src/rules`. Quick Play moves to the new rules with the starter pre-built decks (saved decks return in V4; Hard plays as Normal until V3). Runs and the tutorial keep Lanefall's match screen and `src/engine` until they are ported (V5, V7); `src/engine` and the lane content are deleted then.
 
 - A Playwright script plays a full match at all 3 viewports, including responding to an opponent's spell, and reaches the result screen with no console errors.
 - Each Normal AI decision takes under 50 ms in the test environment.
 
-### V3: Quick Play, deck builder and saves
+### V3: Full content
 
-Collection, deck builder and pre-built decks on the new cards; a fresh profile schema; save codes.
+All 5 factions (150 cards) on the new rules, ten pre-built faction-pair decks, and Hard AI. (Moved ahead of the deck builder and runs, which both need the full card pool.)
 
-- Unit tests for every deck-legality rule.
-- Playwright: build a deck, reload, and the deck is still there; a save code round-trips to an identical profile.
-- A match closed at a priority point and reopened resumes in an identical state.
+- All content files pass schema validation; every card and its upgrade has a test that plays it every legal way.
+- Every faction has 30 collectible cards, 7–13 of them spells.
+- 10,000 random bot matches across all faction pairings end with no errors.
+- Hard AI's full search stays under 500 ms per decision in a CI benchmark, stops near its budget with a clock, and beats Normal.
 
-### V4: Run port
+### V4: Quick Play, deck builder and saves
 
-Run nodes, relics, hero passives, enemies and bosses re-authored for Spellfall's rules.
+Collection, deck builder, share codes and saved decks on Spellfall's cards; saved decks return to Quick Play; a match closed mid-turn resumes.
+
+- Unit tests for every deck-legality rule; share codes index Spellfall's collectible list.
+- Playwright: build a deck, reload, and the deck is still there and playable in Quick Play; a save code round-trips to an identical profile.
+- Saved Lanefall decks are migrated (cards that no longer exist are dropped) with a fixture.
+
+### V5: Run port
+
+Run nodes, relics, hero passives, enemies and bosses re-authored for Spellfall's rules; runs play on the new match screen.
 
 - Every relic, passive and boss rule has a unit test.
 - The simulator completes 500 bot runs with no errors.
 
-### V5: Full content
-
-All 5 factions (about 150 cards) and Hard AI.
-
-- All content files pass schema validation; every card and its upgrade has a test that it resolves as its text says.
-- Hard AI meets its 500 ms per decision budget in a CI benchmark.
-
 ### V6: Meta progression
 
-The unlock track, 10 heroes and Ascension 1–10 rebuilt on the new content.
+The unlock track, 10 heroes and Ascension 1–10 on the new content.
 
 - A new profile has only the starter cards and 3 heroes; tests for each unlock and each Ascension rule.
 
 ### V7: Polish
 
-Animation tuning, a tutorial match that teaches attacking, responding and the stack, and the committed screenshot set.
+Animation tuning, a tutorial match that teaches attacking, responding and the stack, and the committed screenshot set. `src/engine`, Lanefall's AI, match screen and lane content are deleted.
 
 - Committed screenshots of every screen at all 3 viewports, with no overflow.
 - A Playwright script completes the tutorial.

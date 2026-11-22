@@ -2,14 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { applyAction, initMatch } from '../../src/rules';
 import { factionDeck, randomMatch } from '../../tools/sim/rules-bot';
 
+const FACTIONS = ['ember', 'tide', 'grove', 'bastion', 'dusk'];
 const decks: [string[], string[]] = [factionDeck('ember'), factionDeck('bastion')];
+/** Every faction pairing in turn, including mirrors. */
+const pairFor = (seed: number): [string[], string[]] => [
+  factionDeck(FACTIONS[seed % 5]!),
+  factionDeck(FACTIONS[Math.floor(seed / 5) % 5]!),
+];
 
 describe('Spellfall rules: bulk random matches', () => {
   it('10,000 random bot matches all end with no errors', { timeout: 300_000 }, () => {
     const results = { 0: 0, 1: 0, draw: 0, turns: 0 };
     let longest = 0;
     for (let seed = 1; seed <= 10_000; seed++) {
-      const { state } = randomMatch(seed % 2 ? decks : [decks[1], decks[0]], seed);
+      const { state } = randomMatch(pairFor(seed), seed);
       expect(state.phase).toBe('over');
       const r = state.result!;
       if (r.reason === 'turns') results.turns++;

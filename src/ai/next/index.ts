@@ -12,6 +12,9 @@ import {
   type PlayerView,
 } from '../../rules';
 import { score } from './score';
+import { actHard, type Clock } from './hard';
+
+export type { Clock };
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
@@ -35,10 +38,10 @@ function visible(a: Action): boolean {
  * The state after `a`, with any stack resolved as if the other player passes. Returns null if the
  * simulation runs into hidden information.
  */
-export function simulate(view: GameState, a: Action): GameState | null {
+export function simulate(view: GameState, a: Action, resolve = true): GameState | null {
   try {
     let s = applyAction(view, a).state;
-    for (let i = 0; i < 8 && s.phase === 'main' && s.stack.length > 0; i++) {
+    for (let i = 0; resolve && i < 8 && s.phase === 'main' && s.stack.length > 0; i++) {
       s = applyAction(s, { type: 'pass', player: s.priority }).state;
     }
     return s;
@@ -55,22 +58,31 @@ export function simulate(view: GameState, a: Action): GameState | null {
 export function actNormal(view: PlayerView, rng: RngState): ActResult {
   const player = view.viewer;
   if (view.phase === 'mulligan') return { action: mulligan(view, player), rng };
+  return { action: rankActions(view)[0]!.action, rng };
+}
+
+/**
+ * Every (pruned) legal action with Normal's one-step value, best first. Passing scores the current board;
+ * acting gets a small bonus, so spending mana now beats holding it when the boards tie. Stable order.
+ */
+export function rankActions(view: PlayerView): { action: Action; value: number }[] {
+  const player = view.viewer;
   const legal = pruned(view, legalActions(view));
-  const passValue = score(passOutcome(view) ?? view, player);
-  let best: Action = legal.find((a) => a.type === 'pass')!;
-  let bestValue = passValue;
+  const out: { action: Action; value: number }[] = [];
   for (const a of legal) {
-    if (a.type === 'pass' || !visible(a)) continue;
-    const s = simulate(view, a);
-    if (!s) continue;
-    // Small tie-breaker in favour of acting: spending mana now beats holding it.
-    const v = score(s, player) + 0.01;
-    if (v > bestValue) {
-      bestValue = v;
-      best = a;
+    if (a.type === 'pass') {
+      out.push({ action: a, value: score(passOutcome(view) ?? view, player) });
+      continue;
     }
+    if (!visible(a)) continue;
+    const s = simulate(view, a);
+    if (s) out.push({ action: a, value: score(s, player) + 0.01 });
   }
-  return { action: best, rng };
+  // Pass first among equals, so a tie never acts for nothing.
+  return out
+    .map((x, i) => ({ ...x, i: x.action.type === 'pass' ? -1 : i }))
+    .sort((a, b) => b.value - a.value || a.i - b.i)
+    .map(({ action, value }) => ({ action, value }));
 }
 
 /** What passing leads to: with a stack, the stack resolves; with an empty stack the board stays. */
@@ -122,9 +134,12 @@ export function actEasy(view: PlayerView, rng: RngState): ActResult {
   return { action: acts[i]!, rng: next };
 }
 
-/** One action for `view.viewer`, who must have priority (or be choosing a mulligan). */
-export function act(difficulty: Difficulty, view: PlayerView, rng: RngState): ActResult {
+/**
+ * One action for `view.viewer`, who must have priority (or be choosing a mulligan). `clock` lets Hard stop at
+ * its time budget; without it Hard does its full, deterministic search.
+ */
+export function act(difficulty: Difficulty, view: PlayerView, rng: RngState, clock?: Clock): ActResult {
   if (difficulty === 'easy') return actEasy(view, rng);
-  // Hard arrives with the full card pool (V5); until then it plays as Normal.
+  if (difficulty === 'hard') return actHard(view, rng, clock);
   return actNormal(view, rng);
 }

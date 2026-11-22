@@ -45,9 +45,9 @@ test.describe('interaction', () => {
         const before = await page.locator('[data-row="0"] .unit').count();
         const box = (await unitCard.boundingBox())!;
         const row = (await page.locator('[data-row="0"]').boundingBox())!;
-        await page.mouse.move(box.x + box.width / 2, box.y + 20);
+        await page.mouse.move(box.x + 12, box.y + 40);
         await page.mouse.down();
-        await page.mouse.move(box.x + box.width / 2, box.y - 40, { steps: 4 });
+        await page.mouse.move(box.x + 12, box.y - 40, { steps: 4 });
         await expect(page.locator('[data-row="0"].drop--valid')).toBeVisible();
         await page.mouse.move(row.x + row.width - 10, row.y + row.height / 2, { steps: 8 });
         await page.mouse.up();
