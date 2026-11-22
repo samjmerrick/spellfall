@@ -18,6 +18,7 @@ import { TUTORIAL, stepCard } from '../../run';
 import { FADE_SECONDS, useDurationScale } from '../motion';
 import { useReduceMotion } from '../useReduceMotion';
 import { DuelCard, UnitFace } from './Card';
+import { PATHS } from '../keywordPaths';
 import { glossaryTerms } from './glossary';
 import { AI, HUMAN, useDuel, type Fx, type Pick } from './store';
 
@@ -36,6 +37,10 @@ function keyRef(key: DropKey): TargetRef | null {
   if (kind === 'stack') return { kind: 'stack', id: Number(v) };
   return null;
 }
+
+/** Hold to read: how long, and how far a finger may drift before it counts as a drag. */
+const HOLD_MS = 350;
+const HOLD_SLOP = 8;
 
 type Source = { kind: 'card' | 'unit'; uid: number };
 
@@ -114,6 +119,11 @@ export function DuelScreen() {
   const setPick = useDuel((s) => s.setPick);
   const perform = useDuel((s) => s.perform);
   const [drag, setDrag] = useState<Drag | null>(null);
+  /** The hand card being held to read, and the hold in progress. */
+  const [reading, setReading] = useState<string | null>(null);
+  const holdRef = useRef<{ timer: number; x0: number; y0: number } | null>(null);
+  /** Set when a hold opened the reader, so the click that follows the release is ignored. */
+  const heldRef = useRef(false);
 
   const legal = useMemo(
     () => (game && !busy && game.phase === 'main' && game.priority === HUMAN ? legalActions(game) : []),
@@ -171,13 +181,21 @@ export function DuelScreen() {
     setDrag(d);
   };
   useEffect(() => {
+    function cancelHold() {
+      if (holdRef.current) window.clearTimeout(holdRef.current.timer);
+      holdRef.current = null;
+    }
     function move(e: PointerEvent) {
+      const h = holdRef.current;
+      if (h && Math.hypot(e.clientX - h.x0, e.clientY - h.y0) > HOLD_SLOP) cancelHold();
       const d = dragRef.current;
       if (!d) return;
       const moved = d.moved || Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 8;
       updateDrag({ ...d, x: e.clientX, y: e.clientY, moved });
     }
     function up(e: PointerEvent) {
+      cancelHold();
+      setReading(null); // Releasing closes the reader.
       const d = dragRef.current;
       if (!d) return;
       updateDrag(null);
@@ -194,6 +212,19 @@ export function DuelScreen() {
       window.removeEventListener('pointercancel', up);
     };
   });
+
+  /** Starts a hold on a hand card: after HOLD_MS without moving, the card opens enlarged for reading. */
+  function startHold(e: React.PointerEvent, cardId: string) {
+    heldRef.current = false;
+    if (holdRef.current) window.clearTimeout(holdRef.current.timer);
+    const timer = window.setTimeout(() => {
+      holdRef.current = null;
+      heldRef.current = true;
+      updateDrag(null); // A hold is not a drag: nothing gets played.
+      setReading(cardId);
+    }, HOLD_MS);
+    holdRef.current = { timer, x0: e.clientX, y0: e.clientY };
+  }
 
   function startDrag(e: React.PointerEvent, src: Source) {
     if (actionsFor(legal, src).length === 0) return;
@@ -215,7 +246,7 @@ export function DuelScreen() {
   }
 
   if (!game) return null;
-  const input = { legal, valid, active, startDrag, tapSource, tapTarget };
+  const input = { legal, valid, active, startDrag, startHold, heldRef, tapSource, tapTarget };
   const prompt =
     pick?.kind === 'placeTargets' || pick?.kind === 'spellTargets'
       ? 'Choose a target'
@@ -242,12 +273,13 @@ export function DuelScreen() {
         }}
       >
         <BoardRow side={AI} input={input} />
-        <StackStrip prompt={prompt} />
+        <StackStrip prompt={prompt} input={input} />
         <BoardRow side={HUMAN} input={input} />
       </div>
       <HeroBar side={HUMAN} input={input} />
       <HandRow input={input} dragging={drag?.moved ? drag.src : null} />
       {drag?.moved && <DragGhost drag={drag} game={game} />}
+      {reading && <HoldReader cardId={reading} />}
       <Coach />
       <MulliganOverlay />
       <ResultOverlay />
@@ -261,6 +293,8 @@ interface Input {
   valid: Set<DropKey>;
   active: Pick | Source | null;
   startDrag(e: React.PointerEvent, src: Source): void;
+  startHold(e: React.PointerEvent, cardId: string): void;
+  heldRef: { current: boolean };
   tapSource(src: Source): void;
   tapTarget(key: DropKey, x: number): boolean;
 }
@@ -324,16 +358,23 @@ function HeroBar({ side, input }: { side: PlayerId; input: Input }) {
           ✕
         </button>
       )}
-      <button
-        type="button"
-        className={`duel-bar__hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
-        data-drop={key}
-        aria-label={`${mine ? 'Your' : 'Opponent'} hero, ${p.hp} HP`}
-        onClick={(e) => input.tapTarget(key, e.clientX)}
-      >
-        <span className="duel-bar__hp">♥ {p.hp}</span>
-        <FxLayer fx={fx} />
-      </button>
+      {mine ? (
+        <button
+          type="button"
+          className={`duel-bar__hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
+          data-drop={key}
+          aria-label={`Your hero, ${p.hp} HP`}
+          onClick={(e) => input.tapTarget(key, e.clientX)}
+        >
+          <span className="duel-bar__hp">♥ {p.hp}</span>
+          <FxLayer fx={fx} />
+        </button>
+      ) : (
+        // The opponent's hero is targeted from the middle strip, near the thumb; this is just its readout.
+        <span className="duel-bar__hero duel-bar__hero--static" aria-label={`Opponent hero, ${p.hp} HP`}>
+          <span className="duel-bar__hp">♥ {p.hp}</span>
+        </span>
+      )}
       <span className="duel-bar__mana" aria-label={`Mana ${p.mana} of ${p.maxMana}`}>
         ◆ {p.mana}/{p.maxMana}
       </span>
@@ -391,6 +432,8 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
         const ready = side === HUMAN && input.legal.some((a) => a.type === 'attack' && a.attacker === u.uid);
         const picked = input.active?.kind === 'unit' && input.active.uid === u.uid;
         const card = getCard(u.cardId);
+        // Whether it can attack comes from the engine. Only the side whose turn it is has units that sleep.
+        const sleeping = u.owner === game.activePlayer && !canAttack(game, u);
         return (
           <button
             key={u.uid}
@@ -408,7 +451,7 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
               attacking === u.uid ? `unit--attacking unit--attacking-${side}` : '',
               input.valid.has(key) ? 'drop--valid' : '',
               targeted.has(key) ? 'targeted' : '',
-              canAttack(game, u) ? '' : 'unit--spent',
+              sleeping ? 'unit--sleeping' : '',
               side === HUMAN && ready && coachCard === u.cardId ? 'coach-target' : '',
             ].join(' ')}
             aria-label={`${side === HUMAN ? 'Your' : 'Enemy'} ${card.name}`}
@@ -425,6 +468,18 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
             }}
           >
             <UnitFace s={game} unit={u} />
+            {sleeping && (
+              <span className="unit__zz" aria-label="Cannot attack now">
+                Zz
+              </span>
+            )}
+            {u.keywords.includes('guard') && (
+              <span className="unit__guard" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                  {PATHS.guard}
+                </svg>
+              </span>
+            )}
             <FxLayer fx={fx.filter((f) => 'unit' in f.target && f.target.unit === u.uid)} />
           </button>
         );
@@ -448,36 +503,69 @@ function stackLabel(s: GameState, item: StackItem): string {
   return item.targets.length ? `${name} → ${item.targets.map(target).join(', ')}` : name;
 }
 
-function StackStrip({ prompt }: { prompt: string | null }) {
+/** The opponent hero as a target, at the top of the middle strip where a thumb reaches it. */
+function EnemyHeroTarget({ input }: { input: Input }) {
+  const game = useDuel((s) => s.game)!;
+  const fx = useDuel((s) => s.fx).filter((f) => 'hero' in f.target && f.target.hero === AI);
+  const key = `hero:${AI}`;
+  const valid = input.valid.has(key);
+  const targeted = targetedKeys(game.stack).has(key);
+  return (
+    <button
+      type="button"
+      className={`strip-hero${valid ? ' drop--valid' : ''}${targeted ? ' targeted' : ''}`}
+      data-drop={key}
+      aria-label={`Opponent hero target, ${game.players[AI].hp} HP`}
+      onClick={(e) => input.tapTarget(key, e.clientX)}
+    >
+      <span className="strip-hero__icon" aria-hidden="true">
+        ♛
+      </span>
+      <span className="strip-hero__hp">♥ {game.players[AI].hp}</span>
+      <FxLayer fx={fx} />
+    </button>
+  );
+}
+
+function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) {
   const game = useDuel((s) => s.game)!;
   const banner = useDuel((s) => s.banner);
   const showDetail = useDuel((s) => s.showDetail);
   const yourTurn = game.activePlayer === HUMAN;
+  // Always derived from the current state: the stack, else whose turn it is and who has priority.
+  const turnText =
+    game.phase === 'over'
+      ? 'Match over'
+      : game.priority === HUMAN
+        ? yourTurn
+          ? 'Your turn'
+          : 'Your response'
+        : yourTurn
+          ? 'Opponent responds'
+          : "Opponent's turn";
   return (
     <div className="stack-strip" aria-label="Stack" aria-live="polite" data-zone="stack">
-      {game.stack.length > 0 ? (
-        <ol className="stack-strip__items">
-          {game.stack.map((item, i) => (
-            <li
-              key={item.id}
-              className={`stack-item stack-item--${item.owner === HUMAN ? 'player' : 'opponent'}${i === game.stack.length - 1 ? ' stack-item--top' : ''}`}
-              data-drop={`stack:${item.id}`}
-              onClick={() => item.kind === 'spell' && showDetail(item.cardId)}
-            >
-              <span className="stack-item__kind">{item.kind === 'attack' ? '⚔' : '✦'}</span>
-              {stackLabel(game, item)}
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p className="stack-strip__turn">
-          {prompt ??
-            (game.phase === 'over'
-              ? 'Match over'
-              : (banner?.text ?? (yourTurn ? 'Your turn' : "Opponent's turn")))}
-        </p>
-      )}
-      {game.stack.length > 0 && prompt && <p className="stack-strip__prompt">{prompt}</p>}
+      <EnemyHeroTarget input={input} />
+      <div className="stack-strip__body">
+        {game.stack.length > 0 ? (
+          <ol className="stack-strip__items">
+            {game.stack.map((item, i) => (
+              <li
+                key={item.id}
+                className={`stack-item stack-item--${item.owner === HUMAN ? 'player' : 'opponent'}${i === game.stack.length - 1 ? ' stack-item--top' : ''}`}
+                data-drop={`stack:${item.id}`}
+                onClick={() => item.kind === 'spell' && showDetail(item.cardId)}
+              >
+                <span className="stack-item__kind">{item.kind === 'attack' ? '⚔' : '✦'}</span>
+                {stackLabel(game, item)}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="stack-strip__turn">{prompt ?? banner?.text ?? turnText}</p>
+        )}
+        {game.stack.length > 0 && prompt && <p className="stack-strip__prompt">{prompt}</p>}
+      </div>
     </div>
   );
 }
@@ -515,17 +603,50 @@ function HandRow({ input, dragging }: { input: Input; dragging: Source | null })
               } as React.CSSProperties
             }
             aria-label={getCard(c.cardId).name}
-            onPointerDown={(e) => playable && input.startDrag(e, src)}
+            onPointerDown={(e) => {
+              input.startHold(e, c.cardId);
+              if (playable) input.startDrag(e, src);
+            }}
             onContextMenu={(e) => {
               e.preventDefault();
-              showDetail(c.cardId);
+              // Right-click opens the detail; the long-press context menu of a touch screen does not.
+              if (!input.heldRef.current) showDetail(c.cardId);
             }}
-            onClick={() => (playable ? input.tapSource(src) : showDetail(c.cardId))}
+            onClick={() => {
+              if (input.heldRef.current) {
+                input.heldRef.current = false;
+                return;
+              }
+              if (playable) input.tapSource(src);
+              else showDetail(c.cardId);
+            }}
           >
             <DuelCard cardId={c.cardId} />
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/** The enlarged card shown while a hand card is held. It ignores pointer events, so releasing closes it. */
+function HoldReader({ cardId }: { cardId: string }) {
+  const card = getCard(cardId);
+  return (
+    <div
+      className="overlay overlay--detail overlay--hold"
+      role="dialog"
+      aria-label={`${card.name} (reading)`}
+    >
+      <DuelCard cardId={cardId} size="large" />
+      <dl className="glossary">
+        {glossaryTerms(card.keywords, card.text, card.speed).map(([term, def]) => (
+          <div key={term}>
+            <dt>{term}</dt>
+            <dd>{def}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }

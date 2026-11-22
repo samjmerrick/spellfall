@@ -182,15 +182,20 @@ export const useDuel = create<DuelStore>((set, get) => {
     const game = get().game!;
     const { state, events } = applyAction(game, action);
     const scale = currentScale();
+    // The player's own plays show their result at once, so a dropped card lands on the board without lag.
+    const own = action.player === HUMAN && (action.type === 'playUnit' || action.type === 'castSpell');
+    if (own) set({ game: state });
     for (const e of eventsFor(events, HUMAN)) {
       if (e.type === 'AttackDeclared') set({ attacking: e.attacker });
       if (e.type === 'StackResolving') set({ attacking: null });
       pushFx(e);
       feedbackFor(e);
-      const ms = eventMs(e) * scale;
+      const ms = own && (e.type === 'UnitPlayed' || e.type === 'SpellCast') ? 0 : eventMs(e) * scale;
       if (ms > 0) await sleep(ms);
     }
     set({ game: state, attacking: null });
+    // Opponent messages describe an action that has now happened; the strip falls back to the live state.
+    if (action.player !== HUMAN) set({ banner: null });
     if (state.result) finish(state);
   }
 

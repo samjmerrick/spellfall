@@ -176,9 +176,9 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 
 | Zone             | Height (at 844) | Contents                                                                          |
 | ---------------- | --------------- | --------------------------------------------------------------------------------- |
-| Opponent bar     | 56 px           | Opponent hero portrait (a target), HP, mana and spell mana, hand and deck counts  |
+| Opponent bar     | 56 px           | Opponent HP, mana and spell mana, hand and deck counts (a readout, not a target)  |
 | Opponent board   | 150 px          | Up to 6 unit cards in a row                                                       |
-| Stack strip      | 72 px           | Pending stack items, newest on the right, with arrows to their targets; when empty, whose turn it is |
+| Stack strip      | 72 px           | At the left, the **opponent hero target** (drop zone for attacks and spells, within thumb reach). Beside it: pending stack items, newest on the right, with arrows to their targets; when empty, the current turn and priority ("Your turn", "Opponent's turn", "Your response"), always derived from the live state |
 | Your board       | 150 px          | Up to 6 unit cards in a row                                                       |
 | Your bar         | 64 px           | Your hero portrait, HP, mana and spell mana pips, the main button on the right    |
 | Hand             | 170 px          | Fanned hand of up to 10 cards; the dragged card lifts above your thumb            |
@@ -187,10 +187,12 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 **Touch rules**
 
 - Drag a unit from the hand onto your board to play it; a gap opens where it will go.
-- Drag from one of your units to a target to attack; legal targets light up and others dim (Guard applied). Units that can attack have a glow.
-- Every drag also works as two taps: tap a card or unit to pick it (its legal targets light up), then tap a target. Tapping anywhere else drops the pick. A card that cannot be played opens its rules text when tapped; a long press opens it for any card or unit.
+- Drag from one of your units to a target to attack; legal targets light up and others dim (Guard applied). Units that can attack have a gold glow; units that cannot attack now (just played without Quick, already attacked, or 0 Power) are dimmed with a "Zz" badge. Guard units have a heavy steel shield frame and a shield badge. Keyword icons are 15-16 px (a column on the card art).
+- Every drag also works as two taps: tap a card or unit to pick it (its legal targets light up), then tap a target. Tapping anywhere else drops the pick. A card that cannot be played opens its rules text when tapped.
+- **Hold to read**: pressing and holding a hand card for 350 ms (without moving more than 8 px) opens it enlarged with its full text and keyword explanations; releasing closes it and plays nothing. Moving beyond 8 px before 350 ms is a drag and never opens the reader.
 - Targeted spells: drag onto the target; an arrow shows it. Untargeted spells: drag above the hand.
-- Tap a card to see it enlarged with full text. Long-press a unit or a stack item for the same view.
+- Right-click (or tap an unplayable card, a sleeping unit or a stack item) to see a card enlarged with full text.
+- Your own plays show their result at once: a dropped unit is on the board, a cast spell on the stack, before the animation of its events finishes.
 - **The main button** reads _End Turn_ in your main phase, _Resolve_ when you have priority with items on the stack (passing resolves the whole stack), and _Opponent's turn_ (disabled) otherwise. It is the largest button on screen.
 - **Auto-pass** (setting, on by default): when you get priority but have no legal play, you pass automatically. When you can respond, the newest stack item pulses and the button reads _Resolve_. There are no timers.
 - All tap targets are at least 44 × 44 px.
