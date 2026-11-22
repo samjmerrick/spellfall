@@ -5,13 +5,12 @@ import cards from '../../src/content/cards.json';
 import heroes from '../../src/content/heroes.json';
 import enemies from '../../src/content/enemies.json';
 import relics from '../../src/content/relics.json';
-import lanes from '../../src/content/lanes.json';
 import events from '../../src/content/events.json';
 
 /** Flip to true once every card has art, so a missing illustration fails CI. */
 const REQUIRE_FULL_COVERAGE = true;
 
-/** Same for run content (heroes, enemies, relics, lane effects, events). Warns only while false. */
+/** Same for run content (heroes, enemies, relics, events). Warns only while false. */
 const REQUIRE_RUN_ART = true;
 
 const ART_DIR = join(__dirname, '../../src/content/art');
@@ -26,6 +25,8 @@ const PALETTE: Record<string, { line: string }> = {
   grove: { line: '#a6d96a' },
   bastion: { line: '#e8e2cf' },
   dusk: { line: '#c9a3f0' },
+  // The Spark and any other neutral token: gold, like relics.
+  neutral: { line: '#f0c75e' },
 };
 const GROUP = [
   ['fill', 'none'],
@@ -54,7 +55,6 @@ for (const e of enemies as { id: string; deck: string[] }[]) {
   );
 }
 for (const r of relics as { id: string }[]) runLines.set(r.id, [GOLD]);
-for (const l of lanes as { id: string }[]) runLines.set(l.id, [NEUTRAL]);
 for (const v of events as { id: string }[]) runLines.set(v.id, [NEUTRAL]);
 
 const ids = new Set([...cardIds, ...runLines.keys()]);
@@ -158,7 +158,7 @@ describe('card art', () => {
       expect(missing, `run content missing art:\n${missing.join('\n')}`).toEqual([]);
     } else if (missing.length > 0) {
       console.warn(
-        `run art: ${missing.length} of ${runLines.size} heroes, enemies, relics, lanes and events have no art yet`,
+        `run art: ${missing.length} of ${runLines.size} heroes, enemies, relics and events have no art yet`,
       );
     }
   });

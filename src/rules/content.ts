@@ -1,5 +1,5 @@
-import cardsJson from '../content/next/cards.json';
-import decksJson from '../content/next/decks.json';
+import cardsJson from '../content/cards.json';
+import decksJson from '../content/decks.json';
 import { cardText } from './text';
 import { CardListSchema, DeckDefListSchema, type CardDef, type DeckDef, type Faction } from './schema';
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { act } from '../../src/ai/next';
+import { act } from '../../src/ai';
 import { applyAction, initMatch, starterCollection, viewFor, type GameState } from '../../src/rules';
 import { seedRng } from '../../src/rules/rng';
 import {

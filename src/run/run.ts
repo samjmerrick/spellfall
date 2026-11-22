@@ -3,7 +3,7 @@
 import { getCard, isUpgraded, UPGRADED, type Faction, type MatchConfig } from '../rules';
 import { FACTIONS } from '../rules/schema';
 import { nextInt, seedRng, shuffle, type RngState } from '../rules/rng';
-import type { Difficulty } from '../ai/next';
+import type { Difficulty } from '../ai';
 import { ENEMIES, EVENTS, getEnemy, getEvent, getHero, getRelic, type EventOutcome } from './content';
 import type { RunChoice, RunConfig } from './schema';
 import { MAP_ROWS, generateMap, type MapNode, type RunMap } from './map';

@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { act, type Difficulty } from '../../ai/next';
+import { act, type Difficulty } from '../../ai';
 import type { PlayerView } from '../../rules';
 
 export interface DuelAiRequest {

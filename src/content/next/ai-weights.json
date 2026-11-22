@@ -1,9 +1,0 @@
-{
-  "heroHp": 2,
-  "unitPower": 1,
-  "unitHealth": 0.6,
-  "keyword": 0.4,
-  "hand": 0.8,
-  "mana": 0.05,
-  "win": 10000
-}

@@ -1,4 +1,4 @@
-// Contact sheet of card and run-content art: pnpm art:sheet [faction | id prefix, e.g. hero, enemy, boss, relic, lane, event]  ->  art-sheets/<filter or all>.png
+// Contact sheet of card and run-content art: pnpm art:sheet [faction | id prefix, e.g. hero, enemy, boss, relic, event]  ->  art-sheets/<filter or all>.png
 import { chromium } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +17,6 @@ const cards =
 const heroes = read<{ id: string; name: string; faction: string; title: string }[]>('heroes');
 const enemies = read<{ id: string; name: string; kind: string; act: number; deck: string[] }[]>('enemies');
 const relics = read<{ id: string; name: string; text: string }[]>('relics');
-const lanes = read<{ id: string; name: string; text: string }[]>('lanes');
 const events = read<{ id: string; name: string; text: string }[]>('events');
 const cardFaction = new Map(cards.map((c) => [c.id, c.faction]));
 
@@ -38,7 +37,6 @@ const items: Item[] = [
     detail: `act ${e.act} ${e.kind}`,
   })),
   ...relics.map((r) => ({ id: r.id, name: r.name, kind: 'relic', detail: r.text })),
-  ...lanes.map((l) => ({ id: l.id, name: l.name, kind: 'lane', detail: l.text })),
   ...events.map((v) => ({ id: v.id, name: v.name, kind: 'event', detail: v.text })),
 ];
 

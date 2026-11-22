@@ -1,6 +1,6 @@
 // Board evaluation for Spellfall planners: a weighted sum, from one player's side.
-import weightsJson from '../../content/next/ai-weights.json';
-import { other, unitPower, unitRemainingHealth, type GameState, type PlayerId } from '../../rules';
+import weightsJson from '../content/ai-weights.json';
+import { other, unitPower, unitRemainingHealth, type GameState, type PlayerId } from '../rules';
 
 export interface Weights {
   heroHp: number;

@@ -1,4 +1,4 @@
-import type { Faction } from '../engine';
+import type { Faction } from '../rules';
 
 /** Each faction has a glyph as well as a colour, so factions can be told apart without colour. */
 export const GLYPHS: Record<Faction, string> = {

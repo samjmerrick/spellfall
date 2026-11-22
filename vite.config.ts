@@ -43,7 +43,7 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      include: ['src/rules/**', 'src/engine/**', 'src/save/**', 'src/run/**'],
+      include: ['src/rules/**', 'src/save/**', 'src/run/**'],
       exclude: ['src/save/index.ts'],
       thresholds: { statements: 90, lines: 90, functions: 90, branches: 90 },
     },

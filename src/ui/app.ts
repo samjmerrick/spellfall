@@ -27,7 +27,6 @@ export type Screen =
   | 'collection'
   | 'settings'
   | 'stats'
-  | 'match'
   | 'duel'
   | 'runStart'
   | 'run'

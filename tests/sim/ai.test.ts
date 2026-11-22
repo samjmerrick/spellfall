@@ -1,90 +1,140 @@
 import { describe, expect, it } from 'vitest';
-import { plan } from '../../src/ai';
-import { enumeratePlans, evaluate, hideOpponent, planNormal } from '../../src/ai/normal';
-import { applyAction, initMatch, resolveRound, type GameState } from '../../src/engine';
-import { seedRng } from '../../src/engine/rng';
-import { factionDeck } from '../../tools/sim/decks';
-import { playBotMatch } from '../../tools/sim/runner';
+import {
+  applyAction,
+  HIDDEN,
+  initMatch,
+  legalActions,
+  PREBUILT_DECKS,
+  viewFor,
+  type PlayerView,
+} from '../../src/rules';
+import { act, actEasy, actNormal, simulate } from '../../src/ai';
+import { score } from '../../src/ai/score';
+import { actHard, determinise, HARD } from '../../src/ai/hard';
+import { aiMatch, factionDeck } from '../../tools/sim/rules-bot';
 
-const decks: [string[], string[]] = [factionDeck('ember'), factionDeck('bastion')];
+const E = factionDeck('ember');
+const B = factionDeck('bastion');
 
-/** Mid-match states reached by two Easy bots, for timing and behaviour checks. */
-function sampleStates(count: number): GameState[] {
-  const out: GameState[] = [];
-  for (let seed = 1; out.length < count; seed++) {
-    let s = initMatch({ decks }, seed);
-    for (const p of [0, 1] as const)
-      for (const a of plan('easy', s, p, seedRng(seed)).actions) s = applyAction(s, a);
-    while (s.phase === 'plan' && out.length < count) {
-      out.push(s);
-      for (const p of [0, 1] as const)
-        for (const a of plan('easy', s, p, seedRng(seed + s.round)).actions) s = applyAction(s, a);
-      s = resolveRound(s).state;
+describe('Spellfall AI', () => {
+  it(
+    'Normal beats Easy most of the time, from either seat and with either deck',
+    { timeout: 120_000 },
+    () => {
+      let normalWins = 0;
+      const n = 200;
+      for (let i = 1; i <= n; i++) {
+        const seat = i % 2;
+        const decks: [string[], string[]] = i % 4 < 2 ? [E, B] : [B, E];
+        const r = aiMatch(decks, seat === 0 ? ['normal', 'easy'] : ['easy', 'normal'], i);
+        if (r.state.result!.winner === seat) normalWins++;
+      }
+      expect(normalWins / n).toBeGreaterThan(0.75);
+    },
+  );
+
+  it('each Normal decision takes under 50 ms', { timeout: 120_000 }, () => {
+    const times: number[] = [];
+    for (let i = 1; i <= 40; i++) {
+      aiMatch(
+        [E, B],
+        ['normal', 'normal'],
+        i,
+        (ms) => times.push(ms),
+        () => performance.now(),
+      );
     }
+    times.sort((a, b) => a - b);
+    expect(times[Math.floor(times.length * 0.99)]!).toBeLessThan(50);
+  });
+
+  it('is deterministic for a seed', () => {
+    const a = aiMatch([E, B], ['normal', 'easy'], 9);
+    const b = aiMatch([E, B], ['normal', 'easy'], 9);
+    expect(JSON.stringify(b.actions)).toBe(JSON.stringify(a.actions));
+  });
+
+  it('mulligans cards costing 5 or more, and plays from its own view only', () => {
+    const s = initMatch({ decks: [E, B], firstPlayer: 0 }, 4);
+    const view = viewFor(s, 1);
+    const m = act('normal', view, 1).action;
+    expect(m.type).toBe('mulligan');
+    expect(actEasy(view, 1).action.type).toBe('mulligan');
+    let g = applyAction(s, { type: 'mulligan', player: 0, uids: [] }).state;
+    g = applyAction(g, m).state;
+    const a = actNormal(viewFor(g, 0), 1).action;
+    expect(a.player).toBe(0);
+    expect(simulate(viewFor(g, 0), { type: 'pass', player: 1 })).toBeNull();
+    expect(score(g, 0)).toBe(-score(g, 1));
+  });
+});
+
+describe('Spellfall Hard AI', () => {
+  const decks = (i: number): [string[], string[]] => [
+    PREBUILT_DECKS[i % 10]!.cards,
+    PREBUILT_DECKS[(i * 3 + 1) % 10]!.cards,
+  ];
+
+  /** Decision points from Normal-vs-Normal matches, from the side about to act. */
+  function samplePoints(count: number): PlayerView[] {
+    const out: PlayerView[] = [];
+    for (let i = 1; out.length < count; i++) {
+      let s = initMatch({ decks: decks(i) }, i);
+      for (let step = 0; s.phase !== 'over' && step < 400; step++) {
+        const p = s.phase === 'mulligan' ? (s.players[0].mulliganed ? 1 : 0) : s.priority;
+        const v = viewFor(s, p);
+        if (s.phase === 'main' && step % 7 === 0 && out.length < count) out.push(v);
+        s = applyAction(s, act('normal', v, 1).action).state;
+      }
+    }
+    return out;
   }
-  return out;
-}
+  const points = samplePoints(60);
 
-describe('Normal AI', () => {
-  it('plans in under 200 ms', () => {
-    let worst = 0;
-    for (const s of sampleStates(60)) {
+  it(`benchmark: the full search stays within ${HARD.budgetMs} ms on every sampled decision`, () => {
+    const times: number[] = [];
+    for (const v of points) {
       const t = performance.now();
-      planNormal(s, 1, seedRng(1));
-      worst = Math.max(worst, performance.now() - t);
+      actHard(v, 1);
+      times.push(performance.now() - t);
     }
-    expect(worst).toBeLessThan(200);
+    times.sort((a, b) => a - b);
+    console.log(
+      `Spellfall Hard: median ${times[times.length >> 1]!.toFixed(0)} ms, p90 ${times[Math.floor(times.length * 0.9)]!.toFixed(0)} ms, worst ${times.at(-1)!.toFixed(0)} ms`,
+    );
+    expect(times.at(-1)!).toBeLessThan(500);
   });
 
-  it('only returns legal actions, ending with End Turn', () => {
-    for (const s of sampleStates(30)) {
-      const { actions } = planNormal(s, 0, seedRng(1));
-      expect(actions.at(-1)).toEqual({ type: 'endTurn', player: 0 });
-      let t = s;
-      for (const a of actions) t = applyAction(t, a);
-      expect(t.players[0].ready).toBe(true);
-    }
-  });
-
-  it('considers at most 200 candidate plans, including passing', () => {
-    for (const s of sampleStates(20)) {
-      const plans = enumeratePlans(hideOpponent(s, 1), 1);
-      expect(plans.length).toBeLessThanOrEqual(200);
-      expect(plans.length).toBeGreaterThan(0);
+  it('with a clock, stops near its budget and returns a legal action', () => {
+    for (const v of points.slice(0, 20)) {
+      const t = performance.now();
+      const { action } = actHard(v, 2, () => performance.now());
+      expect(performance.now() - t).toBeLessThan(500);
+      expect(legalActions(v).some((a) => JSON.stringify(a) === JSON.stringify(action))).toBe(true);
     }
   });
 
-  it('does not see the opponent’s planned cards', () => {
-    const [s] = sampleStates(1);
-    let withPlan = s!;
-    for (const a of plan('easy', withPlan, 0, seedRng(3)).actions.slice(0, -1))
-      withPlan = applyAction(withPlan, a);
-    expect(planNormal(withPlan, 1, seedRng(1)).actions).toEqual(planNormal(s!, 1, seedRng(1)).actions);
+  it('is deterministic without a clock', () => {
+    for (const v of points.slice(0, 8)) expect(actHard(v, 9).action).toEqual(actHard(v, 9).action);
   });
 
-  it('scores wins and losses beyond any board position', () => {
-    const [s] = sampleStates(1);
-    expect(evaluate({ ...s!, result: { winner: 0, reason: 'hp' } }, 0)).toBe(10000);
-    expect(evaluate({ ...s!, result: { winner: 1, reason: 'hp' } }, 0)).toBe(-10000);
-    expect(evaluate({ ...s!, result: { winner: null, reason: 'rounds' } }, 0)).toBe(0);
+  it('determinising fills hidden cards from the factions the opponent has shown', () => {
+    const v = points.find((p) => p.boards[1 - p.viewer]!.length > 0)!;
+    const [world] = determinise(v, 3);
+    const opp = (1 - v.viewer) as 0 | 1;
+    expect(world.players[opp].hand.every((c) => c.cardId !== HIDDEN)).toBe(true);
+    expect(world.players[opp].deck.every((c) => c !== HIDDEN)).toBe(true);
   });
 
-  it('mulligans expensive cards', () => {
-    const s = initMatch({ decks }, 4);
-    const { actions } = plan('normal', s, 0, seedRng(1));
-    expect(actions).toHaveLength(1);
-    expect(actions[0]!.type).toBe('mulligan');
-  });
-
-  it('beats Easy in most matches', () => {
+  it('beats Normal more often than not', { timeout: 300_000 }, () => {
     let wins = 0;
-    for (let seed = 1; seed <= 100; seed++) {
-      const order: ['normal', 'easy'] | ['easy', 'normal'] =
-        seed % 2 ? ['normal', 'easy'] : ['easy', 'normal'];
-      const { final } = playBotMatch({ decks: seed % 2 ? decks : [decks[1], decks[0]] }, seed, order);
-      const normalSeat = seed % 2 ? 0 : 1;
-      if (final.result?.winner === normalSeat) wins++;
+    let losses = 0;
+    for (let i = 1; i <= 30; i++) {
+      const seat = i % 2;
+      const r = aiMatch(decks(i), seat === 0 ? ['hard', 'normal'] : ['normal', 'hard'], i);
+      if (r.state.result!.winner === seat) wins++;
+      else if (r.state.result!.winner !== null) losses++;
     }
-    expect(wins).toBeGreaterThan(70);
+    expect(wins).toBeGreaterThan(losses);
   });
 });

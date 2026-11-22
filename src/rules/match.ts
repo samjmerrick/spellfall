@@ -326,9 +326,12 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
       illegal('mulligan cards must be distinct cards in hand');
     const back = p.hand.filter((c) => set.has(c.uid));
     p.hand = p.hand.filter((c) => !set.has(c.uid));
-    const [deck, rng] = shuffle(s.rng, [...p.deck, ...back.map((c) => c.cardId)]);
-    p.deck = deck;
-    s.rng = rng;
+    // Keeping the whole hand leaves the deck as it is (no shuffle, no RNG used).
+    if (back.length > 0) {
+      const [deck, rng] = shuffle(s.rng, [...p.deck, ...back.map((c) => c.cardId)]);
+      p.deck = deck;
+      s.rng = rng;
+    }
     for (let i = 0; i < back.length; i++) {
       const cardId = p.deck.pop()!;
       p.hand.push({ uid: s.nextUid++, cardId });

@@ -36,7 +36,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/rules/**/*.ts', 'src/engine/**/*.ts', 'src/run/**/*.ts', 'src/ai/**/*.ts'],
+    files: ['src/rules/**/*.ts', 'src/run/**/*.ts', 'src/ai/**/*.ts'],
     rules: {
       ...determinism,
       'no-restricted-imports': [

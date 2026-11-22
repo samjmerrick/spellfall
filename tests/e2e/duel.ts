@@ -1,5 +1,5 @@
 // Helpers for Spellfall matches (src/ui/duel): play by tapping a source, then a highlighted target.
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 const mainButton = (page: Page) => page.locator('.end-turn');
 
@@ -9,6 +9,26 @@ async function label(page: Page): Promise<string | null> {
   const b = mainButton(page);
   if ((await b.count()) === 0) return null;
   return b.textContent({ timeout: 5_000 }).catch(() => null);
+}
+
+/**
+ * Taps a hand card at a point no neighbouring card covers (a full hand fans out and overlaps), as a player
+ * would tap the visible strip of a card.
+ */
+export async function tapHandCard(page: Page, slot: Locator) {
+  const handle = await slot.elementHandle();
+  const point = await page.evaluate((el) => {
+    const r = el!.getBoundingClientRect();
+    for (let fy = 0.2; fy < 0.9; fy += 0.1)
+      for (let fx = 0.05; fx < 0.95; fx += 0.05) {
+        const x = r.left + r.width * fx;
+        const y = r.top + r.height * fy;
+        if (document.elementFromPoint(x, y)?.closest('.hand__slot') === el) return { x, y };
+      }
+    return null;
+  }, handle);
+  if (!point) throw new Error('no visible point on the hand card');
+  await page.mouse.click(point.x, point.y);
 }
 
 /** Waits until the player can act (or the match is over). */
@@ -55,8 +75,7 @@ async function tapTarget(page: Page): Promise<boolean> {
 export async function playCard(page: Page, filter = '.hand__slot--playable'): Promise<boolean> {
   const card = page.locator(filter).first();
   if ((await card.count()) === 0) return false;
-  // Hand cards overlap like a fan: tap the visible left edge, as a player would.
-  await card.click({ position: { x: 10, y: 40 } });
+  await tapHandCard(page, card);
   if (!(await tapTarget(page))) {
     await page.locator('.stack-strip').click();
     return false;

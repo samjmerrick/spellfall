@@ -1,4 +1,4 @@
-import { baseId } from '../engine';
+import { baseId } from '../rules';
 
 // One SVG per base card id in src/content/art/<id>.svg. Vite emits them as separate hashed assets
 // (never inlined, see vite.config.ts) and the service worker precaches them.

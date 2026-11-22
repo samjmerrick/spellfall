@@ -12,7 +12,7 @@ import {
   type MatchConfig,
   viewFor,
 } from '../../src/rules';
-import { act, type Difficulty } from '../../src/ai/next';
+import { act, type Difficulty } from '../../src/ai';
 
 /** 30-card mono-faction decks from the collectible cards: every card once, then the commons again. */
 const deckCache = new Map<string, string[]>();

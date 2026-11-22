@@ -1,146 +1,155 @@
-// The tutorial match: scripted decks, opponent moves and coach steps (src/content/tutorial.json).
+// The tutorial match: a scripted Spellfall match with coach steps (src/content/tutorial.json). The player's
+// actions are gated by the current step; the opponent follows a fixed list of moves.
 import tutorialJson from '../content/tutorial.json';
 import { z } from 'zod';
 import {
-  getCard,
-  getLaneEffect,
+  applyAction,
+  findUnit,
+  hasCard,
+  initMatch,
+  legalActions,
+  sameTarget,
+  type Action,
   type GameState,
-  type LaneIndex,
-  type MatchConfig,
-  type PlannedAction,
   type PlayerId,
-} from '../engine';
-import { MatchModifierSchema } from '../engine/schema';
+  type TargetRef,
+} from '../rules';
+import { MatchModifierSchema } from '../rules/schema';
 
-const cardId = z.string().refine((id) => {
-  try {
-    getCard(id);
-    return true;
-  } catch {
-    return false;
-  }
-}, 'unknown card');
-const lane = z.union([z.literal(0), z.literal(1), z.literal(2)]);
+const cardId = z.string().refine((id) => hasCard(id), 'unknown card');
 const text = z.string().min(1).max(110);
-
-/** What a `cast` step aims at: a unit (one planned this turn, or one already on the board) or nothing. */
-const CastTargetSchema = z.object({ card: cardId, planned: z.boolean() }).nullable();
+/** `enemyHero`, `hero` (the mover's own), or a unit by card id. */
+const target = z.string().min(1);
 
 export const TutorialStepSchema = z.discriminatedUnion('kind', [
   /** Shows the text; the player taps Next. */
   z.object({ kind: z.literal('info'), text }),
-  /** Waits for this unit to be dragged into this slot (any other play is refused). */
+  /** Waits for this action (`pass` is End Turn or Resolve); any other action is refused. */
   z.object({
-    kind: z.literal('play'),
+    kind: z.literal('do'),
     text,
-    card: cardId,
-    lane,
-    slot: z.number().int().min(0).max(3),
+    action: z.enum(['playUnit', 'castSpell', 'attack', 'pass']),
+    card: cardId.optional(),
+    target: target.optional(),
   }),
-  /** Waits for this spell to be cast on this target (`null` for spells with no target). */
-  z.object({ kind: z.literal('cast'), text, card: cardId, target: CastTargetSchema }),
-  /** Waits for End Turn. */
-  z.object({ kind: z.literal('endTurn'), text }),
-  /** The reveal and combat play; the next step shows when they finish. */
-  z.object({ kind: z.literal('watch'), text }),
+  /** The opponent acts; the next step shows when the player has priority again. */
+  z.object({ kind: z.literal('wait'), text }),
 ]);
 
-const OpponentMoveSchema = z.object({ card: cardId, lane, slot: z.number().int().min(0).max(3) });
+const OpponentMoveSchema = z.union([
+  z.object({ turn: z.number().int().min(1), card: cardId, target: target.optional() }),
+  z.object({ turn: z.number().int().min(1), attacker: cardId, target }),
+]);
 
 export const TutorialSchema = z.object({
   seed: z.number().int().min(0),
-  playerDeck: z.array(cardId).min(1),
-  opponentDeck: z.array(cardId).min(1),
-  laneEffects: z.tuple([z.string(), z.string(), z.string()]),
-  /** Applied to the opponent only; `heroHp` lowers their hero so the match ends in round 3. */
+  playerHand: z.array(cardId),
+  /** Draw order: the first card is drawn first. */
+  playerDeck: z.array(cardId),
+  opponentHand: z.array(cardId),
+  opponentDeck: z.array(cardId),
+  /** Applied to the opponent only; `heroHp` lowers their hero so the match ends quickly. */
   opponentModifiers: z.array(MatchModifierSchema),
-  /** The opponent's units for round 1, 2, 3 (resolved to hand cards when played). */
-  opponentPlan: z.array(z.array(OpponentMoveSchema)),
+  opponentMoves: z.array(OpponentMoveSchema),
   steps: z.array(TutorialStepSchema).min(1),
 });
 
 export type TutorialStep = z.infer<typeof TutorialStepSchema>;
+export type OpponentMove = z.infer<typeof OpponentMoveSchema>;
 export type Tutorial = z.infer<typeof TutorialSchema>;
 
 export const TUTORIAL: Tutorial = TutorialSchema.parse(tutorialJson);
-for (const l of TUTORIAL.laneEffects) getLaneEffect(l);
-
 export const TUTORIAL_SEED = TUTORIAL.seed;
-
-/** The tutorial match setup: player 0 (Ember) against a weakened Bastion opponent. */
-export function tutorialConfig(): MatchConfig {
-  return {
-    decks: [[...TUTORIAL.playerDeck], [...TUTORIAL.opponentDeck]],
-    laneEffects: TUTORIAL.laneEffects,
-    modifiers: [[], TUTORIAL.opponentModifiers],
-  };
-}
 
 const HUMAN: PlayerId = 0;
 const AI: PlayerId = 1;
 
-/** Hand uid of the first card with this id that is not already planned. */
-function freeUid(game: GameState, player: PlayerId, id: string): number | null {
-  const p = game.players[player];
-  const planned = new Set(p.plan.map((a) => a.uid));
-  return p.hand.find((h) => h.cardId === id && !planned.has(h.uid))?.uid ?? null;
+/**
+ * The tutorial's opening state: the player goes first, both hands and deck orders are the script's, and both
+ * mulligans are done (keep), so turn 1 has started.
+ */
+export function tutorialStart(): GameState {
+  const t = TUTORIAL;
+  let s = initMatch(
+    {
+      decks: [
+        [...t.playerHand, ...t.playerDeck],
+        [...t.opponentHand, ...t.opponentDeck],
+      ],
+      modifiers: [[], t.opponentModifiers],
+      firstPlayer: HUMAN,
+    },
+    t.seed,
+  );
+  s = structuredClone(s);
+  let uid = 1;
+  for (const [p, hand, deck] of [
+    [HUMAN, t.playerHand, t.playerDeck],
+    [AI, t.opponentHand, t.opponentDeck],
+  ] as const) {
+    s.players[p].hand = hand.map((cardId) => ({ uid: uid++, cardId }));
+    s.players[p].deck = [...deck].reverse(); // the top of the deck is the last element
+  }
+  s.nextUid = uid;
+  s = applyAction(s, { type: 'mulligan', player: HUMAN, uids: [] }).state;
+  return applyAction(s, { type: 'mulligan', player: AI, uids: [] }).state;
 }
 
-/** The uid of the unit a cast step aims at, or undefined if it is not there. */
-function castTargetUid(step: Extract<TutorialStep, { kind: 'cast' }>, game: GameState): number | undefined {
-  const t = step.target;
-  if (!t) return undefined;
-  if (t.planned) {
-    const me = game.players[HUMAN];
-    for (const a of me.plan)
-      if (a.type === 'playUnit' && me.hand.find((h) => h.uid === a.uid)?.cardId === t.card) return a.uid;
-    return undefined;
-  }
-  for (const l of game.lanes) for (const u of l.slots[HUMAN]) if (u && u.cardId === t.card) return u.uid;
-  return undefined;
-}
-
-/** The play a `play` or `cast` step asks for, with the hand uid it would use; null for other steps. */
-export function requiredAction(step: TutorialStep | undefined, game: GameState): PlannedAction | null {
-  if (!step) return null;
-  if (step.kind === 'play') {
-    const uid = freeUid(game, HUMAN, step.card);
-    return uid === null ? null : { type: 'playUnit', uid, lane: step.lane, slot: step.slot };
-  }
-  if (step.kind === 'cast') {
-    const uid = freeUid(game, HUMAN, step.card);
-    if (uid === null) return null;
-    if (!step.target) return { type: 'playSpell', uid, target: { kind: 'none' } };
-    const target = castTargetUid(step, game);
-    return target === undefined ? null : { type: 'playSpell', uid, target: { kind: 'unit', uid: target } };
-  }
+/** Resolves a script target for `mover`: `enemyHero`, `hero`, or a unit by card id (either side). */
+function resolveTarget(s: GameState, mover: PlayerId, t: string | undefined): TargetRef | null {
+  if (t === undefined) return null;
+  if (t === 'enemyHero') return { kind: 'hero', player: mover === HUMAN ? AI : HUMAN };
+  if (t === 'hero') return { kind: 'hero', player: mover };
+  for (const b of s.boards) for (const u of b) if (u.cardId === t) return { kind: 'unit', uid: u.uid };
   return null;
 }
 
-/** Whether the player's action is the one the step asks for (any copy of the right card will do). */
-export function stepAllows(step: TutorialStep | undefined, game: GameState, action: PlannedAction): boolean {
-  const need = requiredAction(step, game);
-  if (!need || need.type !== action.type) return false;
-  const card = game.players[HUMAN].hand.find((h) => h.uid === action.uid)?.cardId;
-  const wanted = step && (step.kind === 'play' || step.kind === 'cast') ? step.card : null;
-  if (card !== wanted) return false;
-  if (need.type === 'playUnit' && action.type === 'playUnit')
-    return need.lane === action.lane && need.slot === action.slot;
-  if (need.type === 'playSpell' && action.type === 'playSpell')
-    return JSON.stringify(need.target) === JSON.stringify(action.target);
-  return false;
+/** Whether `action` is what this step asks for. Positions are free; targets must match. */
+export function stepAllows(step: TutorialStep | undefined, s: GameState, action: Action): boolean {
+  if (!step || step.kind !== 'do' || action.player !== HUMAN || action.type !== step.action) return false;
+  if (action.type === 'pass') return true;
+  const want = resolveTarget(s, HUMAN, step.target);
+  if (action.type === 'attack') {
+    const unit = findUnit(s, action.attacker);
+    return unit?.unit.cardId === step.card && !!want && sameTarget(action.target, want);
+  }
+  const card = s.players[HUMAN].hand.find((c) => c.uid === action.uid)?.cardId;
+  if (card !== step.card) return false;
+  if (!step.target) return true;
+  return !!want && action.targets.length > 0 && sameTarget(action.targets[0]!, want);
 }
 
-/** The opponent's scripted plan for the current round, as engine actions using its hand uids. */
-export function opponentPlan(game: GameState): PlannedAction[] {
-  const moves = TUTORIAL.opponentPlan[game.round - 1] ?? [];
-  const out: PlannedAction[] = [];
-  const used = new Set<number>();
-  for (const m of moves) {
-    const uid = game.players[AI].hand.find((h) => h.cardId === m.card && !used.has(h.uid))?.uid;
-    if (uid === undefined) throw new Error(`Tutorial: the opponent has no ${m.card} in round ${game.round}`);
-    used.add(uid);
-    out.push({ type: 'playUnit', uid, lane: m.lane as LaneIndex, slot: m.slot });
+/**
+ * The opponent's next action: its next scripted move for this turn if it is legal now (index `next` in
+ * `opponentMoves`), otherwise pass. Returns the action and the new move index.
+ */
+export function opponentAction(s: GameState, next: number): { action: Action; next: number } {
+  const move = TUTORIAL.opponentMoves[next];
+  const pass: Action = { type: 'pass', player: AI };
+  if (!move || move.turn !== s.turn) return { action: pass, next };
+  const legal = legalActions(s);
+  let action: Action | undefined;
+  if ('attacker' in move) {
+    const attacker = s.boards[AI].find((u) => u.cardId === move.attacker);
+    const t = resolveTarget(s, AI, move.target);
+    action = legal.find(
+      (a) => a.type === 'attack' && a.attacker === attacker?.uid && t && sameTarget(a.target, t),
+    );
+  } else {
+    const uid = s.players[AI].hand.find((c) => c.cardId === move.card)?.uid;
+    const t = resolveTarget(s, AI, move.target);
+    action = legal.find(
+      (a) =>
+        (a.type === 'castSpell' || a.type === 'playUnit') &&
+        a.uid === uid &&
+        (t ? a.targets.length > 0 && sameTarget(a.targets[0]!, t) : a.targets.length === 0) &&
+        (a.type !== 'playUnit' || a.position === s.boards[AI].length),
+    );
   }
-  return out;
+  return action ? { action, next: next + 1 } : { action: pass, next };
+}
+
+/** For screens: the card a `do` step wants played (to highlight it). */
+export function stepCard(step: TutorialStep | undefined): string | null {
+  return step?.kind === 'do' && step.card ? step.card : null;
 }

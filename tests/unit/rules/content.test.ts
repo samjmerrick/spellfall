@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import cardsJson from '../../../src/content/next/cards.json';
+import cardsJson from '../../../src/content/cards.json';
 import {
   CARDS,
   baseId,

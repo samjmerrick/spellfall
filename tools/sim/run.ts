@@ -1,5 +1,5 @@
 // Bot runs: a simple policy plays a whole roguelike run through the public run API.
-import type { Difficulty } from '../../src/ai/next';
+import type { Difficulty } from '../../src/ai';
 import { nextInt, seedRng, type RngState } from '../../src/rules/rng';
 import { getEvent } from '../../src/run/content';
 import {
