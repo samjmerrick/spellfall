@@ -130,4 +130,83 @@ test.describe('interaction', () => {
     await attackOnce(page);
     expect(errors).toEqual([]);
   });
+
+  test('The Spark casts when dropped on your own board; a targeted spell waits on the stack for its target', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const errors = watchErrors(page);
+    await startMatch(page, { seed: 11, speed: 0.02 });
+    await keepHand(page);
+    await waitForPlayer(page);
+    const spark = page.locator('.hand__slot:has([data-card-id="neutral-spark"])');
+    if (await spark.count()) {
+      const manaBefore = await page.locator('[data-zone="player-bar"] .duel-bar__mana').innerText();
+      const box = (await spark.boundingBox())!;
+      const row = (await page.locator('[data-row="0"]').boundingBox())!;
+      await page.mouse.move(box.x + box.width / 2, box.y + 30);
+      await page.mouse.down();
+      await page.mouse.move(row.x + row.width / 2, row.y + row.height / 2, { steps: 8 });
+      await page.mouse.up();
+      await expect(spark).toHaveCount(0);
+      await expect(page.locator('[data-zone="player-bar"] .duel-bar__mana')).not.toHaveText(manaBefore);
+    }
+    // Find a targeted spell: tapping it puts a pending token on the stack; tapping a target casts it.
+    for (let turn = 0; turn < 8; turn++) {
+      await waitForPlayer(page);
+      if (await page.getByRole('dialog', { name: 'Match result' }).isVisible()) break;
+      for (const slot of await page.locator('.hand__slot--playable:has(.card__type)').all()) {
+        await slot.click({ force: true });
+        const pending = page.locator('.stack-item--pending');
+        if (!(await pending.count())) {
+          await page.locator('.stack-strip').click();
+          continue;
+        }
+        await expect(page.locator('.stack-strip')).toContainText('Choose a target');
+        // Tapping the token cancels; the card is still in hand.
+        const handBefore = await page.locator('.hand__slot').count();
+        await pending.click();
+        await expect(pending).toHaveCount(0);
+        await expect(page.locator('.hand__slot')).toHaveCount(handBefore);
+        await slot.click({ force: true });
+        await page.locator('.drop--valid').first().click();
+        await expect(pending).toHaveCount(0);
+        expect(errors).toEqual([]);
+        return;
+      }
+      await page.locator('.end-turn').click();
+    }
+    throw new Error('no targeted spell came up');
+  });
+
+  test('holding a unit on the board reads it, and the release neither attacks nor picks', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const errors = watchErrors(page);
+    await startMatch(page, { seed: 5, speed: 0.02 });
+    await keepHand(page);
+    for (let turn = 0; turn < 8; turn++) {
+      await waitForPlayer(page);
+      await playCard(page, '.hand__slot--playable:not(:has(.card__type))');
+      await waitForPlayer(page);
+      const unit = page.locator('.unit').first();
+      if (!(await unit.count())) {
+        await page.locator('.end-turn').click();
+        continue;
+      }
+      const box = (await unit.boundingBox())!;
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      const reader = page.locator('.overlay--hold');
+      await expect(reader).toBeVisible();
+      await page.mouse.up();
+      await expect(reader).toBeHidden();
+      await expect(page.locator('.unit--picked')).toHaveCount(0);
+      await expect(page.locator('.overlay--detail')).toHaveCount(0);
+      expect(errors).toEqual([]);
+      return;
+    }
+    throw new Error('no unit came into play');
+  });
 });

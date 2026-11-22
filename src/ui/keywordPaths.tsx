@@ -5,7 +5,6 @@ export const PATHS: Record<string, ReactNode> = {
   guard: <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" />,
   barrier: <circle cx="12" cy="12" r="8" strokeDasharray="3.2 2.6" />,
   pierce: <path d="M12 21V4M6 10l6-6 6 6M7 17h10" />,
-  rally: <path d="M6 21V4M6 5h12l-3.5 4L18 13H6" />,
   growth: <path d="M12 21V11M12 11c0-4 3-6 7-6 0 4-3 6-7 6zM12 16c0-3-2-5-6-5 0 3 2 5 6 5z" />,
   regenerate: <path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5" />,
   lifesteal: <path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" />,

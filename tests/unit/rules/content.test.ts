@@ -202,7 +202,6 @@ describe('content', () => {
 function playEveryWay(card: CardDef): void {
   const fresh = (): GameState => {
     const s = setup({ mana: 10 });
-    s.players[0].spellMana = 3;
     place(s, 0, FILLER);
     place(s, 0, 'bastion-militia', { damage: 1 });
     place(s, 1, FILLER);

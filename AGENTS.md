@@ -8,7 +8,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - Dev server: `pnpm dev`
 - Test: `pnpm test` (unit + simulations); `pnpm coverage` (≥90% gate on `src/rules`, `src/run`, `src/save`); `pnpm e2e` (Playwright)
 - Lint / format: `pnpm lint`, `pnpm format`; types: `pnpm typecheck`
-- Build: `pnpm build`
+- Build: `pnpm build`; test build: `pnpm build:preview` (writes `dist-preview/`)
 
 ## Layout
 
@@ -22,3 +22,9 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 ## Conventions
 
 - Further repo rules (rules notes, working rules, milestones) are in `CLAUDE.md`; follow them.
+- **Test build every time.** After every batch of changes (each time you commit work for the owner), run
+  `pnpm build:preview` and publish `dist-preview/` as a claude.ai artifact: page `dist-preview/spellfall.html`, the
+  other files (`assets/*`, `icon.svg`) as its supporting files, with `dist-preview/` as the root. Update the existing
+  test-build artifact (https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi) rather than making a new one, removing the
+  previous build's hashed files, and give the owner the link with a short list of what to try. If publishing fails, say
+  so; never skip it silently.

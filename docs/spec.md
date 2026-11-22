@@ -28,7 +28,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 - Each hero starts on 20 HP.
 - Decks are 30 cards in Quick Play; run decks start at 12 and grow.
-- The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana this turn).
+- The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana).
 - One mulligan: replace any number of your starting cards once.
 - Hand limit is 10; a draw past 10 is burned (discarded).
 - Each side of the board holds up to 6 units in one row. A unit is played into any position in the row; units to its right move over. When a unit dies, the gap closes.
@@ -36,13 +36,13 @@ Players take alternating turns. The active player plays units, casts spells and 
 **Mana**
 
 - At the start of your turn, your max mana goes up by 1 (cap 10) and your mana refills.
-- **Spell mana:** at the end of your turn, up to 3 unspent mana is banked as spell mana, which can pay for spells only. Spells spend normal mana first, then spell mana.
+- **Mana stays until your next turn:** unspent mana is not lost at the end of your turn. It stays through the opponent's turn (so it can pay for Fast and Burst spells there) and is replaced when your next turn refills it. There is no spell mana.
 
 **Turn sequence**
 
 1. **Start of turn:** max mana +1 and refill; draw 1 card (from an empty deck you take fatigue damage instead: 1, then 2, then 3, …); then Start of Turn triggers.
 2. **Main phase:** the active player has priority. With an empty stack they may, in any order and as often as they can pay: play a unit, cast a spell of any speed, declare an attack, or end the turn.
-3. **End of turn:** End of Turn triggers, then effects that last "this turn" expire, then spell mana is banked and the other player's turn starts.
+3. **End of turn:** End of Turn triggers, then effects that last "this turn" expire, and the other player's turn starts (unspent mana is kept).
 
 **Priority and the stack**
 
@@ -101,7 +101,7 @@ About 175 cards: 35 per faction across 5 factions (17 Legendaries, 14 spells per
 | Ember   | Red    | Aggro: Quick units, direct hero damage      | Quick, Overwhelm          |
 | Tide    | Blue   | Tricks: Fast and Burst spells, bounce, draw | Elusive, Barrier          |
 | Grove   | Green  | Ramp: extra mana, big units that grow       | Growth, Regenerate        |
-| Bastion | White  | Swarm: many small units, buffs, healing     | Guard, Rally              |
+| Bastion | White  | Swarm: many small units, buffs, healing     | Guard, team-wide On Play buffs |
 | Dusk    | Black  | Control: removal, sacrifice, death value    | Last Breath, Lifesteal    |
 
 **Keywords**
@@ -114,7 +114,6 @@ About 175 cards: 35 per faction across 5 factions (17 Legendaries, 14 spells per
 | Lifesteal   | Damage this unit deals in combat (attacking or defending, including Overwhelm) heals your hero by the same amount. |
 | Quick       | Can attack the turn it enters.                                                        |
 | Elusive     | Cannot be targeted by enemy spells or effects until it attacks. It can still be attacked. |
-| Rally       | On Play: other friendly units get +1 Power this turn.                                 |
 | Growth      | End of your turn: +1 Power and +1 Health.                                             |
 | Regenerate  | Start of your turn: heal this unit fully.                                             |
 | Ephemeral   | Dies at the end of your turn.                                                         |
@@ -166,7 +165,7 @@ As in Lanefall (`docs/v1/spec.md`, Roguelike run): heroes with a faction, a pass
 
 Changes for Spellfall:
 
-- Relics, hero passives and boss rules that refer to lanes, rounds, Reserve or simultaneous planning are rewritten for turns, spell mana and the stack: "round n" becomes the owner's n-th turn, Reserve becomes spell mana, Pierce becomes Overwhelm, and "sees your planned cards" becomes "sees your hand". Examples: "Start each match with 1 spell mana"; "At the start of your 3rd and 6th turns, draw a card".
+- Relics, hero passives and boss rules that refer to lanes, rounds, Reserve or simultaneous planning are rewritten for turns and the stack: "round n" becomes the owner's n-th turn, Reserve becomes extra mana on your first turn, Pierce becomes Overwhelm, and "sees your planned cards" becomes "sees your hand". Examples: "Gain 1 extra mana on your first turn"; "At the start of your 3rd and 6th turns, draw a card".
 - A run match is autosaved whenever the player gets priority, and resumes from that point.
 - Lanefall's lane effects are removed. Ideas worth keeping become boss rules or relics (for example "Your first unit each turn has Barrier").
 
@@ -186,11 +185,11 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 
 | Zone             | Height (at 844) | Contents                                                                          |
 | ---------------- | --------------- | --------------------------------------------------------------------------------- |
-| Opponent bar     | 56 px           | Opponent HP, mana and spell mana, hand and deck counts (a readout, not a target)  |
-| Opponent board   | 150 px          | Up to 6 unit cards in a row                                                       |
-| Stack strip      | 72 px           | At the left, the **opponent hero target** (drop zone for attacks and spells, within thumb reach). Beside it: pending stack items, newest on the right, with arrows to their targets; when empty, the current turn and priority ("Your turn", "Opponent's turn", "Your response"), always derived from the live state |
-| Your board       | 150 px          | Up to 6 unit cards in a row                                                       |
-| Your bar         | 64 px           | Your hero portrait, HP, mana and spell mana pips, the main button on the right    |
+| Opponent top     | 64 px           | Leave button; the opponent's hand as card backs hanging from the top edge (faces only for cards you may see); opponent mana and deck count |
+| Opponent board   | 150 px          | Up to 6 unit cards in a row; at the right, the **opponent hero slot** (portrait art and HP), the target for attacks and spells on the hero |
+| Stack strip      | 72 px           | Stack items as round tokens showing their card art (an attack shows the attacker with a sword badge), newest on the right, each with a connector line to its targets; when empty, the current turn and priority ("Your turn", "Opponent's turn", "Your response"), always derived from the live state |
+| Your board       | 150 px          | Up to 6 unit cards in a row; at the right, **your hero slot** (portrait art and HP)  |
+| Your bar         | 60 px           | Your mana and deck count, the main button on the right                            |
 | Hand             | 170 px          | Fanned hand of up to 10 cards; the dragged card lifts above your thumb            |
 | Safe-area margin | rest            | Space for the phone's home indicator                                              |
 
@@ -199,20 +198,24 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 - Drag a unit from the hand onto your board to play it; a gap opens where it will go.
 - Drag from one of your units to a target to attack; legal targets light up and others dim (Guard applied). Units that can attack have a gold glow; units that cannot attack now (just played without Quick, already attacked, or 0 Power) are dimmed with a "Zz" badge. Guard units have a heavy steel shield frame and a shield badge. Keyword icons are 15-16 px (a column on the card art).
 - Every drag also works as two taps: tap a card or unit to pick it (its legal targets light up), then tap a target. Tapping anywhere else drops the pick. A card that cannot be played opens its rules text when tapped.
-- **Hold to read**: pressing and holding a hand card for 350 ms (without moving more than 8 px) opens it enlarged with its full text and keyword explanations; releasing closes it and plays nothing. Moving beyond 8 px before 350 ms is a drag and never opens the reader.
-- Targeted spells: drag onto the target; an arrow shows it. Untargeted spells: drag above the hand.
+- **Hold to read**: pressing and holding a hand card, a unit on either board or a stack token for 350 ms (without moving more than 8 px) opens it enlarged with its full text and keyword explanations; releasing closes it and plays nothing. Moving beyond 8 px before 350 ms is a drag and never opens the reader.
+- **Spells go to the stack first:** drag a spell anywhere above the hand (or tap it). An untargeted spell is cast at once. A targeted spell becomes a round token on the stack strip (dashed gold ring) while you tap its targets; each chosen target gets a connector line, and the spell is cast when the last target is chosen. Tapping the token, the card or empty space cancels. Units are played by letting go anywhere above the hand; the position comes from where you let go.
 - Right-click (or tap an unplayable card, a sleeping unit or a stack item) to see a card enlarged with full text.
 - Your own plays show their result at once: a dropped unit is on the board, a cast spell on the stack, before the animation of its events finishes.
 - **The main button** reads _End Turn_ in your main phase, _Resolve_ when you have priority with items on the stack (passing resolves the whole stack), and _Opponent's turn_ (disabled) otherwise. It is the largest button on screen.
 - **Auto-pass** (setting, on by default): when you get priority but have no legal play, you pass automatically. When you can respond, the newest stack item pulses and the button reads _Resolve_. There are no timers.
 - All tap targets are at least 44 × 44 px.
 
-**Vector art style** — as in Lanefall (`docs/v1/spec.md`): CSS/SVG card frames tinted by faction, line-icon art per card id (`src/content/art/<id>.svg`, style in `docs/art.md`), a glyph per faction, dark theme by default. Spell cards show their speed as an icon in the top-right corner.
+**Vector art style** — as in Lanefall (`docs/v1/spec.md`): CSS/SVG card frames tinted by faction, line-icon art per card id (`src/content/art/<id>.svg`, style in `docs/art.md`), a glyph per faction, dark theme by default. Units have a rectangular art frame; spells have a round art window at the top (the token they become on the stack) and a speed pill at the bottom. Legendaries have a gold frame with an inner ring in the faction colour and a gold crest, in hand and on the board. Units on the board show no name (hold to read it). Their keyword icons sit in a pill on the bottom edge, half out of the frame, between Power and Health, and only for what still matters in play: not Quick or On Play (already used), not Guard (it has its own frame and badge). Hero portraits: in a run, your hero and the enemy's art; in Quick Play, a hero of each deck's first faction.
 
 **Motion and feedback**
 
 - Opponent actions play one at a time at a readable pace (about 600 ms each). Items fly to the stack strip; when the stack resolves, items leave it one by one, newest first.
-- Attacks: the attacker lunges at its target; damage numbers pop on both.
+- Attacks: the attacker lunges at its target; damage numbers pop on both, and a hit unit or hero shakes with a red flash.
+- Draws: a card rises into your hand; the opponent's card back drops into theirs. Units land on the board with a short pop; a dying unit fades and shrinks before the gap closes.
+- The opponent's plays are shown enlarged in the middle of the screen for about a second. Stack tokens pop in, and flare out one by one as they resolve.
+- Game end: the beaten hero's portrait cracks and greys, then the result title lands (gold for Victory, red for Defeat).
+- An attack aimed past an enemy Guard shows "Attack a Guard unit first" and keeps the attacker picked.
 - Fast animations, Reduce motion, Sound and Haptics settings as in Lanefall.
 
 ## Tech stack and architecture

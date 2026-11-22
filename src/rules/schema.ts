@@ -11,7 +11,6 @@ export const KEYWORDS = [
   'lifesteal',
   'quick',
   'elusive',
-  'rally',
   'growth',
   'regenerate',
   'ephemeral',
@@ -212,7 +211,6 @@ const GLOBAL_SELECTORS: readonly string[] = [
 export const MatchModifierSchema = z
   .discriminatedUnion('kind', [
     z.object({ kind: z.literal('heroHp'), amount: z.number().int() }),
-    z.object({ kind: z.literal('startSpellMana'), amount: posInt }),
     z.object({ kind: z.literal('startHand'), amount: posInt }),
     z.object({
       kind: z.literal('turnStart'),

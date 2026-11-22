@@ -23,7 +23,6 @@ import {
   MAX_MANA,
   SECOND_HAND,
   SPARK_ID,
-  SPELL_MANA_CAP,
   TURN_LIMIT,
   other,
   type Action,
@@ -48,13 +47,11 @@ export function initMatch(config: MatchConfig, seed: number): GameState {
     rng = next;
     const bonusHp = modifiers[p].reduce((n, m) => (m.kind === 'heroHp' ? n + m.amount : n), 0);
     const hp = Math.max(1, (config.heroHp ?? DEFAULT_HERO_HP) + bonusHp);
-    const spellMana = modifiers[p].reduce((n, m) => (m.kind === 'startSpellMana' ? n + m.amount : n), 0);
     const ps: PlayerState = {
       hp,
       maxHp: hp,
       maxMana: 0,
       mana: 0,
-      spellMana: Math.min(SPELL_MANA_CAP, spellMana),
       deck,
       hand: [],
       discard: [],
@@ -162,10 +159,7 @@ function endTurn(ctx: Ctx): void {
   if (settle(ctx)) return;
   // Death Ward lasts until the end of the turn.
   for (const q of s.players) delete q.deathWard;
-  const p = s.players[player];
-  p.spellMana = Math.min(SPELL_MANA_CAP, p.spellMana + p.mana);
-  p.mana = 0;
-  ctx.events.push({ type: 'SpellManaBanked', player, spellMana: p.spellMana });
+  // Unspent mana is kept: it pays for Fast and Burst spells on the opponent's turn, until your next turn refills it.
   ctx.events.push({ type: 'TurnEnded', turn: s.turn, player });
   if (s.turn >= TURN_LIMIT) {
     s.result = { winner: null, reason: 'turns' };
@@ -229,17 +223,13 @@ function resolveStack(ctx: Ctx): void {
 
 // ---------- Paying ----------
 
-function canPay(p: PlayerState, cost: number, spell: boolean): boolean {
-  return cost <= p.mana + (spell ? p.spellMana : 0);
+function canPay(p: PlayerState, cost: number): boolean {
+  return cost <= p.mana;
 }
 
-function pay(ctx: Ctx, player: PlayerId, cost: number, spell: boolean): void {
-  const p = ctx.s.players[player];
-  const fromMana = Math.min(p.mana, cost);
-  const fromSpell = spell ? cost - fromMana : 0;
-  p.mana -= fromMana;
-  p.spellMana -= fromSpell;
-  if (cost > 0) ctx.events.push({ type: 'ManaSpent', player, mana: fromMana, spellMana: fromSpell });
+function pay(ctx: Ctx, player: PlayerId, cost: number): void {
+  ctx.s.players[player].mana -= cost;
+  if (cost > 0) ctx.events.push({ type: 'ManaSpent', player, mana: cost });
 }
 
 // ---------- Legal actions ----------
@@ -267,14 +257,14 @@ export function legalActions(s: GameState): Action[] {
   for (const c of p.hand) {
     const card = getCard(c.cardId);
     if (card.type === 'unit') {
-      if (!open || !canPay(p, card.cost, false) || s.boards[player].length >= BOARD_LIMIT) continue;
+      if (!open || !canPay(p, card.cost) || s.boards[player].length >= BOARD_LIMIT) continue;
       const combos = targetCombos(s, card.targets, player);
       for (let position = 0; position <= s.boards[player].length; position++) {
         for (const targets of combos.length > 0 ? combos : [[]])
           out.push({ type: 'playUnit', player, uid: c.uid, position, targets });
       }
     } else {
-      if (!canPay(p, card.cost, true)) continue;
+      if (!canPay(p, card.cost)) continue;
       if (card.speed === 'slow' && !open) continue;
       for (const targets of targetCombos(s, card.targets, player))
         out.push({ type: 'castSpell', player, uid: c.uid, targets });
@@ -374,7 +364,7 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
       const card = getCard(cardId);
       if (card.type !== 'unit') illegal('not a unit');
       if (!open) illegal('units can only be played in your main phase with an empty stack');
-      if (!canPay(p, card.cost, false)) illegal('not enough mana');
+      if (!canPay(p, card.cost)) illegal('not enough mana');
       if (s.boards[player].length >= BOARD_LIMIT) illegal('board is full');
       if (
         action.position < 0 ||
@@ -384,7 +374,7 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
         illegal('bad position');
       checkTargets(s, cardId, player, action.targets, true);
       p.hand.splice(hi, 1);
-      pay(ctx, player, card.cost, false);
+      pay(ctx, player, card.cost);
       const unit = createUnit(ctx, cardId, player, action.uid);
       s.boards[player].splice(action.position, 0, unit);
       ctx.events.push({
@@ -395,13 +385,6 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
         position: action.position,
         targets: action.targets,
       });
-      if (hasKeyword(unit, 'rally')) {
-        for (const u of s.boards[player]) {
-          if (u.uid === unit.uid) continue;
-          u.turnPower += 1;
-          ctx.events.push({ type: 'UnitBuffed', uid: u.uid, power: 1, health: 0, duration: 'turn' });
-        }
-      }
       runTrigger(ctx, unit, 'onPlay', action.targets);
       settle(ctx);
       break;
@@ -413,11 +396,11 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
       const card = getCard(cardId);
       if (card.type !== 'spell') illegal('not a spell');
       if (card.speed === 'slow' && !open) illegal('slow spells need your main phase and an empty stack');
-      if (!canPay(p, card.cost, true)) illegal('not enough mana');
+      if (!canPay(p, card.cost)) illegal('not enough mana');
       checkTargets(s, cardId, player, action.targets, false);
       p.hand.splice(hi, 1);
       p.discard.push(cardId);
-      pay(ctx, player, card.cost, true);
+      pay(ctx, player, card.cost);
       ctx.events.push({
         type: 'SpellCast',
         player,

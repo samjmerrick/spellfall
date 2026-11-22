@@ -43,7 +43,7 @@ describe('setup', () => {
     expect(legalActions(s).every((a) => a.type === 'mulligan' && a.player === 1)).toBe(true);
   });
 
-  it('modifiers change hero HP, starting spell mana and hand size', () => {
+  it('modifiers change hero HP and hand size; a first-turn mana modifier adds mana on turn 1', () => {
     const s = initMatch(
       {
         decks: [deck, deck],
@@ -51,7 +51,7 @@ describe('setup', () => {
         modifiers: [
           [
             { kind: 'heroHp', amount: 5 },
-            { kind: 'startSpellMana', amount: 2 },
+            { kind: 'turnStart', turns: [1], action: { op: 'gainMana', amount: 2 } },
             { kind: 'startHand', amount: 1 },
           ],
           [],
@@ -60,7 +60,6 @@ describe('setup', () => {
       1,
     );
     expect(s.players[0].hp).toBe(25);
-    expect(s.players[0].spellMana).toBe(2);
     expect(s.players[0].hand).toHaveLength(4);
     expect(s.players[1].hp).toBe(20);
   });
@@ -75,20 +74,31 @@ describe('mana and the turn sequence', () => {
     expect(s.players[s.activePlayer].mana).toBe(10);
   });
 
-  it('unspent mana banks as spell mana, up to 3, at the end of your turn', () => {
+  it('unspent mana stays through the opponent turn and is refilled at the start of your next turn', () => {
     let s = setup({ mana: 5 });
     s = pass(s);
-    expect(s.players[0].spellMana).toBe(3);
-    expect(s.players[0].mana).toBe(0);
-    expect(events().some((e) => e.type === 'SpellManaBanked' && e.spellMana === 3)).toBe(true);
+    expect(s.activePlayer).toBe(1);
+    expect(s.players[0].mana).toBe(5);
+    s = pass(s);
+    expect(s.players[0].mana).toBe(s.players[0].maxMana);
   });
 
-  it('spells spend mana first, then spell mana; units cannot use spell mana', () => {
+  it('kept mana pays for a Fast spell on the opponent turn', () => {
+    let s = setup({ mana: 3 });
+    const uid = give(s, 0, 'bastion-rally-cry');
+    s = pass(s);
+    // Player 1 attacks or casts to give player 0 priority; here player 1 casts a Fast spell.
+    const fast = give(s, 1, 'bastion-rally-cry');
+    s.players[1].mana = 10;
+    s = act(s, { type: 'castSpell', player: 1, uid: fast, targets: [] });
+    expect(s.priority).toBe(0);
+    s = act(s, { type: 'castSpell', player: 0, uid, targets: [] });
+    expect(s.players[0].mana).toBe(2);
+  });
+
+  it('units and spells cost mana', () => {
     const s = setup({ mana: 1 });
-    s.players[0].spellMana = 2;
-    const s2 = cast(s, 0, 'ember-fireball', [{ kind: 'hero', player: 1 }]);
-    expect(s2.players[0].mana).toBe(0);
-    expect(s2.players[0].spellMana).toBe(0);
+    expect(() => cast(s, 0, 'ember-fireball', [{ kind: 'hero', player: 1 }])).toThrow(/mana/);
     expect(() => play(s, 0, 'bastion-militia')).toThrow(/mana/);
   });
 

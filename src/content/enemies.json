@@ -482,10 +482,7 @@
         "kind": "heroHp",
         "amount": 6
       },
-      {
-        "kind": "startSpellMana",
-        "amount": 1
-      }
+      { "kind": "turnStart", "turns": [1], "action": { "op": "gainMana", "amount": 1 } }
     ]
   },
   {
@@ -877,10 +874,7 @@
         "kind": "heroHp",
         "amount": 8
       },
-      {
-        "kind": "startSpellMana",
-        "amount": 1
-      }
+      { "kind": "turnStart", "turns": [1], "action": { "op": "gainMana", "amount": 1 } }
     ]
   },
   {
@@ -1089,10 +1083,7 @@
         "kind": "startHand",
         "amount": 2
       },
-      {
-        "kind": "startSpellMana",
-        "amount": 2
-      },
+      { "kind": "turnStart", "turns": [1], "action": { "op": "gainMana", "amount": 2 } },
       {
         "kind": "turnStart",
         "action": {
@@ -1102,6 +1093,6 @@
         }
       }
     ],
-    "rule": "The Eclipse starts with 2 extra cards and 2 spell mana, and heals 2 each turn."
+    "rule": "The Eclipse starts with 2 extra cards and 2 extra mana on its first turn, and heals 2 each turn."
   }
 ]
