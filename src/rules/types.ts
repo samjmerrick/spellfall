@@ -8,6 +8,9 @@ export const SPELL_MANA_CAP = 3;
 export const HAND_LIMIT = 10;
 export const FIRST_HAND = 3;
 export const SECOND_HAND = 4;
+/** Going second: extra hero HP and starting spell mana (with the Spark). */
+export const SECOND_HP_BONUS = 3;
+export const SECOND_SPELL_MANA = 1;
 export const DEFAULT_HERO_HP = 20;
 /** The match is a draw when this turn ends with no winner (20 turns each). */
 export const TURN_LIMIT = 40;

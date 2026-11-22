@@ -22,6 +22,8 @@ import {
   IllegalActionError,
   MAX_MANA,
   SECOND_HAND,
+  SECOND_HP_BONUS,
+  SECOND_SPELL_MANA,
   SPARK_ID,
   SPELL_MANA_CAP,
   TURN_LIMIT,
@@ -47,8 +49,12 @@ export function initMatch(config: MatchConfig, seed: number): GameState {
     const [deck, next] = shuffle(rng, config.decks[p]);
     rng = next;
     const bonusHp = modifiers[p].reduce((n, m) => (m.kind === 'heroHp' ? n + m.amount : n), 0);
-    const hp = Math.max(1, (config.heroHp ?? DEFAULT_HERO_HP) + bonusHp);
-    const spellMana = modifiers[p].reduce((n, m) => (m.kind === 'startSpellMana' ? n + m.amount : n), 0);
+    // The second player is compensated for going second: more HP and some spell mana (plus the Spark).
+    const second = p !== firstPlayer;
+    const hp = Math.max(1, (config.heroHp ?? DEFAULT_HERO_HP) + bonusHp + (second ? SECOND_HP_BONUS : 0));
+    const spellMana =
+      modifiers[p].reduce((n, m) => (m.kind === 'startSpellMana' ? n + m.amount : n), 0) +
+      (second ? SECOND_SPELL_MANA : 0);
     const ps: PlayerState = {
       hp,
       maxHp: hp,
@@ -126,7 +132,8 @@ function startTurn(ctx: Ctx, player: PlayerId): void {
   p.mana = p.maxMana;
   for (const u of s.boards[player]) u.attacked = false;
   ctx.events.push({ type: 'TurnStarted', turn: s.turn, player, maxMana: p.maxMana });
-  drawCard(ctx, player);
+  // The first player skips the draw on the match's first turn.
+  if (s.turn > 1) drawCard(ctx, player);
   if (settle(ctx)) return;
   for (const u of [...s.boards[player]].sort((a, b) => a.playOrder - b.playOrder)) {
     if (!findUnit(s, u.uid)) continue;

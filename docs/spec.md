@@ -26,10 +26,10 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 **Setup**
 
-- Each hero starts on 20 HP.
+- Each hero starts on 20 HP (the second player on 23, see below).
 - Decks are 30 cards in Quick Play; run decks start at 12 and grow.
-- The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana this turn).
-- One mulligan: replace any number of your starting cards once.
+- The match seed decides who goes first. The first player draws 3 and skips the draw on the match's first turn. The second player draws 4, starts with +3 hero HP and 1 spell mana, and after both mulligans gets **the Spark** (a 0-cost Burst spell: gain 1 mana this turn).
+- One mulligan: replace any number of your starting cards once (keeping the whole hand leaves the deck as it is).
 - Hand limit is 10; a draw past 10 is burned (discarded).
 - Each side of the board holds up to 6 units in one row. A unit is played into any position in the row; units to its right move over. When a unit dies, the gap closes.
 
@@ -342,7 +342,7 @@ Animation tuning, a tutorial match that teaches attacking, responding and the st
 
 Run the simulator at scale and tune cards, hero HP and AI weights; tag version 1.0.
 
-- `pnpm sim:balance` writes `docs/balance.md`: win rate per faction pair, first-player win rate and win rate when played per card. A draw counts as a loss.
+- `pnpm sim:balance [n]` writes `docs/balance.md`: win rate per faction, first-player win rate, median match length and win rate when played per card (judged from 100 plays), from n matches per ordered faction pairing with mono-faction decks (default 200, 5,000 matches). A draw counts as a loss. It exits 1 if anything is out of target without a reason in `tools/sim/balance-exceptions.json`.
 - Targets: every faction wins 45–55% of Normal-vs-Normal matches; the first player wins 47–53%; no card's win rate when played is above 60%; the median match lasts 14–22 turns. Any exception is listed in the report with a reason.
 
 ## Working rules for Claude Code
@@ -357,5 +357,4 @@ Run the simulator at scale and tune cards, hero HP and AI weights; tag version 1
 ## Open questions
 
 - Board limit 6 or 7 units per side? 6 fits a 360 px row at about 52 px per unit; 7 drops to about 45 px.
-- Hero HP: 20, or 30 if simulations show matches ending too fast.
 - Faction names: themes are fixed (Ember fire, Tide water, Grove nature, Bastion stone and order, Dusk shadow and death); the names may still change.

@@ -35,6 +35,15 @@ export function setup(
   );
   s = act(s, { type: 'mulligan', player: 0, uids: [] });
   s = act(s, { type: 'mulligan', player: 1, uids: [] });
+  // Rule tests start level: both heroes on the same HP and no starting spell mana (going second normally
+  // gives +3 HP and 1 spell mana; turns.test.ts checks that).
+  if (opts.heroHp === undefined && !opts.modifiers) {
+    for (const p of s.players) {
+      p.hp = 20;
+      p.maxHp = 20;
+      p.spellMana = 0;
+    }
+  }
   if (!opts.keepHands) {
     s.players[0].hand = [];
     s.players[1].hand = [];

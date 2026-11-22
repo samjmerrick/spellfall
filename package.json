@@ -21,7 +21,8 @@
     "coverage": "vitest run tests/unit --coverage",
     "content:text": "tsx tools/content/texts.ts",
     "art:sheet": "tsx tools/art/sheet.ts",
-    "content:paths": "tsx tools/content/run-paths.ts"
+    "content:paths": "tsx tools/content/run-paths.ts",
+    "sim:balance": "tsx tools/sim/balance.ts"
   },
   "dependencies": {
     "idb-keyval": "^6.3.0",

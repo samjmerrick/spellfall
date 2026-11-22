@@ -33,7 +33,8 @@ describe('the tutorial', () => {
     const s = tutorialStart();
     expect(s.turn).toBe(1);
     expect(s.activePlayer).toBe(0);
-    expect(s.players[0].hand.map((c) => c.cardId)).toEqual([...TUTORIAL.playerHand, TUTORIAL.playerDeck[0]]);
+    // The first player skips the turn-1 draw.
+    expect(s.players[0].hand.map((c) => c.cardId)).toEqual(TUTORIAL.playerHand);
     expect(s.players[1].hand.map((c) => c.cardId)).toEqual([...TUTORIAL.opponentHand, 'neutral-spark']);
   });
 

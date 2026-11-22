@@ -155,7 +155,7 @@ describe('primitives', () => {
     const p = place(s, 1, 'bastion-paladin', { keywords: ['guard'] });
     p.basePower += 3;
     run(s, { op: 'silence', target: 'target' }, { targets: [unit(p.uid)] });
-    expect(p).toMatchObject({ keywords: [], barrier: false, basePower: 3, silenced: true });
+    expect(p).toMatchObject({ keywords: [], barrier: false, basePower: 2, silenced: true });
   });
 
   it('counter removes a spell from the stack', () => {

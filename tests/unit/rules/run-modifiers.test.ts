@@ -70,10 +70,11 @@ describe('run content modifiers change the match as their text says', () => {
       { kind: 'turnStart', turns: [2], action: { op: 'damage', target: 'enemyHero', amount: 3 } },
     ]);
     const hp = states.map((s) => s.players[1].hp);
+    const start = states[0]!.players[1].hp;
     // Player 0's 2nd turn is overall turn 3.
-    expect(states.find((s) => s.turn === 2)!.players[1].hp).toBe(14);
-    expect(states.find((s) => s.turn === 3)!.players[1].hp).toBe(11);
-    expect(Math.min(...hp)).toBe(11);
+    expect(states.find((s) => s.turn === 2)!.players[1].hp).toBe(start);
+    expect(states.find((s) => s.turn === 3)!.players[1].hp).toBe(start - 3);
+    expect(Math.min(...hp)).toBe(start - 3);
   });
 });
 

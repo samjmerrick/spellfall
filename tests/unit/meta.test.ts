@@ -535,11 +535,12 @@ describe('the 7 unlockable heroes', () => {
   it('Morrow: 1 damage to the enemy hero and 1 healing for yours on your 2nd, 4th, 6th and 8th turns', () => {
     let s = withHero('hero-morrow');
     s.players[0].hp = 10;
+    const enemy = s.players[1].hp;
     s = next(s);
-    expect(s.players[1].hp).toBe(19);
+    expect(s.players[1].hp).toBe(enemy - 1);
     expect(s.players[0].hp).toBe(11);
     s = next(s);
-    expect(s.players[1].hp).toBe(19);
+    expect(s.players[1].hp).toBe(enemy - 1);
   });
 
   it('every hero passive text names the turns its modifiers fire on', () => {

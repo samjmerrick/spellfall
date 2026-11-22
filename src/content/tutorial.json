@@ -18,7 +18,7 @@
     "bastion-recruit",
     "bastion-recruit"
   ],
-  "opponentModifiers": [{ "kind": "heroHp", "amount": -13 }],
+  "opponentModifiers": [{ "kind": "heroHp", "amount": -16 }],
   "opponentMoves": [
     { "turn": 2, "card": "neutral-spark" },
     { "turn": 2, "card": "bastion-militia" },

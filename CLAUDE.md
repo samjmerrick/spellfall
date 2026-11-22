@@ -13,6 +13,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm e2e` — Playwright (builds, serves on :4173, tests at 360×740, 390×844, 430×932)
 - `pnpm screens` — regenerate the committed screenshots in `docs/screens/` (every screen at all 3 viewports; also checks overflow)
 - `pnpm sim [n] [easy|normal|hard] [easy|normal|hard] [factionA] [factionB]` — bot-vs-bot matches (win rate, first-player win rate, turns)
+- `pnpm sim:balance [n] [--out path]` — V8 balance report (every ordered faction pairing, Normal vs Normal, n each, default 200) written to `docs/balance.md`; reproducible; exits 1 if an out-of-target item has no reason in `tools/sim/balance-exceptions.json`
 - `pnpm sim:run [n] [easy|normal|hard] [ascension]` — bot roguelike runs per hero, fully unlocked profile (win rate, nodes cleared)
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
