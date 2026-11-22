@@ -5,7 +5,7 @@ import { emblemFor, polygonPoints } from './emblem';
 import { artUrl } from './art';
 import { KeywordRow } from './keywordIcons';
 
-export function CardEmblem({ id, faction }: { id: string; faction: Faction }) {
+export function CardEmblem({ id, faction }: { id: string; faction: Faction | 'neutral' }) {
   const e = emblemFor(baseId(id));
   return (
     <svg className="emblem" viewBox="0 0 100 100" aria-hidden="true">
@@ -18,21 +18,21 @@ export function CardEmblem({ id, faction }: { id: string; faction: Faction }) {
       ))}
       <polygon points={polygonPoints(e.inner, 10, e.rotation)} className="emblem__core" />
       <text x="50" y="58" className="emblem__glyph" textAnchor="middle">
-        {GLYPHS[faction]}
+        {faction === 'neutral' ? '✦' : GLYPHS[faction]}
       </text>
     </svg>
   );
 }
 
 /** Per-card illustration when one exists for the base card id, otherwise the generated emblem. */
-export function CardArt({ id, faction }: { id: string; faction: Faction }) {
+export function CardArt({ id, faction }: { id: string; faction: Faction | 'neutral' }) {
   const url = artUrl(id);
   if (!url) return <CardEmblem id={id} faction={faction} />;
   return (
     <>
       <img className="card-art" src={url} alt="" draggable={false} />
       <span className="card-art__glyph" aria-hidden="true">
-        {GLYPHS[faction]}
+        {faction === 'neutral' ? '✦' : GLYPHS[faction]}
       </span>
     </>
   );

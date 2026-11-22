@@ -1,16 +1,24 @@
 import { useMemo, useState } from 'react';
-import { collectibleCards, sortCards, getCard, type CardDef, type Faction, type Keyword } from '../../engine';
-import { CardView } from '../CardView';
+import {
+  collectibleCards,
+  sortCards,
+  getCard,
+  type CardDef,
+  type CollectibleCard,
+  type Faction,
+  type Keyword,
+} from '../../rules';
+import { KEYWORD_NAME } from '../../rules/text';
+import { DuelCard } from '../duel/Card';
 import { GLYPHS } from '../factions';
-import { KEYWORD_NAMES } from '../glossary';
-import { useMatch } from '../store';
+import { useDuel } from '../duel/store';
 import { unlockLevel } from '../../run';
 import { useLongPress } from '../useLongPress';
 
 export interface Filters {
   factions: Faction[];
   cost: number | null; // 8 means 8+
-  type: 'all' | 'unit' | 'spell';
+  type: 'all' | 'unit' | 'burst' | 'fast' | 'slow';
   keyword: Keyword | 'all';
   rarity: CardDef['rarity'] | 'all';
   search: string;
@@ -19,10 +27,11 @@ export interface Filters {
 const EMPTY: Filters = { factions: [], cost: null, type: 'all', keyword: 'all', rarity: 'all', search: '' };
 const RARITIES: CardDef['rarity'][] = ['common', 'uncommon', 'rare', 'legendary'];
 
-function matches(card: CardDef, f: Filters): boolean {
+function matches(card: CollectibleCard, f: Filters): boolean {
   if (f.factions.length > 0 && !f.factions.includes(card.faction)) return false;
   if (f.cost !== null && (f.cost === 8 ? card.cost < 8 : card.cost !== f.cost)) return false;
-  if (f.type !== 'all' && card.type !== f.type) return false;
+  if (f.type === 'unit' && card.type !== 'unit') return false;
+  if (f.type !== 'all' && f.type !== 'unit' && card.speed !== f.type) return false;
   if (f.keyword !== 'all' && !card.keywords.includes(f.keyword)) return false;
   if (f.rarity !== 'all' && card.rarity !== f.rarity) return false;
   const q = f.search.trim().toLowerCase();
@@ -84,7 +93,9 @@ function FilterBar({ value, onChange }: { value: Filters; onChange(f: Filters): 
         >
           <option value="all">All types</option>
           <option value="unit">Units</option>
-          <option value="spell">Spells</option>
+          <option value="burst">Burst spells</option>
+          <option value="fast">Fast spells</option>
+          <option value="slow">Slow spells</option>
         </select>
         <select
           aria-label="Keyword"
@@ -92,7 +103,7 @@ function FilterBar({ value, onChange }: { value: Filters; onChange(f: Filters): 
           onChange={(e) => onChange({ ...value, keyword: e.target.value as Filters['keyword'] })}
         >
           <option value="all">Any keyword</option>
-          {Object.entries(KEYWORD_NAMES).map(([k, name]) => (
+          {Object.entries(KEYWORD_NAME).map(([k, name]) => (
             <option key={k} value={k}>
               {name}
             </option>
@@ -128,7 +139,7 @@ function GridCard({
   limit?: number;
   onTap(): void;
 }) {
-  const showDetail = useMatch((s) => s.showDetail);
+  const showDetail = useDuel((s) => s.showDetail);
   const press = useLongPress(onTap, () => showDetail(id));
   const name = getCard(id).name;
   const level = unlockLevel(id);
@@ -141,7 +152,7 @@ function GridCard({
       data-card-id={id}
       {...press}
     >
-      <CardView cardId={id} />
+      <DuelCard cardId={id} />
       {locked && <span className="grid-card__lock">{lockText}</span>}
       {count !== undefined && count > 0 && (
         <span className="grid-card__count">

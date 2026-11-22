@@ -248,7 +248,6 @@ export function DuelScreen() {
       {drag?.moved && <DragGhost drag={drag} game={game} />}
       <MulliganOverlay />
       <ResultOverlay />
-      <DetailOverlay />
       <ErrorToast />
     </main>
   );
@@ -606,7 +605,8 @@ function ResultOverlay() {
   );
 }
 
-function DetailOverlay() {
+/** Rules text for a Spellfall card (match, collection and deck builder). Rendered once, by the App. */
+export function DetailOverlay() {
   const cardId = useDuel((s) => s.detail);
   const close = useDuel((s) => s.showDetail);
   if (!cardId) return null;

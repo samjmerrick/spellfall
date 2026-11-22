@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Difficulty } from '../ai';
-import { PREBUILT_DECKS, type DeckDef } from '../engine';
+import { PREBUILT_DECKS, type DeckDef } from '../rules';
 import { grantXp, ownedCardIds, type UnlockBundle } from '../run/meta';
 import {
   idbStore,

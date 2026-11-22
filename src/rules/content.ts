@@ -1,7 +1,7 @@
 import cardsJson from '../content/next/cards.json';
 import decksJson from '../content/next/decks.json';
 import { cardText } from './text';
-import { CardListSchema, DeckDefListSchema, type CardDef, type DeckDef } from './schema';
+import { CardListSchema, DeckDefListSchema, type CardDef, type DeckDef, type Faction } from './schema';
 
 /** Suffix marking an upgraded card id, e.g. `ember-kindle+`. */
 export const UPGRADED = '+';
@@ -76,9 +76,17 @@ export function generatedText(card: CardDef): string {
   return withText(card).text;
 }
 
-/** Collectible (non-token) cards. */
-export function collectibleCards(): CardDef[] {
-  return CARDS.filter((c) => !c.token);
+/** Cards every new profile owns: the starter commons of each faction. */
+export function starterCollection(): Set<string> {
+  return new Set(CARDS.filter((c) => !c.token && c.unlock === 'starter').map((c) => c.id));
+}
+
+/** A card that can go in a deck: never a token, never neutral. */
+export type CollectibleCard = CardDef & { faction: Faction };
+
+/** Collectible (non-token) cards. Only tokens may be neutral (checked by the schema). */
+export function collectibleCards(): CollectibleCard[] {
+  return CARDS.filter((c): c is CollectibleCard => !c.token);
 }
 
 /** Pre-built decks. Read-only; players copy them to edit. */

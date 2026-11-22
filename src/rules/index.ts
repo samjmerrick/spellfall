@@ -22,7 +22,10 @@ export {
   generatedText,
   UPGRADED,
   PREBUILT_DECKS,
+  starterCollection,
+  type CollectibleCard,
 } from './content';
 export * from './types';
+export * from './deck';
 export type { CardDef, DeckDef, Keyword, Faction, Speed, TargetSpec, MatchModifier, Effect } from './schema';
 export { KEYWORDS, FACTIONS, SPEEDS, MatchModifierSchema } from './schema';

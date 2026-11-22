@@ -1,9 +1,9 @@
 import { motion } from 'motion/react';
 import { useEffect } from 'react';
-import { getCard } from '../engine';
+import { getCard } from '../rules';
 import { getHero, getRelic, type UnlockBundle } from '../run';
 import { useApp } from './app';
-import { CardView } from './CardView';
+import { DuelCard } from './duel/Card';
 import { FACTION_NAME, GLYPHS } from './factions';
 import { Icon } from './Icon';
 import { FADE_SECONDS, useDurationScale } from './motion';
@@ -21,7 +21,7 @@ function Bundle({ bundle }: { bundle: UnlockBundle }) {
           <ul className="levelup__cards">
             {bundle.ids.map((id) => (
               <li key={id} aria-label={getCard(id).name}>
-                <CardView cardId={id} />
+                <DuelCard cardId={id} />
               </li>
             ))}
           </ul>
@@ -56,7 +56,7 @@ function Bundle({ bundle }: { bundle: UnlockBundle }) {
                   <ul className="levelup__cards">
                     {cards.map((c) => (
                       <li key={c} aria-label={getCard(c).name}>
-                        <CardView cardId={c} />
+                        <DuelCard cardId={c} />
                       </li>
                     ))}
                   </ul>

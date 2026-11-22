@@ -165,7 +165,7 @@ As in Lanefall (`docs/v1/spec.md`, Meta progression): one account level from XP 
 
 ## Deck building
 
-As in Lanefall (`docs/v1/spec.md`, Deck building): 30-card decks from up to 2 factions, at most 3 copies (1 of a Legendary); up to 20 saved decks; one pre-built deck per faction pair; collection grid with filters (the cost filter runs 1–10, and there is a speed filter for spells); deck strip with count, factions and curve; share codes (Spellfall codes start `SD1-`).
+As in Lanefall (`docs/v1/spec.md`, Deck building): 30-card decks from up to 2 factions, at most 3 copies (1 of a Legendary); up to 20 saved decks; one pre-built deck per faction pair; collection grid with filters (cost 1–7 and 8+; the type filter splits spells by speed: Burst, Fast, Slow); deck strip with count, factions and curve; share codes (Spellfall codes start `SD1-`).
 
 ## Portrait UI and art
 
@@ -313,11 +313,10 @@ All 5 factions (150 cards) on the new rules, ten pre-built faction-pair decks, a
 
 ### V4: Quick Play, deck builder and saves
 
-Collection, deck builder, share codes and saved decks on Spellfall's cards; saved decks return to Quick Play; a match closed mid-turn resumes.
+Collection, deck builder, share codes and saved decks on Spellfall's cards; saved decks return to Quick Play. Every Lanefall card id still exists in Spellfall, so saved decks need no migration.
 
 - Unit tests for every deck-legality rule; share codes index Spellfall's collectible list.
 - Playwright: build a deck, reload, and the deck is still there and playable in Quick Play; a save code round-trips to an identical profile.
-- Saved Lanefall decks are migrated (cards that no longer exist are dropped) with a fixture.
 
 ### V5: Run port
 
