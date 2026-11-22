@@ -39,7 +39,8 @@ Kept: factions, keywords where they still make sense, data-driven cards, seeded 
 
 - The stack is a last-in, first-out list of pending items: spells (Fast or Slow) and **attacks**.
 - When an item goes on the stack, the _other_ player gets priority. They may add a Fast or Burst spell, or pass.
-- When both players pass in a row with items on the stack, the **top item resolves**, then the active player gets priority again (MTG-style, one item at a time, so each response is visible).
+- Adding an item hands priority to the other player, so the caster has in effect passed. If the player with priority **passes**, the **whole stack resolves** at once, top to bottom, with no priority in between (Legends of Runeterra style). Then the active player gets priority again with an empty stack.
+- So you see the full exchange before anything happens, and the last word belongs to whoever adds the last item. Fizzle checks still happen per item as it resolves, so an earlier item can remove the target of a later one.
 - The active player may only take main-phase actions (play a unit, cast Slow, declare an attack, end turn) while the stack is empty.
 - On resolve, every chosen target is checked again. Targets that are gone or now illegal are skipped; if all are gone the item **fizzles** (mana is not refunded).
 
@@ -111,7 +112,7 @@ Shift is removed. Faction signatures change: Ember (Quick, Overwhelm, direct dam
 
 - Units are bigger than in v1 (6 across one row instead of 12 tiny tokens), which helps readability at 360 px.
 - **Attack:** drag from your unit to a target; legal targets light up (Guard rules applied). Same drag arrow for targeted spells.
-- **The main button** changes label with the state: _End Turn_ (your main phase), _Pass_ (you have priority with something on the stack), _Resolve_ (both passed, waiting), _Opponent's turn_ (disabled).
+- **The main button** changes label with the state: _End Turn_ (your main phase), _Resolve_ (you have priority with something on the stack: passing resolves it all), _Opponent's turn_ (disabled).
 - **Auto-pass** (setting, on by default): skip a priority window when you have no legal response. When you _can_ respond, the opponent's item pulses in the stack strip and the button reads _Pass_. No timers in single-player.
 - Opponent actions play at a readable pace (~600 ms each, halved by Fast animations).
 
@@ -175,11 +176,14 @@ Not a fresh start, and not an in-place rewrite.
 | V7  | Polish               | Tutorial teaching the stack, screenshots, motion                                                                                                                                             |
 | V8  | Balance              | Faction win rates 45–55%, no card above 60% played win rate, first-player win rate 47–53%                                                                                                    |
 
-## 11. Open questions
+## 11. Decided (2026-11-22)
 
-1. Name: "Lanefall" no longer fits. Placeholder needed for the repo (e.g. "Stackfall").
-2. Stack resolution: one item at a time (proposed, clearer) or LoR's whole-stack-at-once?
-3. Should units also be able to **block** (LoR attack/block rounds) instead of Hearthstone's free targeting? Proposed: no — chosen targets were the ask, and blocking doubles the UI.
-4. Board cap 6 or 7? 6 fits a 360 px row at ~52 px per unit; 7 drops to ~45 px.
-5. Hero HP 20 vs 30: start at 20 and let the V8 simulations decide, as in v1.
-6. Should damage on units heal at end of turn (LoR) instead of persisting (Hearthstone and v1)? Proposed: persist.
+- Free targeting (Hearthstone): no attack/block rounds.
+- The whole stack resolves when the player with priority passes (Legends of Runeterra), not one item at a time.
+- Damage on units persists between turns.
+
+## 12. Open questions
+
+1. Name: "Lanefall" no longer fits (shortlist being brainstormed).
+2. Board cap 6 or 7? 6 fits a 360 px row at ~52 px per unit; 7 drops to ~45 px.
+3. Hero HP 20 vs 30: start at 20 and let the V8 simulations decide, as in v1.
