@@ -17,6 +17,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
 - `pnpm build` — production build (`VITE_BASE=/spellfall/` for GitHub Pages; CI sets it)
+- `pnpm build:preview` — self-contained test build in `dist-preview/` (assets inlined, no service worker) for the test artifact
 
 ## Folder rules
 
@@ -64,3 +65,9 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - Any game-rule change updates `docs/spec.md` in the same PR.
 - After UI changes, run `pnpm e2e` and look at `test-results/screens/*.png` before committing.
 - New dependency → one-line reason in the PR description.
+- **Test build every time.** After every batch of changes (each time you commit work for the owner), run
+  `pnpm build:preview` and publish `dist-preview/` as a claude.ai artifact: page `dist-preview/spellfall.html`, the
+  other files (`assets/*`, `icon.svg`) as its supporting files, with `dist-preview/` as the root. Update the existing
+  test-build artifact (https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi) rather than making a new one, removing the
+  previous build's hashed files, and give the owner the link with a short list of what to try. If publishing fails, say
+  so; never skip it silently.
