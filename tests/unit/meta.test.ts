@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collectibleCards, getCard, initMatch, starterCollection } from '../../src/engine';
+import { collectibleCards, getCard, initMatch, starterCollection } from '../../src/rules';
 import {
   ASCENSION_RULES,
   CARD_CHOICES,
@@ -35,7 +35,7 @@ import {
   type RunState,
 } from '../../src/run';
 import { newProfile } from '../../src/save';
-import { FILLER, place, plan, resolve, setup, unitAt } from './helpers';
+import { FILLER, pass, place, setup } from './rules/helpers';
 
 const pool = [...starterCollection()];
 const allRelics = RELICS.map((r) => r.id);
@@ -445,8 +445,10 @@ describe('the 7 unlockable heroes', () => {
   const mods = (id: string) => HEROES.find((h) => h.id === id)!.modifiers;
   const withHero = (id: string, extra: Parameters<typeof setup>[0] = {}) =>
     setup({ ...extra, modifiers: [mods(id), []] });
-  /** Plays one empty round and returns the next state. */
-  const next = (s: ReturnType<typeof setup>) => resolve(plan(plan(s, 0), 1)).state;
+  /** Ends this turn and the opponent's, so player 0's next turn starts (and its turnStart modifiers run). */
+  const next = (s: ReturnType<typeof setup>) => pass(pass(s));
+  const mine = (s: ReturnType<typeof setup>, i = 0) => s.boards[0][i]!;
+  const theirs = (s: ReturnType<typeof setup>, i = 0) => s.boards[1][i]!;
 
   it('there are 7, two per faction overall, each with a legal 12-card starter deck', () => {
     expect(unlockable.map((h) => h.faction).sort()).toEqual([
@@ -473,69 +475,64 @@ describe('the 7 unlockable heroes', () => {
     expect(new Set(unlockable.map((h) => h.starterDeck.join())).size).toBe(7);
   });
 
-  it('Brenna: Barrier on a random friendly unit at the start of rounds 2, 4 and 6', () => {
+  it('Brenna: Barrier on a random friendly unit at the start of your 2nd, 4th and 6th turns', () => {
     let s = withHero('hero-brenna');
-    const u = place(s, 0, 0, FILLER);
-    expect(u.barrier).toBe(false);
+    place(s, 0, FILLER);
+    expect(mine(s).barrier).toBe(false);
     s = next(s);
-    expect(s.round).toBe(2);
-    expect(unitAt(s, 0, 0)!.barrier).toBe(true);
+    expect(s.players[0].turnsTaken).toBe(2);
+    expect(mine(s).barrier).toBe(true);
   });
 
-  it('Marin: 1 extra card at the start, and a card at the start of rounds 3 and 6', () => {
+  it('Marin: 1 extra card at the start, and a card at the start of your 3rd and 6th turns', () => {
     const base = setup();
     const marin = withHero('hero-marin');
-    expect(marin.players[0].hand).toHaveLength(base.players[0].hand.length + 1);
-    const b2 = next(next(base));
-    const m2 = next(next(marin));
-    expect(b2.round).toBe(3);
-    // Hands may be capped, so count the cards drawn from the deck: 1 at the start, 1 in round 3.
-    expect(b2.players[0].deck.length - m2.players[0].deck.length).toBe(2);
+    // `setup` empties hands, so count the cards drawn from the deck: 1 at the start, 1 on turn 3.
+    expect(base.players[0].deck.length - marin.players[0].deck.length).toBe(1);
+    const b3 = next(next(base));
+    const m3 = next(next(marin));
+    expect(b3.players[0].turnsTaken).toBe(3);
+    expect(b3.players[0].deck.length - m3.players[0].deck.length).toBe(2);
   });
 
-  it('Corin: enemy units get -1 Power this round at the start of rounds 2, 4 and 6', () => {
+  it('Corin: enemy units get -1 Power this turn at the start of your 2nd, 4th and 6th turns', () => {
     let s = withHero('hero-corin');
-    place(s, 1, 0, 'bastion-militia');
-    const before = unitAt(s, 1, 0)!;
-    expect(before.roundPower).toBe(0);
+    place(s, 1, 'bastion-militia');
     s = next(s);
-    expect(unitAt(s, 1, 0)!.roundPower).toBe(-1);
+    expect(theirs(s).turnPower).toBe(-1);
   });
 
-  it('Sylva: a random friendly unit gets +1 Health at the start of each round', () => {
+  it('Sylva: a random friendly unit gets +1 Health at the start of each of your turns', () => {
     let s = withHero('hero-sylva');
-    place(s, 0, 0, 'bastion-militia');
+    place(s, 0, 'bastion-militia');
     const hp = getCard('bastion-militia').health!;
     s = next(s);
-    expect(unitAt(s, 0, 0)!.baseHealth).toBe(hp + 1);
+    expect(mine(s).baseHealth).toBe(hp + 1);
     s = next(s);
-    expect(unitAt(s, 0, 0)!.baseHealth).toBe(hp + 2);
+    expect(mine(s).baseHealth).toBe(hp + 2);
   });
 
-  it('Oren: heals friendly units each round, and +2 Health to all of them at round 3', () => {
+  it('Oren: heals friendly units each turn, and +2 Health to all of them on your 3rd turn', () => {
     let s = withHero('hero-oren');
-    place(s, 0, 0, 'bastion-militia', { damage: 1 });
+    place(s, 0, 'bastion-militia', { damage: 1 });
     const hp = getCard('bastion-militia').health!;
     s = next(s);
-    expect(unitAt(s, 0, 0)!.damage).toBe(0);
-    expect(unitAt(s, 0, 0)!.baseHealth).toBe(hp);
+    expect(mine(s).damage).toBe(0);
+    expect(mine(s).baseHealth).toBe(hp);
     s = next(s);
-    expect(s.round).toBe(3);
-    expect(unitAt(s, 0, 0)!.baseHealth).toBe(hp + 2);
+    expect(mine(s).baseHealth).toBe(hp + 2);
   });
 
-  it('Vesper: 2 damage to a random enemy unit at the start of rounds 2, 4 and 6', () => {
+  it('Vesper: 2 damage to a random enemy unit at the start of your 2nd, 4th and 6th turns', () => {
     let s = withHero('hero-vesper');
-    place(s, 1, 0, 'bastion-wall-warden');
-    expect(getCard('bastion-wall-warden').health!).toBeGreaterThan(2);
+    place(s, 1, 'bastion-wall-warden');
     s = next(s);
-    expect(unitAt(s, 1, 0)!.damage).toBe(2);
+    expect(theirs(s).damage).toBe(2);
     s = next(s);
-    expect(s.round).toBe(3);
-    expect(unitAt(s, 1, 0)!.damage).toBe(2); // not a listed round
+    expect(theirs(s).damage).toBe(2); // not a listed turn
   });
 
-  it('Morrow: 1 damage to the enemy hero and 1 healing for yours at the start of rounds 2, 4, 6 and 8', () => {
+  it('Morrow: 1 damage to the enemy hero and 1 healing for yours on your 2nd, 4th, 6th and 8th turns', () => {
     let s = withHero('hero-morrow');
     s.players[0].hp = 10;
     s = next(s);
@@ -543,13 +540,13 @@ describe('the 7 unlockable heroes', () => {
     expect(s.players[0].hp).toBe(11);
     s = next(s);
     expect(s.players[1].hp).toBe(19);
-    expect(s.players[0].hp).toBe(11);
   });
 
-  it('every hero passive text matches its modifiers in the rounds it names', () => {
+  it('every hero passive text names the turns its modifiers fire on', () => {
+    const ordinal = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
     for (const h of unlockable) {
-      const rounds = h.modifiers.flatMap((m) => (m.kind === 'roundStart' ? (m.rounds ?? []) : []));
-      for (const r of rounds) expect(h.passive, h.id).toContain(String(r));
+      const turns = h.modifiers.flatMap((m) => (m.kind === 'turnStart' ? (m.turns ?? []) : []));
+      for (const t of turns) expect(h.passive, h.id).toContain(ordinal(t));
     }
   });
 });

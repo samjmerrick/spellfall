@@ -1,7 +1,7 @@
 // Roguelike run UI state. The run itself lives in the profile as seed + choices (autosaved on every
 // choice); this store keeps the replayed RunState for rendering and hands matches to the match store.
 import { create } from 'zustand';
-import type { GameState } from '../engine';
+import type { GameState } from '../rules';
 import {
   applyChoice,
   recordRunResult,
@@ -14,7 +14,7 @@ import {
 } from '../run';
 import { ownedCards, useApp } from './app';
 import { randomSeed, urlSeed } from './settings';
-import { useMatch } from './store';
+import { useDuel } from './duel/store';
 
 interface RunStore {
   run: RunState | null;
@@ -104,7 +104,7 @@ export const useRun = create<RunStore>((set, get) => {
       const active = useApp.getState().profile.activeRun;
       if (!run || run.phase.kind !== 'match' || !active) return;
       const saved = active.match?.step === run.step ? active.match : null;
-      void useMatch.getState().startRunMatch(runMatch(run), saved);
+      void useDuel.getState().startRun(runMatch(run), saved);
     },
 
     saveMatch(game, aiRng) {

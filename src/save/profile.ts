@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import type { GameState } from '../engine';
+import type { GameState } from '../rules';
 import { RunChoiceSchema, RunConfigSchema } from '../run/schema';
 
-export const CURRENT_SCHEMA = 6;
+export const CURRENT_SCHEMA = 7;
 export const MAX_SAVED_DECKS = 20;
 export const MAX_DECK_NAME = 24;
 
@@ -17,7 +17,7 @@ const RecordSchema = z.object({ played: z.number().int().min(0), won: z.number()
 
 /** A match state saved mid-match; the engine's own invariants are trusted, only the shape is checked. */
 const GameStateSchema = z.custom<GameState>(
-  (v) => typeof v === 'object' && v !== null && (v as { version?: unknown }).version === 1,
+  (v) => typeof v === 'object' && v !== null && (v as { version?: unknown }).version === 2,
   'Invalid match state',
 );
 

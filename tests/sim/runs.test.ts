@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { plan } from '../../src/ai';
-import { applyAction, initMatch, resolveRound, starterCollection, type GameState } from '../../src/engine';
-import { seedRng } from '../../src/engine/rng';
+import { act } from '../../src/ai/next';
+import { applyAction, initMatch, starterCollection, viewFor, type GameState } from '../../src/rules';
+import { seedRng } from '../../src/rules/rng';
 import {
   HEROES,
   RELICS,
@@ -44,17 +44,17 @@ describe('bot runs', () => {
   }, 120_000);
 });
 
-/** One planning round as the UI runs it: the human (a bot here) plans, then the AI, then resolve. */
-function playRound(game: GameState, aiRng: number, r: RunState) {
+/** One action as the UI runs it: whoever has priority (or must mulligan) acts. */
+function playAction(game: GameState, aiRng: number, r: RunState) {
   const m = runMatch(r);
-  // The human's decisions are not part of the save, so their bot stream depends only on seed and round.
-  const human = plan('easy', game, 0, seedRng(m.seed * 31 + game.round));
-  let s = game;
-  for (const a of human.actions) s = applyAction(s, a);
-  const ai = plan(m.difficulty, s, 1, aiRng, m.hooks);
-  for (const a of ai.actions) s = applyAction(s, a);
-  if (game.phase === 'plan') s = resolveRound(s).state; // (a mulligan step has no round to resolve)
-  return { game: s, aiRng: ai.rng };
+  const player = game.phase === 'mulligan' ? (game.players[0].mulliganed ? 1 : 0) : game.priority;
+  if (player === 0) {
+    // The human's decisions are not part of the save, so their bot stream depends only on the state.
+    const human = act('easy', viewFor(game, 0), seedRng(m.seed * 31 + game.turn * 97 + game.nextUid));
+    return { game: applyAction(game, human.action).state, aiRng };
+  }
+  const ai = act(m.difficulty, viewFor(game, 1, { seeHand: m.hooks.seesHand }), aiRng);
+  return { game: applyAction(game, ai.action).state, aiRng: ai.rng };
 }
 
 interface Session {
@@ -65,7 +65,7 @@ interface Session {
   botRng: number;
 }
 
-/** Advances the run by one step: a run choice, starting a match, or one match round. */
+/** Advances the run by one step: a run choice, starting a match, or one match action. */
 function step(x: Session): Session {
   const { r } = x;
   if (r.phase.kind === 'match') {
@@ -73,7 +73,7 @@ function step(x: Session): Session {
       const m = runMatch(r);
       return { ...x, game: initMatch(m.config, m.seed), aiRng: matchAiRng(m.seed) };
     }
-    if (x.game.phase !== 'over') return { ...x, ...playRound(x.game, x.aiRng, r) };
+    if (x.game.phase !== 'over') return { ...x, ...playAction(x.game, x.aiRng, r) };
     const c: RunChoice = { t: 'matchEnd', won: x.game.result?.winner === 0 };
     return { ...x, r: applyChoice(r, c), choices: [...x.choices, c], game: null };
   }
@@ -114,14 +114,14 @@ describe('resume', () => {
       let a = fresh();
       for (let i = 0; a.r.phase.kind !== 'over'; i++) a = step(a);
 
-      // Same run, closed after round 2 of its third match and resumed from the save.
+      // Same run, closed on turn 3 of its third match and resumed from the save.
       let b = fresh();
       let matchesStarted = 0;
       while (true) {
         const startsMatch = b.r.phase.kind === 'match' && !b.game;
         b = step(b);
         if (startsMatch) matchesStarted++;
-        if (matchesStarted === 3 && b.game && b.game.round === 3) break;
+        if (matchesStarted === 3 && b.game && b.game.turn === 3) break;
         if (b.r.phase.kind === 'over') throw new Error('run ended before the third match');
       }
       const midMatch = b.game;

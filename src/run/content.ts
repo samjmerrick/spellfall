@@ -4,8 +4,8 @@ import relicsJson from '../content/relics.json';
 import enemiesJson from '../content/enemies.json';
 import eventsJson from '../content/events.json';
 import { z } from 'zod';
-import { getCard, type Faction } from '../engine';
-import { FACTIONS, MatchModifierSchema } from '../engine/schema';
+import { getCard, type Faction } from '../rules';
+import { FACTIONS, MatchModifierSchema } from '../rules/schema';
 
 export const HeroSchema = z.object({
   id: z.string().regex(/^hero-[a-z-]+$/),
@@ -46,7 +46,8 @@ export const EnemySchema = z.object({
   modifiers: z.array(MatchModifierSchema).default([]),
   /** The boss rule as shown to the player. */
   rule: z.string().optional(),
-  ai: z.object({ seesPlan: z.boolean().optional() }).default({}),
+  /** Boss overrides for the AI: `seesHand` lets it plan from your real hand. */
+  ai: z.object({ seesHand: z.boolean().optional() }).default({}),
 });
 
 const RARITY = z.enum(['common', 'uncommon', 'rare', 'legendary']);

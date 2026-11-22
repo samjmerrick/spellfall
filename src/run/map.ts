@@ -1,5 +1,5 @@
 // Act map generation: 7 rows of 2–3 nodes, then the boss. Pure and seeded.
-import { nextInt, type RngState } from '../engine/rng';
+import { nextInt, type RngState } from '../rules/rng';
 
 export const MAP_ROWS = 7;
 export type NodeType = 'fight' | 'elite' | 'event' | 'rest' | 'shop' | 'treasure' | 'boss';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getCard, type Faction } from '../../engine';
+import { getCard, type Faction } from '../../rules';
 import {
   REMOVE_PRICE,
   canChoose,
@@ -13,11 +13,11 @@ import {
   type RunState,
   type ShopItem,
 } from '../../run';
-import { CardView } from '../CardView';
+import { DuelCard } from '../duel/Card';
 import { Icon } from '../Icon';
 import { useApp } from '../app';
 import { useRun } from '../runStore';
-import { useMatch } from '../store';
+import { useDuel } from '../duel/store';
 import { useLongPress } from '../useLongPress';
 import { NODE_GLYPH, NODE_LABEL, type NodeType } from '../nodes';
 import { FACTION_NAME } from '../factions';
@@ -34,7 +34,7 @@ function PickCard({
   onTap: () => void;
   disabled?: boolean;
 }) {
-  const showDetail = useMatch((s) => s.showDetail);
+  const showDetail = useDuel((s) => s.showDetail);
   const press = useLongPress(onTap, () => showDetail(cardId));
   return (
     <button
@@ -45,7 +45,7 @@ function PickCard({
       data-card-id={cardId}
       {...press}
     >
-      <CardView cardId={cardId} />
+      <DuelCard cardId={cardId} />
     </button>
   );
 }

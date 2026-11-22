@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { starterCollection } from '../../src/engine';
+import { starterCollection } from '../../src/rules';
 import { replayRun, type RunChoice } from '../../src/run';
 import fixture from '../fixtures/run-paths.json';
 

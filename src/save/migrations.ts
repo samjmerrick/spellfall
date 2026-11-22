@@ -50,6 +50,13 @@ export const migrations: Record<number, (old: Record<string, unknown>) => Record
   },
   // v6 (Spellfall V2): the Auto-pass setting, on.
   5: (old) => ({ ...old, settings: { ...(old.settings as object), autoPass: true } }),
+  // v7 (Spellfall V5): runs play on Spellfall's rules. A match in progress was a Lanefall match state, so it is
+  // dropped and that node's match starts again; the run's choices still replay (the run content and RNG
+  // are unchanged).
+  6: (old) => {
+    const run = old.activeRun as Record<string, unknown> | null | undefined;
+    return { ...old, activeRun: run ? { ...run, match: null } : null };
+  },
 };
 
 /** Runs migrations in order up to the current schema, then validates. Throws if the save is invalid. */

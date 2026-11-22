@@ -1,5 +1,5 @@
-import type { Difficulty } from '../../src/ai';
-import { collectibleCards } from '../../src/engine';
+import type { Difficulty } from '../../src/ai/next';
+import { collectibleCards } from '../../src/rules';
 import { HEROES, MAX_LEVEL, relicPool } from '../../src/run';
 import { playBotRun } from './run';
 

@@ -75,7 +75,7 @@ export async function savedJson(page: Page): Promise<string> {
 
 /** A new-game profile (src/save/profile.ts newProfile; not imported because that module needs a bundler for its JSON). */
 export const newProfile = (): Profile => ({
-  schemaVersion: 6,
+  schemaVersion: 7,
   xp: 0,
   level: 1,
   unlocks: [],

@@ -39,7 +39,8 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
   selectors). Run `pnpm content:text:next` after editing one.
 - AI: `src/ai/next` (`act(difficulty, view, rng, clock?)`, one action per call, from `viewFor`; Hard in `hard.ts`); weights in
   `src/content/next/ai-weights.json`. The match UI is `src/ui/duel/` (store, screen, worker); Quick Play uses it.
-  Runs and the tutorial still use Lanefall's `src/ui/store.ts` + `MatchScreen` until V4/V7.
+  Runs use it too (`startRun`, autosave on every player priority); only the tutorial still uses Lanefall's
+  `src/ui/store.ts` + `MatchScreen` until V7. Run modifiers are Spellfall `MatchModifier`s (`turnStart`, `startSpellMana`).
 - e2e: `tests/e2e/duel.ts` (`playCard`, `attackOnce`, `playDuel`) plays Spellfall matches by tapping.
 - Tests: `tests/unit/rules/` (helpers `setup`, `place`, `give`, `cast`, `play`, `attack`, `pass`); bulk and determinism in
   `tests/sim/rules-bulk.test.ts` with the random bot in `tools/sim/rules-bot.ts`.

@@ -21,8 +21,7 @@
       "ember-cinder-bolt",
       "ember-cinder-bolt",
       "ember-magma-brute"
-    ],
-    "modifiers": []
+    ]
   },
   {
     "id": "enemy-hound-pack",
@@ -46,8 +45,7 @@
       "ember-ash-raider",
       "ember-magma-brute",
       "ember-magma-brute"
-    ],
-    "modifiers": []
+    ]
   },
   {
     "id": "enemy-gate-patrol",
@@ -71,8 +69,7 @@
       "bastion-mend",
       "bastion-rally-cry",
       "bastion-rally-cry"
-    ],
-    "modifiers": []
+    ]
   },
   {
     "id": "enemy-levy-muster",
@@ -96,8 +93,7 @@
       "bastion-rally-cry",
       "bastion-militia",
       "bastion-militia"
-    ],
-    "modifiers": []
+    ]
   },
   {
     "id": "enemy-border-raiders",
@@ -121,8 +117,7 @@
       "ember-fireball",
       "bastion-blessing",
       "bastion-blessing"
-    ],
-    "modifiers": []
+    ]
   },
   {
     "id": "boss-cinder-tyrant",
@@ -130,9 +125,9 @@
     "act": 1,
     "kind": "boss",
     "difficulty": "normal",
-    "rule": "The Tyrant sees your planned cards.",
+    "rule": "The Tyrant sees your hand.",
     "ai": {
-      "seesPlan": true
+      "seesHand": true
     },
     "deck": [
       "ember-spark-imp",
@@ -153,8 +148,7 @@
       "ember-cinder-bolt",
       "ember-cinder-bolt",
       "ember-kindle"
-    ],
-    "modifiers": []
+    ]
   },
   {
     "id": "enemy-tide-wardens",
@@ -311,14 +305,14 @@
     ],
     "modifiers": [
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "draw",
           "count": 1
         }
       }
     ],
-    "rule": "The Siren draws an extra card each round."
+    "rule": "The Siren draws an extra card each turn."
   },
   {
     "id": "enemy-drowned-crew",
@@ -489,7 +483,7 @@
         "amount": 6
       },
       {
-        "kind": "startReserve",
+        "kind": "startSpellMana",
         "amount": 1
       }
     ]
@@ -602,17 +596,17 @@
         "amount": 5
       },
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "buff",
           "target": "allFriendlyUnits",
           "power": 1,
           "health": 0,
-          "duration": "round"
+          "duration": "turn"
         }
       }
     ],
-    "rule": "Each round, the King's units get +1 Power."
+    "rule": "Each turn, the King's units get +1 Power."
   },
   {
     "id": "boss-storm-matriarch",
@@ -648,7 +642,7 @@
         "amount": 5
       },
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "damage",
           "target": "randomEnemyUnit",
@@ -656,7 +650,7 @@
         }
       }
     ],
-    "rule": "Each round, lightning deals 2 damage to one of your units."
+    "rule": "Each turn, lightning deals 2 damage to one of your units."
   },
   {
     "id": "boss-iron-bastion",
@@ -692,16 +686,16 @@
         "amount": 5
       },
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "grantKeyword",
           "target": "allFriendlyUnits",
           "keyword": "barrier"
         },
-        "rounds": [2, 4, 6]
+        "turns": [2, 4, 6]
       }
     ],
-    "rule": "In rounds 2, 4 and 6, the Bastion's units gain Barrier."
+    "rule": "On its 2nd, 4th and 6th turns, the Bastion's units gain Barrier."
   },
   {
     "id": "enemy-void-cultists",
@@ -884,7 +878,7 @@
         "amount": 8
       },
       {
-        "kind": "startReserve",
+        "kind": "startSpellMana",
         "amount": 1
       }
     ]
@@ -1005,9 +999,9 @@
         "amount": 5
       }
     ],
-    "rule": "The Queen sees your planned cards.",
+    "rule": "The Queen sees your hand.",
     "ai": {
-      "seesPlan": true
+      "seesHand": true
     }
   },
   {
@@ -1048,7 +1042,7 @@
         "amount": 5
       },
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "damage",
           "target": "enemyHero",
@@ -1056,7 +1050,7 @@
         }
       }
     ],
-    "rule": "Each round, the Wyrm deals 1 damage to your hero."
+    "rule": "Each turn, the Wyrm deals 1 damage to your hero."
   },
   {
     "id": "boss-eclipse",
@@ -1096,11 +1090,11 @@
         "amount": 2
       },
       {
-        "kind": "startReserve",
+        "kind": "startSpellMana",
         "amount": 2
       },
       {
-        "kind": "roundStart",
+        "kind": "turnStart",
         "action": {
           "op": "heal",
           "target": "friendlyHero",
@@ -1108,6 +1102,6 @@
         }
       }
     ],
-    "rule": "The Eclipse starts with 2 extra cards and 2 Reserve, and heals 2 each round."
+    "rule": "The Eclipse starts with 2 extra cards and 2 spell mana, and heals 2 each turn."
   }
 ]

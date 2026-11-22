@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AiHooks, Difficulty } from '../ai';
-import { matchAiRng, opponentPlan, stepAllows, TUTORIAL, tutorialConfig, type RunMatch } from '../run';
+import { opponentPlan, stepAllows, TUTORIAL, tutorialConfig } from '../run';
 import {
   applyAction,
   initMatch,
@@ -16,7 +16,6 @@ import { seedRng } from '../engine/rng';
 import { runAi } from './aiClient';
 import { PREBUILT_DECKS } from '../engine';
 import { useApp, type DeckChoice } from './app';
-import { useRun } from './runStore';
 import { haptic, sfx } from './feedback';
 import { currentScale } from './motion';
 import { randomSeed, urlSeed } from './settings';
@@ -94,7 +93,6 @@ interface MatchStore {
   tutorialStep: number;
 
   startMatch(deck?: DeckChoice, difficulty?: Difficulty): Promise<void>;
-  startRunMatch(m: RunMatch, saved: { game: GameState; aiRng: number } | null): Promise<void>;
   startTutorial(): void;
   /** Tutorial: moves past an info step. */
   tutorialNext(): void;
@@ -255,11 +253,8 @@ export const useMatch = create<MatchStore>((set, get) => {
     return applyAction(s, { type: 'endTurn', player: AI });
   }
 
-  /** Run mode autosave: the match state after the AI has acted. */
-  function autosave() {
-    const { mode, game, aiRng } = get();
-    if (mode === 'run' && game) useRun.getState().saveMatch(game, aiRng);
-  }
+  /** Runs moved to the Spellfall match screen (src/ui/duel); this store only plays the tutorial. */
+  function autosave() {}
 
   return {
     mode: 'quick',
@@ -310,31 +305,6 @@ export const useMatch = create<MatchStore>((set, get) => {
       });
       game = await aiTurn(game); // AI mulligan
       set({ game, view: viewFromState(game), busy: false });
-    },
-
-    async startRunMatch(m, saved) {
-      let game = saved?.game ?? initMatch(m.config, m.seed);
-      useApp.getState().go('match');
-      set({
-        mode: 'run',
-        deck: null,
-        difficulty: m.difficulty,
-        hooks: m.hooks,
-        enemyId: m.enemyId,
-        opponentDeck: null,
-        seed: m.seed,
-        game,
-        view: viewFromState(game),
-        busy: !saved,
-        aiRng: saved?.aiRng ?? matchAiRng(m.seed),
-        mulligan: [],
-        fx: [],
-        error: null,
-      });
-      if (saved) return;
-      game = await aiTurn(game); // AI mulligan
-      set({ game, view: viewFromState(game), busy: false });
-      autosave();
     },
 
     startTutorial() {

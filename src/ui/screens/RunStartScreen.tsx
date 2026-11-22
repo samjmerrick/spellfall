@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getCard } from '../../engine';
+import { getCard } from '../../rules';
 import { ascensionRules, HEROES, MAX_ASCENSION, ownedHeroes, unlockLevel } from '../../run';
 import { useApp } from '../app';
 import { FACTION_NAME, GLYPHS } from '../factions';

@@ -1,7 +1,7 @@
 // Finds the shortest choice list from a fixed run seed to each run screen, for the e2e tests.
 // Writes tests/fixtures/run-paths.json (checked by tests/unit/run-paths.test.ts). `pnpm content:paths`
 import { writeFileSync } from 'node:fs';
-import { starterCollection } from '../../src/engine';
+import { starterCollection } from '../../src/rules';
 import { relicPool } from '../../src/run/meta';
 import { getEvent } from '../../src/run/content';
 import { applyChoice, canChoose, nextCols, startRun, type RunChoice, type RunState } from '../../src/run';
