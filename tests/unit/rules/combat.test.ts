@@ -161,7 +161,7 @@ describe('keywords', () => {
     let s = setup({ mana: 5 });
     const e = place(s, 1, FILLER, { keywords: ['elusive'] });
     expect(() => cast(s, 0, 'ember-cinder-bolt', [unit(e.uid)])).toThrow(/illegal target/);
-    const a = place(s, 0, 'ember-magma-brute');
+    const a = place(s, 0, 'ember-spark-imp');
     expect(attackTargets(s, 0)).toContainEqual(unit(e.uid));
     // Its owner may still target it.
     s = pass(s);

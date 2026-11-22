@@ -6,6 +6,7 @@ import {
   deckProblems,
   encodeDeck,
   isDeckLegal,
+  getCard,
   PREBUILT_DECKS,
   sortCards,
   starterCollection,
@@ -84,12 +85,24 @@ describe('pre-built decks', () => {
     }
   });
 
-  it('the starter collection is 12 commons per faction', () => {
+  it('every pre-built deck has 12 to 14 spells and at most one copy of each Legendary', () => {
+    for (const deck of PREBUILT_DECKS) {
+      const spells = deck.cards.filter((id) => getCard(id).type === 'spell').length;
+      expect(spells, deck.id).toBeGreaterThanOrEqual(12);
+      expect(spells, deck.id).toBeLessThanOrEqual(14);
+      expect(
+        deckProblems(deck.cards).map((p) => p.rule),
+        deck.id,
+      ).not.toContain('legendary');
+    }
+  });
+
+  it('the starter collection is 17 cards per faction, 2 of them Legendaries', () => {
     const owned = [...starterCollection()].map((id) => collectibleCards().find((c) => c.id === id)!);
     for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'] as const) {
       const mine = owned.filter((c) => c.faction === f);
-      expect(mine).toHaveLength(12);
-      expect(mine.every((c) => c.rarity === 'common')).toBe(true);
+      expect(mine).toHaveLength(17);
+      expect(mine.filter((c) => c.rarity === 'legendary')).toHaveLength(2);
     }
   });
 });

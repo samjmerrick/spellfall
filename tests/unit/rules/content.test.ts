@@ -23,12 +23,12 @@ describe('content', () => {
     for (const c of parsed) expect(c.text, c.id).toBe(generatedText(c));
   });
 
-  it('has 30 collectible cards per faction, plus tokens', () => {
+  it('has 35 collectible cards per faction (2 more Legendaries and 3 more spells each), plus tokens', () => {
     for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
       expect(
         collectibleCards().filter((c) => c.faction === f),
         f,
-      ).toHaveLength(30);
+      ).toHaveLength(35);
     expect(CARDS.filter((c) => c.token).map((c) => c.id)).toEqual([
       'neutral-spark',
       'bastion-levy',
@@ -42,9 +42,24 @@ describe('content', () => {
       const pool = collectibleCards().filter((c) => c.faction === f);
       const spells = pool.filter((c) => c.type === 'spell').length;
       expect(spells, f).toBeGreaterThanOrEqual(7);
-      expect(spells, f).toBeLessThanOrEqual(13);
+      expect(spells, f).toBeLessThanOrEqual(16);
       expect(pool.filter((c) => c.cost >= 7).length, f).toBeLessThanOrEqual(4);
     }
+  });
+
+  it('has two more Legendaries per faction (7 reworked or new ones in total: five factions, 17 Legendaries)', () => {
+    const legends = collectibleCards().filter((c) => c.rarity === 'legendary');
+    expect(legends).toHaveLength(17);
+    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
+      expect(legends.filter((c) => c.faction === f).length, f).toBeGreaterThanOrEqual(3);
+  });
+
+  it('every faction has at least 2 Guard units', () => {
+    for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
+      expect(
+        collectibleCards().filter((c) => c.faction === f && c.keywords.includes('guard')).length,
+        f,
+      ).toBeGreaterThanOrEqual(2);
   });
 
   it('upgraded cards exist for every collectible card', () => {

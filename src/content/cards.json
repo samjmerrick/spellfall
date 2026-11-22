@@ -181,9 +181,10 @@
     "cost": 4,
     "power": 5,
     "health": 4,
-    "text": "",
+    "text": "Guard.",
     "rarity": "common",
-    "unlock": "starter"
+    "unlock": "starter",
+    "keywords": ["guard"]
   },
   {
     "id": "ember-war-drummer",
@@ -250,21 +251,21 @@
     "faction": "ember",
     "type": "unit",
     "cost": 7,
-    "power": 7,
+    "power": 6,
     "health": 6,
     "effects": [
       {
         "trigger": "onPlay",
         "action": {
-          "op": "damage",
-          "target": "allEnemyUnits",
-          "amount": 2
+          "op": "destroy",
+          "target": "otherUnits"
         }
       }
     ],
-    "text": "On Play: deal 2 damage to all enemy units.",
+    "text": "Quick. On Play: destroy all other units.",
     "rarity": "legendary",
-    "unlock": "track"
+    "unlock": "track",
+    "keywords": ["quick"]
   },
   {
     "id": "ember-cinder-bolt",
@@ -659,21 +660,29 @@
     "faction": "bastion",
     "type": "unit",
     "cost": 7,
-    "power": 6,
+    "power": 5,
     "health": 6,
     "effects": [
       {
         "trigger": "onPlay",
         "action": {
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 3
+        }
+      },
+      {
+        "trigger": "onPlay",
+        "action": {
           "op": "buff",
           "target": "otherFriendlyUnits",
-          "power": 1,
-          "health": 1,
+          "power": 2,
+          "health": 2,
           "duration": "permanent"
         }
       }
     ],
-    "text": "On Play: give other friendly units +1/+1.",
+    "text": "On Play: summon three 1/1 Levies and give other friendly units +2/+2.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -973,9 +982,10 @@
     "cost": 5,
     "power": 6,
     "health": 5,
-    "text": "",
+    "text": "Guard.",
     "rarity": "common",
-    "unlock": "track"
+    "unlock": "track",
+    "keywords": ["guard"]
   },
   {
     "id": "ember-ember-witch",
@@ -1028,10 +1038,20 @@
     "cost": 8,
     "power": 7,
     "health": 6,
-    "keywords": ["overwhelm"],
-    "text": "Overwhelm.",
+    "keywords": ["quick", "overwhelm"],
+    "text": "Quick. Overwhelm. On Play: deal 5 damage to the enemy hero.",
     "rarity": "legendary",
-    "unlock": "track"
+    "unlock": "track",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 5
+        }
+      }
+    ]
   },
   {
     "id": "bastion-fortify",
@@ -1251,9 +1271,19 @@
           "target": "otherFriendlyUnits",
           "keyword": "barrier"
         }
+      },
+      {
+        "trigger": "ongoing",
+        "action": {
+          "op": "buff",
+          "target": "otherFriendlyUnits",
+          "power": 1,
+          "health": 1,
+          "duration": "permanent"
+        }
       }
     ],
-    "text": "Guard. On Play: give other friendly units Barrier.",
+    "text": "Guard. On Play: give other friendly units Barrier. Ongoing: other friendly units have +1/+1.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -1457,8 +1487,8 @@
     "cost": 3,
     "power": 2,
     "health": 4,
-    "keywords": ["barrier"],
-    "text": "Barrier.",
+    "keywords": ["guard", "barrier"],
+    "text": "Guard. Barrier.",
     "rarity": "common",
     "unlock": "starter"
   },
@@ -1671,9 +1701,10 @@
     "cost": 4,
     "power": 4,
     "health": 5,
-    "text": "",
+    "text": "Guard.",
     "rarity": "common",
-    "unlock": "track"
+    "unlock": "track",
+    "keywords": ["guard"]
   },
   {
     "id": "tide-leviathan-spawn",
@@ -1846,20 +1877,19 @@
       {
         "trigger": "onPlay",
         "action": {
-          "op": "draw",
-          "count": 2
+          "op": "bounce",
+          "target": "allEnemyUnits"
         }
       },
       {
         "trigger": "onPlay",
         "action": {
-          "op": "grantKeyword",
-          "target": "otherFriendlyUnits",
-          "keyword": "barrier"
+          "op": "draw",
+          "count": 2
         }
       }
     ],
-    "text": "Elusive. Barrier. On Play: draw 2 cards and give other friendly units Barrier.",
+    "text": "Elusive. Barrier. On Play: return all enemy units to their owners' hands and draw 2 cards.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -1884,9 +1914,10 @@
     "cost": 1,
     "power": 1,
     "health": 2,
-    "text": "",
+    "text": "Guard.",
     "rarity": "common",
-    "unlock": "starter"
+    "unlock": "starter",
+    "keywords": ["guard"]
   },
   {
     "id": "grove-wild-growth",
@@ -2205,8 +2236,8 @@
     "cost": 4,
     "power": 3,
     "health": 5,
-    "keywords": ["regenerate"],
-    "text": "Regenerate.",
+    "keywords": ["guard", "regenerate"],
+    "text": "Guard. Regenerate.",
     "rarity": "common",
     "unlock": "track"
   },
@@ -2426,6 +2457,13 @@
     "keywords": ["growth", "regenerate"],
     "effects": [
       {
+        "trigger": "startOfTurn",
+        "action": {
+          "op": "gainMaxMana",
+          "amount": 1
+        }
+      },
+      {
         "trigger": "endOfTurn",
         "action": {
           "op": "buff",
@@ -2436,7 +2474,7 @@
         }
       }
     ],
-    "text": "Growth. Regenerate. End of Turn: give other friendly units +1/+1.",
+    "text": "Growth. Regenerate. Start of Turn: gain an empty mana slot. End of Turn: give other friendly units +1/+1.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -2575,9 +2613,10 @@
         }
       }
     ],
-    "text": "Last Breath: summon a 1/1 Shade.",
+    "text": "Guard. Last Breath: summon a 1/1 Shade.",
     "rarity": "common",
-    "unlock": "starter"
+    "unlock": "starter",
+    "keywords": ["guard"]
   },
   {
     "id": "dusk-night-stalker",
@@ -2869,9 +2908,10 @@
         }
       }
     ],
-    "text": "Last Breath: heal your hero by 2.",
+    "text": "Guard. Last Breath: heal your hero by 2.",
     "rarity": "common",
-    "unlock": "starter"
+    "unlock": "starter",
+    "keywords": ["guard"]
   },
   {
     "id": "dusk-blood-ritual",
@@ -3078,13 +3118,12 @@
       {
         "trigger": "onPlay",
         "action": {
-          "op": "damage",
-          "target": "allEnemyUnits",
-          "amount": 2
+          "op": "destroy",
+          "target": "allEnemyUnits"
         }
       }
     ],
-    "text": "Lifesteal. On Play: deal 2 damage to all enemy units.",
+    "text": "Lifesteal. On Play: destroy all enemy units.",
     "rarity": "legendary",
     "unlock": "track"
   },
@@ -3100,5 +3139,676 @@
     "rarity": "common",
     "unlock": "track",
     "token": true
+  },
+  {
+    "id": "ember-pyromancer",
+    "name": "Inferno Pyromancer",
+    "faction": "ember",
+    "type": "unit",
+    "cost": 4,
+    "power": 2,
+    "health": 5,
+    "effects": [
+      {
+        "trigger": "whenCast",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 2
+        }
+      }
+    ],
+    "text": "Whenever you cast a spell: deal 2 damage to the enemy hero.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-supernova",
+    "name": "Supernova",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 8,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 8
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "allUnits",
+          "amount": 3
+        }
+      }
+    ],
+    "text": "Deal 8 damage to the enemy hero and deal 3 damage to all units.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "tide-spellthief",
+    "name": "Archmage Spellthief",
+    "faction": "tide",
+    "type": "unit",
+    "cost": 5,
+    "power": 3,
+    "health": 5,
+    "effects": [
+      {
+        "trigger": "whenEnemyCast",
+        "action": {
+          "op": "copySpell"
+        }
+      }
+    ],
+    "text": "Whenever the enemy casts a spell: add a copy of that spell to your hand.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "tide-turn-the-tide",
+    "name": "Turn the Tide",
+    "faction": "tide",
+    "type": "spell",
+    "cost": 7,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "extraTurn"
+        }
+      }
+    ],
+    "text": "Take an extra turn.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "grove-primal-surge",
+    "name": "Primal Surge",
+    "faction": "grove",
+    "type": "spell",
+    "cost": 5,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "setMaxMana",
+          "amount": 10
+        }
+      }
+    ],
+    "text": "Set your max mana to 10 and refill your mana.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "grove-gaia",
+    "name": "Gaia, the Heartwood",
+    "faction": "grove",
+    "type": "unit",
+    "cost": 6,
+    "power": 5,
+    "health": 5,
+    "keywords": ["guard", "growth"],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "gainMaxMana",
+          "amount": 2
+        }
+      },
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "buff",
+          "target": "otherFriendlyUnits",
+          "power": 2,
+          "health": 2,
+          "duration": "permanent"
+        }
+      }
+    ],
+    "text": "Guard. Growth. On Play: gain 2 empty mana slots and give other friendly units +2/+2.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-aegis-eternal",
+    "name": "Aegis Eternal",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 4,
+    "speed": "fast",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 8
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "deathWard"
+        }
+      }
+    ],
+    "text": "Heal your hero by 8 and your hero cannot be reduced below 1 HP this turn.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-legion-matriarch",
+    "name": "Legion Matriarch",
+    "faction": "bastion",
+    "type": "unit",
+    "cost": 6,
+    "power": 3,
+    "health": 7,
+    "keywords": ["guard"],
+    "effects": [
+      {
+        "trigger": "endOfTurn",
+        "action": {
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 2
+        }
+      }
+    ],
+    "text": "Guard. End of Turn: summon two 1/1 Levies.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "dusk-lich-king",
+    "name": "Lich King",
+    "faction": "dusk",
+    "type": "unit",
+    "cost": 6,
+    "power": 5,
+    "health": 5,
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "steal",
+          "target": "target"
+        }
+      }
+    ],
+    "text": "On Play: take control of an enemy unit.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "dusk-rise-fallen",
+    "name": "Rise of the Fallen",
+    "faction": "dusk",
+    "type": "spell",
+    "cost": 6,
+    "speed": "slow",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "revive",
+          "count": 6
+        }
+      }
+    ],
+    "text": "Revive all friendly units that died this match.",
+    "rarity": "legendary",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-flare",
+    "name": "Flare",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 2,
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 1
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ],
+    "text": "Deal 1 damage to an enemy and draw a card.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-battle-fury",
+    "name": "Battle Fury",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 2,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 2,
+          "health": 0,
+          "duration": "turn"
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "grantKeyword",
+          "target": "target",
+          "keyword": "quick"
+        }
+      }
+    ],
+    "text": "Give a friendly unit +2 Power this turn and give it Quick.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "ember-lightning-strike",
+    "name": "Lightning Strike",
+    "faction": "ember",
+    "type": "spell",
+    "cost": 3,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyCharacter"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 3
+        }
+      }
+    ],
+    "text": "Deal 3 damage to an enemy.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "tide-dispel",
+    "name": "Dispel",
+    "faction": "tide",
+    "type": "spell",
+    "cost": 3,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "stackItem"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "counter"
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ],
+    "text": "Counter a spell and draw a card.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "tide-slip-away",
+    "name": "Slip Away",
+    "faction": "tide",
+    "type": "spell",
+    "cost": 1,
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "bounce",
+          "target": "target"
+        }
+      }
+    ],
+    "text": "Return a friendly unit to its owner's hand.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "tide-flood-gate",
+    "name": "Floodgate",
+    "faction": "tide",
+    "type": "spell",
+    "cost": 3,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "bounce",
+          "target": "target"
+        }
+      }
+    ],
+    "text": "Return an enemy unit to its owner's hand.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "grove-bark-skin",
+    "name": "Bark Skin",
+    "faction": "grove",
+    "type": "spell",
+    "cost": 1,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 2,
+          "health": 2,
+          "duration": "turn"
+        }
+      }
+    ],
+    "text": "Give a friendly unit +2/+2 this turn.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "grove-wild-gift",
+    "name": "Wild Gift",
+    "faction": "grove",
+    "type": "spell",
+    "cost": 2,
+    "speed": "burst",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 1,
+          "health": 1,
+          "duration": "permanent"
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ],
+    "text": "Give a friendly unit +1/+1 and draw a card.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "grove-vine-lash",
+    "name": "Vine Lash",
+    "faction": "grove",
+    "type": "spell",
+    "cost": 3,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 4
+        }
+      }
+    ],
+    "text": "Deal 4 damage to an enemy unit.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-brace",
+    "name": "Brace",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 1,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 0,
+          "health": 3,
+          "duration": "turn"
+        }
+      }
+    ],
+    "text": "Give a friendly unit +3 Health this turn.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-judgement",
+    "name": "Judgement",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 2,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit",
+        "damaged": true
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "destroy",
+          "target": "target"
+        }
+      }
+    ],
+    "text": "Destroy a damaged enemy unit.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "bastion-conscript",
+    "name": "Conscript",
+    "faction": "bastion",
+    "type": "spell",
+    "cost": 2,
+    "speed": "burst",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 1
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ],
+    "text": "Summon a 1/1 Levy and draw a card.",
+    "rarity": "common",
+    "unlock": "starter"
+  },
+  {
+    "id": "dusk-nullify",
+    "name": "Nullify",
+    "faction": "dusk",
+    "type": "spell",
+    "cost": 3,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "stackItem"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "counter"
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 3
+        }
+      }
+    ],
+    "text": "Counter a spell and heal your hero by 3.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "dusk-assassinate",
+    "name": "Assassinate",
+    "faction": "dusk",
+    "type": "spell",
+    "cost": 3,
+    "speed": "fast",
+    "targets": [
+      {
+        "kind": "enemyUnit",
+        "maxCost": 3
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "destroy",
+          "target": "target"
+        }
+      }
+    ],
+    "text": "Destroy an enemy unit costing 3 or less.",
+    "rarity": "uncommon",
+    "unlock": "starter"
+  },
+  {
+    "id": "dusk-blood-tap",
+    "name": "Blood Tap",
+    "faction": "dusk",
+    "type": "spell",
+    "cost": 1,
+    "speed": "burst",
+    "effects": [
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "friendlyHero",
+          "amount": 2
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 2
+        }
+      }
+    ],
+    "text": "Deal 2 damage to your hero and draw 2 cards.",
+    "rarity": "common",
+    "unlock": "starter"
   }
 ]

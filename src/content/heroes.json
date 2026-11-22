@@ -20,16 +20,16 @@
     "starterDeck": [
       "ember-spark-imp",
       "ember-spark-imp",
-      "ember-cinder-scout",
       "ember-ash-raider",
       "ember-ash-raider",
       "ember-torchbearer",
       "ember-blaze-runner",
-      "ember-blaze-runner",
       "ember-magma-brute",
       "ember-cinder-bolt",
       "ember-fireball",
-      "ember-kindle"
+      "ember-kindle",
+      "ember-lightning-strike",
+      "ember-flare"
     ]
   },
   {
@@ -53,17 +53,17 @@
     "unlock": "starter",
     "starterDeck": [
       "ember-spark-imp",
-      "ember-spark-imp",
       "ember-ash-raider",
       "ember-ash-raider",
       "ember-ember-hound",
       "ember-torchbearer",
-      "ember-torchbearer",
       "ember-skyfire-archer",
       "ember-blaze-runner",
-      "ember-magma-brute",
       "ember-cinder-bolt",
-      "ember-kindle"
+      "ember-kindle",
+      "ember-battle-fury",
+      "ember-flare",
+      "ember-lightning-strike"
     ]
   },
   {
@@ -81,17 +81,17 @@
     "unlock": "starter",
     "starterDeck": [
       "bastion-recruit",
-      "bastion-recruit",
       "bastion-shieldbearer",
       "bastion-squire",
       "bastion-militia",
-      "bastion-militia",
       "bastion-banner-knight",
-      "bastion-field-medic",
       "bastion-wall-warden",
-      "bastion-muster-captain",
       "bastion-shield-sergeant",
-      "bastion-rally-cry"
+      "bastion-rally-cry",
+      "bastion-brace",
+      "bastion-judgement",
+      "bastion-conscript",
+      "bastion-blessing"
     ]
   },
   {
@@ -113,18 +113,18 @@
     ],
     "unlock": "track",
     "starterDeck": [
-      "bastion-recruit",
       "bastion-shieldbearer",
       "bastion-shieldbearer",
       "bastion-squire",
       "bastion-militia",
       "bastion-banner-knight",
-      "bastion-banner-knight",
+      "bastion-wall-warden",
       "bastion-field-medic",
-      "bastion-wall-warden",
-      "bastion-wall-warden",
-      "bastion-shield-sergeant",
-      "bastion-mend"
+      "bastion-mend",
+      "bastion-brace",
+      "bastion-judgement",
+      "bastion-rally-cry",
+      "bastion-conscript"
     ]
   },
   {
@@ -151,16 +151,16 @@
     "starterDeck": [
       "tide-shoal-crab",
       "tide-mist-sprite",
-      "tide-ripple",
-      "tide-tidecaller",
       "tide-tidecaller",
       "tide-current-rider",
       "tide-pearl-diver",
-      "tide-pearl-diver",
-      "tide-coral-guardian",
       "tide-storm-petrel",
+      "tide-tidal-knight",
+      "tide-ripple",
       "tide-insight",
-      "tide-tidal-knight"
+      "tide-dispel",
+      "tide-slip-away",
+      "tide-flood-gate"
     ]
   },
   {
@@ -185,17 +185,17 @@
     "unlock": "track",
     "starterDeck": [
       "tide-shoal-crab",
-      "tide-shoal-crab",
       "tide-mist-sprite",
       "tide-tidecaller",
       "tide-current-rider",
-      "tide-current-rider",
-      "tide-bubble-shield",
-      "tide-frost-snap",
-      "tide-coral-guardian",
       "tide-coral-guardian",
       "tide-storm-petrel",
-      "tide-tidal-knight"
+      "tide-tidal-knight",
+      "tide-bubble-shield",
+      "tide-frost-snap",
+      "tide-slip-away",
+      "tide-flood-gate",
+      "tide-ripple"
     ]
   },
   {
@@ -219,17 +219,17 @@
     "unlock": "track",
     "starterDeck": [
       "grove-seedling",
-      "grove-seedling",
       "grove-bramble-sprite",
-      "grove-wild-growth",
       "grove-mossback",
       "grove-druid-initiate",
-      "grove-druid-initiate",
       "grove-young-treant",
-      "grove-rejuvenate",
-      "grove-wolf-pack",
       "grove-ironbark",
-      "grove-elder-stag"
+      "grove-elder-stag",
+      "grove-wild-growth",
+      "grove-rejuvenate",
+      "grove-bark-skin",
+      "grove-wild-gift",
+      "grove-vine-lash"
     ]
   },
   {
@@ -265,14 +265,14 @@
       "grove-mossback",
       "grove-mossback",
       "grove-young-treant",
-      "grove-young-treant",
+      "grove-ironbark",
+      "grove-wolf-pack",
+      "grove-elder-stag",
       "grove-sap",
       "grove-rejuvenate",
-      "grove-ironbark",
-      "grove-ironbark",
       "grove-overgrowth",
-      "grove-wolf-pack",
-      "grove-elder-stag"
+      "grove-bark-skin",
+      "grove-vine-lash"
     ]
   },
   {
@@ -296,16 +296,16 @@
     "starterDeck": [
       "dusk-grave-rat",
       "dusk-cultist",
-      "dusk-cultist",
-      "dusk-hex",
       "dusk-bloodleech",
       "dusk-night-stalker",
-      "dusk-night-stalker",
-      "dusk-bone-walker",
-      "dusk-shadow-bolt",
       "dusk-vampire-thrall",
       "dusk-ghoul",
-      "dusk-crypt-guard"
+      "dusk-crypt-guard",
+      "dusk-hex",
+      "dusk-shadow-bolt",
+      "dusk-assassinate",
+      "dusk-blood-tap",
+      "dusk-drain-life"
     ]
   },
   {
@@ -337,17 +337,17 @@
     "unlock": "track",
     "starterDeck": [
       "dusk-grave-rat",
-      "dusk-grave-rat",
       "dusk-cultist",
-      "dusk-dark-pact",
       "dusk-bloodleech",
-      "dusk-bloodleech",
-      "dusk-drain-life",
       "dusk-bone-walker",
       "dusk-ghoul",
-      "dusk-ghoul",
       "dusk-vampire-thrall",
-      "dusk-crypt-guard"
+      "dusk-crypt-guard",
+      "dusk-dark-pact",
+      "dusk-drain-life",
+      "dusk-shadow-bolt",
+      "dusk-blood-tap",
+      "dusk-nullify"
     ]
   }
 ]

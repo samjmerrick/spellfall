@@ -160,6 +160,8 @@ function endTurn(ctx: Ctx): void {
     u.turnHealth = 0;
   }
   if (settle(ctx)) return;
+  // Death Ward lasts until the end of the turn.
+  for (const q of s.players) delete q.deathWard;
   const p = s.players[player];
   p.spellMana = Math.min(SPELL_MANA_CAP, p.spellMana + p.mana);
   p.mana = 0;
@@ -171,7 +173,10 @@ function endTurn(ctx: Ctx): void {
     ctx.events.push({ type: 'MatchEnded', winner: null, reason: 'turns' });
     return;
   }
-  startTurn(ctx, other(player));
+  // An extra-turn effect gives the active player the next turn too (once).
+  const again = s.extraTurn === player;
+  delete s.extraTurn;
+  startTurn(ctx, again ? player : other(player));
 }
 
 // ---------- Stack ----------
@@ -421,6 +426,14 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
         speed: card.speed!,
         targets: action.targets,
       });
+      // Whenever-you-cast triggers (and the enemy's) happen as the spell is cast, before it resolves.
+      for (const who of [player, other(player)] as const) {
+        const trigger = who === player ? 'whenCast' : 'whenEnemyCast';
+        for (const u of [...s.boards[who]].sort((a, b) => a.playOrder - b.playOrder)) {
+          if (findUnit(s, u.uid)) runTrigger(ctx, u, trigger, [], cardId);
+        }
+      }
+      if (settle(ctx)) break;
       if (card.speed === 'burst') {
         const src: Source = { owner: player, unitUid: null, targets: action.targets };
         for (const e of card.effects) runPrimitive(ctx, e.action, src);

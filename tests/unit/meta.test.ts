@@ -78,10 +78,10 @@ function hpGain(node: 'fight' | 'elite' | 'boss', ascension: number, from = asce
 }
 
 describe('a new profile', () => {
-  it('owns exactly the 60 starter cards, 3 heroes and 28 relics', () => {
+  it('owns exactly the 85 starter cards, 3 heroes and 28 relics', () => {
     const p = newProfile();
     expect(ownedCardIds(p)).toEqual(starterCollection());
-    expect(ownedCardIds(p).size).toBe(60);
+    expect(ownedCardIds(p).size).toBe(85);
     expect(ownedHeroes(p)).toEqual(starterHeroes());
     expect(ownedHeroes(p)).toHaveLength(3);
     expect(relicPool(p)).toHaveLength(28);
@@ -565,12 +565,12 @@ describe('meta progression on Spellfall’s card pool', () => {
     for (const id of track) expect(getCard(id).unlock, id).toBe('track');
   });
 
-  it('a new profile owns 12 starter cards in each faction', () => {
+  it('a new profile owns 17 starter cards in each faction', () => {
     const owned = [...ownedCardIds(newProfile())];
     for (const f of ['ember', 'tide', 'grove', 'bastion', 'dusk'])
       expect(
         owned.filter((id) => getCard(id).faction === f),
         f,
-      ).toHaveLength(12);
+      ).toHaveLength(17);
   });
 });

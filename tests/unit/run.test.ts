@@ -435,7 +435,7 @@ describe('run flow', () => {
 
   it('card pool is owned cards of the hero faction (until a second faction is added)', () => {
     const r = startRun(config(1, 'hero-aldric'));
-    expect(cardPool(r).length).toBe(12);
+    expect(cardPool(r).length).toBe(17);
     expect(cardPool(r).every((id) => getCard(id).faction === 'bastion')).toBe(true);
   });
 

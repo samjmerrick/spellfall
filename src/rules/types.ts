@@ -66,6 +66,8 @@ export interface PlayerState {
   mulliganed: boolean;
   /** Number of turns this player has started (1 on their first turn). */
   turnsTaken: number;
+  /** Set by Death Ward: the hero cannot drop below 1 HP until the end of the turn. */
+  deathWard?: boolean;
 }
 
 export interface MatchResult {
@@ -92,6 +94,8 @@ export interface GameState {
   result: MatchResult | null;
   /** Per-player match modifiers (hero passive, relics, boss rule). */
   modifiers: [MatchModifier[], MatchModifier[]];
+  /** Set by an extra-turn effect: this player takes the next turn as well. */
+  extraTurn?: PlayerId;
 }
 
 export interface MatchConfig {
@@ -146,6 +150,9 @@ export type GameEvent =
   | { type: 'UnitBounced'; uid: number; cardId: string; owner: PlayerId; handUid: number | null }
   | { type: 'HeroDamaged'; player: PlayerId; amount: number }
   | { type: 'HeroHealed'; player: PlayerId; amount: number }
+  | { type: 'HeroWarded'; player: PlayerId }
+  | { type: 'UnitControlled'; uid: number; from: PlayerId; to: PlayerId; position: number }
+  | { type: 'ExtraTurn'; player: PlayerId }
   | { type: 'SpellManaBanked'; player: PlayerId; spellMana: number }
   | { type: 'TurnEnded'; turn: number; player: PlayerId }
   | { type: 'MatchEnded'; winner: PlayerId | null; reason: 'hp' | 'turns' };
