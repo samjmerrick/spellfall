@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { GameState } from '../rules';
 import { RunChoiceSchema, RunConfigSchema } from '../run/schema';
 
-export const CURRENT_SCHEMA = 7;
+export const CURRENT_SCHEMA = 8;
 export const MAX_SAVED_DECKS = 20;
 export const MAX_DECK_NAME = 24;
 
@@ -33,10 +33,6 @@ export const ActiveRunSchema = z.object({
 
 export const ProfileSchema = z.object({
   schemaVersion: z.literal(CURRENT_SCHEMA),
-  xp: z.number().int().min(0),
-  level: z.number().int().min(1),
-  /** Ids of everything unlocked beyond the starting collection (cards, heroes, relics). */
-  unlocks: z.array(z.string()),
   decks: z.array(SavedDeckSchema).max(MAX_SAVED_DECKS),
   nextDeckId: z.number().int().min(1),
   settings: z.object({
@@ -60,8 +56,6 @@ export const ProfileSchema = z.object({
     unlocked: z.number().int().min(0).max(10),
   }),
   activeRun: ActiveRunSchema.nullable(),
-  /** The tutorial match has been finished (or skipped). */
-  tutorialDone: z.boolean(),
   /** The iOS "add to home screen" tip has been dismissed. */
   iosTipSeen: z.boolean(),
 });
@@ -73,16 +67,12 @@ export type ActiveRun = z.infer<typeof ActiveRunSchema>;
 export function newProfile(): Profile {
   return {
     schemaVersion: CURRENT_SCHEMA,
-    xp: 0,
-    level: 1,
-    unlocks: [],
     decks: [],
     nextDeckId: 1,
     settings: { fastAnimations: false, reduceMotion: false, sound: true, haptics: true, autoPass: true },
     stats: { quickPlay: {}, runs: {} },
     ascension: { best: 0, unlocked: 0 },
     activeRun: null,
-    tutorialDone: false,
     iosTipSeen: false,
   };
 }

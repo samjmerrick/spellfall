@@ -1,26 +1,16 @@
-import { HEROES, ownedHeroes, statsSummary, xpProgress } from '../../run';
+import { HEROES, statsSummary } from '../../run';
 import { deckChoices, useApp } from '../app';
 import { ScreenFrame } from './common';
-import { XpBar } from './XpBar';
 
 const pct = (won: number, played: number) => (played > 0 ? `${Math.round((won / played) * 100)}%` : '–');
 
 export function StatsScreen() {
   const profile = useApp((s) => s.profile);
   const sum = statsSummary(profile);
-  const owned = new Set(ownedHeroes(profile).map((h) => h.id));
   const names = new Map(deckChoices(profile).map((d) => [d.id, d.name]));
-  const { needed } = xpProgress(profile.xp);
   const empty = sum.runsPlayed === 0 && sum.quickPlayPlayed === 0;
   return (
     <ScreenFrame title="Stats">
-      <section className="stats__card" aria-label="Level">
-        <XpBar xp={profile.xp} />
-        <p className="hint">
-          {profile.xp} XP in total
-          {needed === 0 ? '' : ` · ${needed - xpProgress(profile.xp).into} to level ${profile.level + 1}`}
-        </p>
-      </section>
       {empty && (
         <p className="empty stats__empty">
           Nothing recorded yet. Win or lose, every Quick Play match and every run adds to these numbers.
@@ -39,14 +29,13 @@ export function StatsScreen() {
       <ul className="stats__list" aria-label="Runs by hero">
         {HEROES.map((h) => {
           const rec = profile.stats.runs[h.id] ?? { played: 0, won: 0 };
-          const locked = !owned.has(h.id) && rec.played === 0;
           return (
-            <li key={h.id} className={`stats__row${locked ? ' stats__row--locked' : ''}`}>
+            <li key={h.id} className="stats__row">
               <span className="stats__name">
                 {h.name} <span className="hero-row__title">· {h.title}</span>
               </span>
               <span className="stats__value">
-                {locked ? 'Locked' : `${rec.won} won / ${rec.played} played`}
+                {rec.won} won / {rec.played} played
               </span>
             </li>
           );

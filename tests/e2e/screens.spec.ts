@@ -15,22 +15,12 @@ const paths = fixture.paths as Record<keyof typeof fixture.paths, RunChoice[]>;
 const IPHONE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
 
-// XP curve from src/run/meta.ts (not imported: that module needs a bundler for its JSON).
-const xpThreshold = (level: number) => (level - 1) * (100 + 25 * level);
-
-function withXp(profile: Profile, xp: number): Profile {
-  let level = 1;
-  while (xp >= xpThreshold(level + 1)) level++;
-  return { ...profile, xp, level };
-}
-
-/** A mid-game profile: level 8, one Ascension won, some results to show, tutorial done. */
+/** A mid-game profile: one Ascension won, some results to show. */
 function veteran(): Profile {
-  const p = withXp(newProfile(), xpThreshold(8) + 120);
+  const p = newProfile();
   p.ascension = { best: 2, unlocked: 3 };
   p.stats.runs = { 'hero-pyra': { played: 4, won: 2 }, 'hero-aldric': { played: 1, won: 0 } };
   p.stats.quickPlay = { ember: { played: 6, won: 4 }, d1: { played: 2, won: 0 } };
-  p.tutorialDone = true;
   return p;
 }
 
@@ -64,9 +54,6 @@ for (const vp of VIEWPORTS) {
     test('menu and browsing screens', async ({ page }) => {
       const errors = watchErrors(page);
       await openMenu(page, '?seed=7&speed=0.05');
-      await expect(page.getByTestId('tutorial-prompt')).toBeVisible();
-      await shot(page, 'menu-first-run');
-
       await loadProfile(page, veteran());
       await shot(page, 'menu');
       for (const [button, region, name] of [
@@ -127,18 +114,6 @@ for (const vp of VIEWPORTS) {
       expect(errors).toEqual([]);
     });
 
-    test('run level-up overlay', async ({ page }) => {
-      await loadRun(page, withXp(newProfile(), xpThreshold(3) - 5), [
-        ...paths.reward,
-        { t: 'pick', index: null },
-      ]);
-      await abandonRun(page);
-      const levelUp = page.getByRole('dialog', { name: 'Level up' });
-      await expect(levelUp).toBeVisible();
-      await page.waitForTimeout(600);
-      await shot(page, 'levelup');
-    });
-
     test('corrupt save screen', async ({ page }) => {
       await openMenu(page, '?seed=7');
       await expect.poll(() => savedJson(page)).toContain('seq');
@@ -187,13 +162,6 @@ for (const vp of VIEWPORTS) {
       await page.waitForTimeout(600);
       await shot(page, 'match-result');
       expect(errors).toEqual([]);
-    });
-
-    test('tutorial coach', async ({ page }) => {
-      await openMenu(page, '?speed=0.05');
-      await page.getByTestId('tutorial-prompt').getByRole('button', { name: 'Play' }).click();
-      await expect(page.getByTestId('coach')).toContainText(/Welcome/);
-      await shot(page, 'tutorial-coach');
     });
 
     test.describe('on iOS Safari', () => {

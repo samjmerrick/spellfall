@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useApp } from './app';
-import { LevelUpOverlay } from './LevelUpOverlay';
 import { DetailOverlay, DuelScreen } from './duel/DuelScreen';
 import { RotateNotice } from './RotateNotice';
 import { useReduceMotion } from './useReduceMotion';
@@ -61,7 +60,6 @@ export function App() {
   return (
     <>
       <CurrentScreen />
-      <LevelUpOverlay />
       <DetailOverlay />
       <RotateNotice />
     </>

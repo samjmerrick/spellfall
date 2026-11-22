@@ -1,6 +1,6 @@
 import type { Difficulty } from '../../ai';
 import { isDeckLegal } from '../../rules';
-import { deckChoices, ownedCards, useApp } from '../app';
+import { deckChoices, useApp } from '../app';
 import { useDuel } from '../duel/store';
 import { ScreenFrame } from './common';
 import { DeckTile } from './DeckTile';
@@ -17,8 +17,7 @@ export function QuickPlayScreen() {
   const qp = useApp((s) => s.quickPlay);
   const setQp = useApp((s) => s.setQuickPlay);
   const start = useDuel((s) => s.start);
-  const owned = ownedCards(profile);
-  const decks = deckChoices(profile).filter((d) => d.prebuilt || isDeckLegal(d.cards, owned));
+  const decks = deckChoices(profile).filter((d) => d.prebuilt || isDeckLegal(d.cards));
   const chosen = decks.find((d) => d.id === qp.deckId) ?? decks[0]!;
   return (
     <ScreenFrame

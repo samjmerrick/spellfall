@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getCard } from '../../rules';
-import { ascensionRules, HEROES, MAX_ASCENSION, ownedHeroes, unlockLevel } from '../../run';
+import { ascensionRules, HEROES, MAX_ASCENSION } from '../../run';
 import { useApp } from '../app';
 import { FACTION_NAME, GLYPHS } from '../factions';
 import { Icon } from '../Icon';
@@ -9,14 +9,7 @@ import { ScreenFrame } from './common';
 
 export function RunStartScreen() {
   const profile = useApp((s) => s.profile);
-  const owned = new Set(ownedHeroes(profile).map((h) => h.id));
-  // Playable heroes first (starters, then by unlock level), then the locked ones in unlock order.
-  const heroes = [...HEROES].sort(
-    (a, b) =>
-      Number(owned.has(b.id)) - Number(owned.has(a.id)) ||
-      (unlockLevel(a.id) ?? 0) - (unlockLevel(b.id) ?? 0),
-  );
-  const [heroId, setHeroId] = useState(heroes[0]!.id);
+  const [heroId, setHeroId] = useState(HEROES[0]!.id);
   const [asc, setAsc] = useState(0);
   const begin = useRun((s) => s.begin);
   const { unlocked, best } = profile.ascension;
@@ -77,42 +70,31 @@ export function RunStartScreen() {
       )}
       <h2 className="label">Choose a hero</h2>
       <div className="list" role="radiogroup" aria-label="Hero">
-        {heroes.map((h) => {
-          const locked = !owned.has(h.id);
-          const at = unlockLevel(h.id);
+        {HEROES.map((h) => {
           return (
             <button
               key={h.id}
               type="button"
               role="radio"
-              aria-checked={!locked && h.id === heroId}
-              disabled={locked}
-              className={`list__row hero-row faction-${h.faction}${!locked && h.id === heroId ? ' list__row--on' : ''}${locked ? ' hero-row--locked' : ''}`}
+              aria-checked={h.id === heroId}
+              className={`list__row hero-row faction-${h.faction}${h.id === heroId ? ' list__row--on' : ''}`}
               onClick={() => setHeroId(h.id)}
             >
               <span className="hero-row__glyph" aria-hidden>
-                {locked ? '🔒' : <Icon id={h.id} size={40} fallback={GLYPHS[h.faction]} />}
+                <Icon id={h.id} size={40} fallback={GLYPHS[h.faction]} />
               </span>
               <span className="hero-row__text">
                 <span className="hero-row__name">
                   {h.name}{' '}
-                  {!locked && (
-                    <span className="hero-row__faction" aria-label={FACTION_NAME[h.faction]}>
-                      {GLYPHS[h.faction]}
-                    </span>
-                  )}{' '}
+                  <span className="hero-row__faction" aria-label={FACTION_NAME[h.faction]}>
+                    {GLYPHS[h.faction]}
+                  </span>{' '}
                   <span className="hero-row__title">· {h.title}</span>
                 </span>
-                {locked ? (
-                  <span className="hero-row__lock">Unlocks at level {at}</span>
-                ) : (
-                  <>
-                    <span className="hero-row__passive">{h.passive}</span>
-                    <span className="hero-row__deck">
-                      Starter deck: {h.starterDeck.length} {getCard(h.starterDeck[0]!).faction} cards
-                    </span>
-                  </>
-                )}
+                <span className="hero-row__passive">{h.passive}</span>
+                <span className="hero-row__deck">
+                  Starter deck: {h.starterDeck.length} {getCard(h.starterDeck[0]!).faction} cards
+                </span>
               </span>
             </button>
           );

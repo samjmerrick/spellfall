@@ -480,7 +480,7 @@ export function RunScreen() {
       )}
       {sheet === 'abandon' && (
         <Sheet title="Abandon run?" onClose={() => setSheet(null)}>
-          <p className="hint">The run ends now. You keep the XP earned so far.</p>
+          <p className="hint">The run ends now and counts as a loss.</p>
           <button
             type="button"
             className="danger wide"

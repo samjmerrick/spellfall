@@ -148,11 +148,11 @@ There are two modes: Quick Play is one match against the AI; a Run is a 3-act ro
 
 - Pick a deck (a pre-built deck for each faction pair, or one of your own) and an AI difficulty: Easy, Normal or Hard.
 - The opponent's deck is picked at random from the pre-built decks.
-- A win gives 50 XP, a loss 20 XP (meta progression below).
+- Every collectible card is available to build with from the start; results are recorded on the stats screen.
 
 ### Roguelike run
 
-As in Lanefall (`docs/v1/spec.md`, Roguelike run): heroes with a faction, a passive and a 12-card starter deck; 3 Hearts; 3 acts of a 7-row branching map with Fight, Elite, Shop, Event, Rest and Treasure nodes; a second faction after the act 1 boss; card upgrades; about 40 relics; 3 bosses per act with a match rule each; seeded and replayable; abandon at any time; the same run XP.
+As in Lanefall (`docs/v1/spec.md`, Roguelike run): heroes with a faction, a passive and a 12-card starter deck; 3 Hearts; 3 acts of a 7-row branching map with Fight, Elite, Shop, Event, Rest and Treasure nodes; a second faction after the act 1 boss; card upgrades; about 40 relics; 3 bosses per act with a match rule each; seeded and replayable; abandon at any time. Every hero, relic and card is available from the first run; there is no XP.
 
 Changes for Spellfall:
 
@@ -162,7 +162,7 @@ Changes for Spellfall:
 
 ## Meta progression
 
-As in Lanefall (`docs/v1/spec.md`, Meta progression): one account level from XP in both modes (level n needs 100 + 50n XP, cap 30), a starting collection of 12 Commons per faction, an unlock track of 29 bundles (cards, heroes, relics) in `src/content/unlocks.json`, 10 heroes, Ascension 1–10 after the first full run win, and a stats screen. The bundle contents are rebuilt for Spellfall's cards in V6.
+There are no account levels, XP, unlocks or tutorial: every collectible card, every hero and every relic is available from the start, in the collection, the deck builder, Quick Play and run rewards. What remains is **Ascension 1–10**, which opens after the first full run win (a full win at the highest open level opens the next; rules are cumulative, see `src/content/ascension.json`), and a **stats screen** with run results per hero, the best Ascension won and Quick Play results per deck. A new profile starts with no progress at all.
 
 ## Deck building
 
@@ -214,7 +214,7 @@ Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand an
 ```
 src/
   rules/     Spellfall rules: state, actions, priority, stack, combat, effects, seeded RNG (no React, no DOM)
-  content/   cards.json, relics.json, heroes.json, enemies.json, unlocks.json, …
+  content/   cards.json, relics.json, heroes.json, enemies.json, …
   run/       map generation, rewards, shops, events, meta progression
   ai/        opponent planners (Easy, Normal, Hard)
   save/      persistence, schema versions, migrations
@@ -278,6 +278,8 @@ Spellfall started as a copy of Lanefall with its full history. The new rules wer
 | Tests and simulator                                     | Run, meta, save, deck and content tests kept; rules, combat, lane and AI tests and the balance report rewritten |
 
 ## Milestones
+
+_The milestone list below is history. The tutorial (V7) and the level/XP/unlock track (V6) were later removed; see the Meta progression section above and `docs/decisions.md` (2026-11-22)._
 
 Build in 9 milestones, V0 to V8, in order. Each ends in checks that Claude Code runs itself; a milestone is done only when every check passes in CI.
 

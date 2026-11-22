@@ -107,7 +107,8 @@ export const CardSchema = z
     effects: z.array(EffectSchema).default([]),
     text: z.string(),
     rarity: z.enum(['common', 'uncommon', 'rare', 'legendary']),
-    unlock: z.enum(['starter', 'track']),
+    /** Legacy (the old unlock track); no longer used. */
+    unlock: z.enum(['starter', 'track']).optional(),
     token: z.boolean().default(false),
     /** Overrides for the upgraded version (`<id>+`). Omitted: see `upgradeCard`. */
     upgrade: z

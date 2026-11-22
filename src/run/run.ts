@@ -12,8 +12,6 @@ import { ascensionEnemyModifiers } from './meta';
 export const START_HEARTS = 3;
 export const START_GOLD = 30;
 export const CARD_CHOICES = 3;
-export const NODE_XP = 10;
-export const BOSS_XP = 100;
 export const REMOVE_PRICE = 40;
 export const RELIC_PRICE = 75;
 export const CARD_PRICES = { common: 25, uncommon: 40, rare: 60, legendary: 80 } as const;
@@ -415,12 +413,6 @@ export function applyChoice(state: RunState, choice: RunChoice): RunState {
 
 export function replayRun(config: RunConfig, choices: readonly RunChoice[]): RunState {
   return choices.reduce(applyChoice, startRun(config));
-}
-
-/** XP earned so far: 10 per node cleared, 100 per boss, doubled for a full win. */
-export function runXp(r: RunState): number {
-  const xp = r.nodesCleared * NODE_XP + r.bossesBeaten * BOSS_XP;
-  return r.phase.kind === 'over' && r.phase.won ? xp * 2 : xp;
 }
 
 /** Boss overrides for the AI (see `ai` in enemies.json). */

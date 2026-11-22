@@ -14,7 +14,6 @@ import {
 } from '../../rules';
 import { useApp } from '../app';
 import { useRun } from '../runStore';
-import { TUTORIAL, stepCard } from '../../run';
 import { FADE_SECONDS, useDurationScale } from '../motion';
 import { useReduceMotion } from '../useReduceMotion';
 import { DuelCard, UnitFace } from './Card';
@@ -280,7 +279,6 @@ export function DuelScreen() {
       <HandRow input={input} dragging={drag?.moved ? drag.src : null} />
       {drag?.moved && <DragGhost drag={drag} game={game} />}
       {reading && <HoldReader cardId={reading} />}
-      <Coach />
       <MulliganOverlay />
       <ResultOverlay />
       <ErrorToast />
@@ -407,7 +405,6 @@ function HeroBar({ side, input }: { side: PlayerId; input: Input }) {
 
 function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
   const game = useDuel((s) => s.game)!;
-  const coachCard = useCoachCard();
   const attacking = useDuel((s) => s.attacking);
   const fx = useDuel((s) => s.fx);
   const showDetail = useDuel((s) => s.showDetail);
@@ -452,7 +449,7 @@ function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
               input.valid.has(key) ? 'drop--valid' : '',
               targeted.has(key) ? 'targeted' : '',
               sleeping ? 'unit--sleeping' : '',
-              side === HUMAN && ready && coachCard === u.cardId ? 'coach-target' : '',
+              canAttack(game, u) ? '' : 'unit--spent',
             ].join(' ')}
             aria-label={`${side === HUMAN ? 'Your' : 'Enemy'} ${card.name}`}
             onPointerDown={(e) => ready && input.startDrag(e, src)}
@@ -570,13 +567,8 @@ function StackStrip({ prompt, input }: { prompt: string | null; input: Input }) 
   );
 }
 
-function useCoachCard(): string | null {
-  return useDuel((s) => (s.mode === 'tutorial' ? stepCard(TUTORIAL.steps[s.tutorialStep]) : null));
-}
-
 function HandRow({ input, dragging }: { input: Input; dragging: Source | null }) {
   const game = useDuel((s) => s.game)!;
-  const coachCard = useCoachCard();
   const showDetail = useDuel((s) => s.showDetail);
   const hand = game.players[HUMAN].hand;
   const gaps = Math.max(1, hand.length - 1);
@@ -593,7 +585,7 @@ function HandRow({ input, dragging }: { input: Input; dragging: Source | null })
             key={c.uid}
             type="button"
             data-source={playable ? 'card' : undefined}
-            className={`hand__slot${playable ? ' hand__slot--playable' : ''}${coachCard === c.cardId ? ' coach-target' : ''}${picked ? ' hand__slot--picked' : ''}${dragging?.uid === c.uid ? ' hand__slot--dragging' : ''}`}
+            className={`hand__slot${playable ? ' hand__slot--playable' : ''}${picked ? ' hand__slot--picked' : ''}${dragging?.uid === c.uid ? ' hand__slot--dragging' : ''}`}
             style={
               {
                 '--offset': offset,
@@ -712,37 +704,10 @@ function ResultOverlay() {
   const start = useDuel((s) => s.start);
   const leave = useDuel((s) => s.leave);
   const mode = useDuel((s) => s.mode);
-  const startTutorial = useDuel((s) => s.startTutorial);
-  const finishTutorial = useDuel((s) => s.finishTutorial);
   const finishMatch = useRun((s) => s.finishMatch);
   const go = useApp((s) => s.go);
   if (!game.result || busy) return null;
   const { winner } = game.result;
-  if (mode === 'tutorial') {
-    const won = winner === HUMAN;
-    return (
-      <div className="overlay" role="dialog" aria-label="Match result">
-        <h2>{won ? 'Tutorial complete' : 'Defeat'}</h2>
-        <p className="overlay__hint">
-          {won ? 'You know the basics. Good luck out there!' : 'That is not how it was meant to go.'}
-        </p>
-        {won ? (
-          <button type="button" className="primary" onClick={finishTutorial}>
-            Back to menu
-          </button>
-        ) : (
-          <>
-            <button type="button" className="primary" onClick={() => void startTutorial()}>
-              Try again
-            </button>
-            <button type="button" className="secondary" onClick={leave}>
-              Back to menu
-            </button>
-          </>
-        )}
-      </div>
-    );
-  }
   const title = winner === null ? 'Draw' : winner === HUMAN ? 'Victory' : 'Defeat';
   return (
     <div className="overlay" role="dialog" aria-label="Match result">
@@ -812,38 +777,4 @@ function ErrorToast() {
       {error}
     </div>
   ) : null;
-}
-
-/** The tutorial's coach banner: one short instruction, with Next on steps that only explain. */
-function Coach() {
-  const mode = useDuel((s) => s.mode);
-  const index = useDuel((s) => s.tutorialStep);
-  const over = useDuel((s) => s.game?.phase === 'over');
-  const next = useDuel((s) => s.tutorialNext);
-  const busy = useDuel((s) => s.busy);
-  const step = mode === 'tutorial' ? TUTORIAL.steps[index] : undefined;
-  if (!step || over) return null;
-  return (
-    <div
-      key={index}
-      className="coach"
-      data-testid="coach"
-      data-step={step.kind}
-      role="status"
-      aria-live="polite"
-    >
-      <p className="coach__text">{step.text}</p>
-      {step.kind === 'info' && (
-        <button
-          type="button"
-          className="primary coach__next"
-          data-testid="coach-next"
-          disabled={busy}
-          onClick={next}
-        >
-          Next
-        </button>
-      )}
-    </div>
-  );
 }
