@@ -102,6 +102,13 @@ export function SettingsScreen() {
           onChange={(v) => setSettings({ haptics: v })}
           testId="setting-haptics"
         />
+        <Toggle
+          label="Auto-pass"
+          hint="Pass for you when you have nothing to respond with."
+          checked={profile.settings.autoPass}
+          onChange={(v) => setSettings({ autoPass: v })}
+          testId="setting-auto-pass"
+        />
       </div>
 
       <h2 className="label">Save storage</h2>

@@ -1,0 +1,130 @@
+// Spellfall opponent planners. Each call returns one action for the player with priority, from that
+// player's view only (`viewFor`), plus the advanced AI RNG stream.
+import { nextFloat, nextInt, type RngState } from '../../rules/rng';
+import {
+  applyAction,
+  getCard,
+  HIDDEN,
+  legalActions,
+  type Action,
+  type GameState,
+  type PlayerId,
+  type PlayerView,
+} from '../../rules';
+import { score } from './score';
+
+export type Difficulty = 'easy' | 'normal' | 'hard';
+
+export interface ActResult {
+  action: Action;
+  rng: RngState;
+}
+
+/** Mulligan: replace cards costing 5 or more (both levels). */
+function mulligan(view: PlayerView, player: PlayerId): Action {
+  const uids = view.players[player].hand.filter((c) => getCard(c.cardId).cost >= 5).map((c) => c.uid);
+  return { type: 'mulligan', player, uids };
+}
+
+/** Whether simulating `a` from this view would need a card the viewer cannot see. */
+function visible(a: Action): boolean {
+  return a.type !== 'mulligan';
+}
+
+/**
+ * The state after `a`, with any stack resolved as if the other player passes. Returns null if the
+ * simulation runs into hidden information.
+ */
+export function simulate(view: GameState, a: Action): GameState | null {
+  try {
+    let s = applyAction(view, a).state;
+    for (let i = 0; i < 8 && s.phase === 'main' && s.stack.length > 0; i++) {
+      s = applyAction(s, { type: 'pass', player: s.priority }).state;
+    }
+    return s;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Normal: score every legal action one step ahead (resolving the stack as if the opponent passes) and take
+ * the best. Passing scores the current board, so the AI ends its turn when nothing improves on it. Unit
+ * positions only matter for cards that care about neighbours, so other units are tried at the right end only.
+ */
+export function actNormal(view: PlayerView, rng: RngState): ActResult {
+  const player = view.viewer;
+  if (view.phase === 'mulligan') return { action: mulligan(view, player), rng };
+  const legal = pruned(view, legalActions(view));
+  const passValue = score(passOutcome(view) ?? view, player);
+  let best: Action = legal.find((a) => a.type === 'pass')!;
+  let bestValue = passValue;
+  for (const a of legal) {
+    if (a.type === 'pass' || !visible(a)) continue;
+    const s = simulate(view, a);
+    if (!s) continue;
+    // Small tie-breaker in favour of acting: spending mana now beats holding it.
+    const v = score(s, player) + 0.01;
+    if (v > bestValue) {
+      bestValue = v;
+      best = a;
+    }
+  }
+  return { action: best, rng };
+}
+
+/** What passing leads to: with a stack, the stack resolves; with an empty stack the board stays. */
+function passOutcome(view: PlayerView): GameState | null {
+  if (view.stack.length === 0) return view;
+  return simulate(view, { type: 'pass', player: view.priority });
+}
+
+/** Drops unit positions that cannot matter (no adjacency effects on the board or the card). */
+function pruned(view: GameState, legal: Action[]): Action[] {
+  const adjacency = (cardId: string) =>
+    getCard(cardId).effects.some((e) => 'target' in e.action && e.action.target === 'adjacentUnits');
+  const boardCares = view.boards[view.priority].some((u) => adjacency(u.cardId));
+  return legal.filter((a) => {
+    if (a.type !== 'playUnit') return true;
+    const card = view.players[a.player].hand.find((c) => c.uid === a.uid)!.cardId;
+    if (card === HIDDEN) return false;
+    if (boardCares || adjacency(card)) return true;
+    return a.position === view.boards[a.player].length;
+  });
+}
+
+/**
+ * Easy: random legal actions, preferring to spend mana and to attack the hero. When it could respond to
+ * the other player's stack item it does so 30% of the time.
+ */
+export function actEasy(view: PlayerView, rng: RngState): ActResult {
+  const player = view.viewer;
+  if (view.phase === 'mulligan') return { action: mulligan(view, player), rng };
+  const legal = pruned(view, legalActions(view));
+  const pass = legal.find((a) => a.type === 'pass')!;
+  const acts = legal.filter((a) => a.type !== 'pass');
+  let r = rng;
+  const roll = () => {
+    const [v, next] = nextFloat(r);
+    r = next;
+    return v;
+  };
+  if (acts.length === 0) return { action: pass, rng: r };
+  if (view.stack.length > 0 && roll() >= 0.3) return { action: pass, rng: r };
+  const face = acts.filter((a) => a.type === 'attack' && a.target.kind === 'hero');
+  if (face.length > 0 && roll() < 0.5) {
+    const [i, next] = nextInt(r, 0, face.length - 1);
+    return { action: face[i]!, rng: next };
+  }
+  // Stop sometimes even with plays left, so Easy does not always dump its hand.
+  if (view.stack.length === 0 && roll() < 0.1) return { action: pass, rng: r };
+  const [i, next] = nextInt(r, 0, acts.length - 1);
+  return { action: acts[i]!, rng: next };
+}
+
+/** One action for `view.viewer`, who must have priority (or be choosing a mulligan). */
+export function act(difficulty: Difficulty, view: PlayerView, rng: RngState): ActResult {
+  if (difficulty === 'easy') return actEasy(view, rng);
+  // Hard arrives with the full card pool (V5); until then it plays as Normal.
+  return actNormal(view, rng);
+}

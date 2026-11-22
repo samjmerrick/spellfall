@@ -211,3 +211,12 @@ export type Faction = (typeof FACTIONS)[number];
 export type Speed = (typeof SPEEDS)[number];
 export type UnitSelector = (typeof UNIT_SELECTORS)[number];
 export type MatchModifier = z.infer<typeof MatchModifierSchema>;
+
+export const DeckDefSchema = z.object({
+  id: z.string().regex(/^pre-[a-z-]+$/),
+  name: z.string().min(1),
+  cover: z.string(),
+  cards: z.array(z.string()),
+});
+export const DeckDefListSchema = z.array(DeckDefSchema);
+export type DeckDef = z.infer<typeof DeckDefSchema>;

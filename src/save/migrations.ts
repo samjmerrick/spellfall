@@ -48,6 +48,8 @@ export const migrations: Record<number, (old: Record<string, unknown>) => Record
       iosTipSeen: false,
     };
   },
+  // v6 (Spellfall V2): the Auto-pass setting, on.
+  5: (old) => ({ ...old, settings: { ...(old.settings as object), autoPass: true } }),
 };
 
 /** Runs migrations in order up to the current schema, then validates. Throws if the save is invalid. */

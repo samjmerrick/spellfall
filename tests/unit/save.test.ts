@@ -3,6 +3,7 @@ import fixtureV1 from '../fixtures/save-v1.json';
 import fixtureV2 from '../fixtures/save-v2.json';
 import fixtureV3 from '../fixtures/save-v3.json';
 import fixtureV4 from '../fixtures/save-v4.json';
+import fixtureV5 from '../fixtures/save-v5.json';
 import {
   CURRENT_SCHEMA,
   exportSaveCode,
@@ -80,13 +81,27 @@ describe('schema and migrations', () => {
   it('migrates the stored v4 sample save to v5: Sound and Haptics on, tutorial done, tip unseen', () => {
     const p = migrate(fixtureV4);
     expect(p.schemaVersion).toBe(CURRENT_SCHEMA);
-    expect(p.settings).toEqual({ fastAnimations: true, reduceMotion: false, sound: true, haptics: true });
+    expect(p.settings).toEqual({
+      fastAnimations: true,
+      reduceMotion: false,
+      sound: true,
+      haptics: true,
+      autoPass: true,
+    });
     expect(p.tutorialDone).toBe(true);
     expect(p.iosTipSeen).toBe(false);
     // Everything else is untouched.
     expect(p.xp).toBe(640);
     expect(p.decks).toHaveLength(1);
     expect(p.activeRun!.choices).toEqual([{ t: 'move', col: 1 }]);
+  });
+
+  it('migrates the stored v5 sample save to v6: Auto-pass on, everything else kept', () => {
+    const p = migrate(fixtureV5);
+    expect(p.schemaVersion).toBe(6);
+    expect(p.settings).toEqual({ ...fixtureV5.settings, autoPass: true });
+    expect(p.tutorialDone).toBe(true);
+    expect(p.iosTipSeen).toBe(true);
   });
 
   it('the v4 migration marks the tutorial done only when the profile has XP or results', () => {

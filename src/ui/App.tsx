@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useApp } from './app';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MatchScreen } from './MatchScreen';
+import { DuelScreen } from './duel/DuelScreen';
 import { CardDetail } from './Overlays';
 import { RotateNotice } from './RotateNotice';
 import { useReduceMotion } from './useReduceMotion';
@@ -40,6 +41,8 @@ function CurrentScreen() {
       return <StatsScreen />;
     case 'match':
       return <MatchScreen />;
+    case 'duel':
+      return <DuelScreen />;
     case 'runStart':
       return <RunStartScreen />;
     case 'run':

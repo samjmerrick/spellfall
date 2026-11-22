@@ -21,7 +21,8 @@ export {
   baseId,
   generatedText,
   UPGRADED,
+  PREBUILT_DECKS,
 } from './content';
 export * from './types';
-export type { CardDef, Keyword, Faction, Speed, TargetSpec, MatchModifier } from './schema';
+export type { CardDef, DeckDef, Keyword, Faction, Speed, TargetSpec, MatchModifier, Effect } from './schema';
 export { KEYWORDS, FACTIONS, SPEEDS, MatchModifierSchema } from './schema';

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { GameState } from '../engine';
 import { RunChoiceSchema, RunConfigSchema } from '../run/schema';
 
-export const CURRENT_SCHEMA = 5;
+export const CURRENT_SCHEMA = 6;
 export const MAX_SAVED_DECKS = 20;
 export const MAX_DECK_NAME = 24;
 
@@ -44,6 +44,8 @@ export const ProfileSchema = z.object({
     reduceMotion: z.boolean(),
     sound: z.boolean(),
     haptics: z.boolean(),
+    /** Pass automatically when you get priority with nothing you could play (Spellfall matches). */
+    autoPass: z.boolean(),
   }),
   stats: z.object({
     /** Quick Play results per deck id (saved deck ids and pre-built ids). */
@@ -76,7 +78,7 @@ export function newProfile(): Profile {
     unlocks: [],
     decks: [],
     nextDeckId: 1,
-    settings: { fastAnimations: false, reduceMotion: false, sound: true, haptics: true },
+    settings: { fastAnimations: false, reduceMotion: false, sound: true, haptics: true, autoPass: true },
     stats: { quickPlay: {}, runs: {} },
     ascension: { best: 0, unlocked: 0 },
     activeRun: null,
