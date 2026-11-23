@@ -144,7 +144,10 @@ for (const vp of VIEWPORTS) {
       await shot(page, 'match-mulligan');
       await keepHand(page);
       // A long press (or right click) opens a card's rules text.
-      await page.locator('.hand__slot').first().click({ button: 'right' });
+      await page
+        .locator('.hand__slot')
+        .first()
+        .click({ button: 'right', position: { x: 8, y: 70 } });
       const detail = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Close' }) });
       await expect(detail).toBeVisible();
       await page.waitForTimeout(400);

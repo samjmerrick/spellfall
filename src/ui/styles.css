@@ -41,7 +41,8 @@ html,
 body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
+  background: radial-gradient(120% 60% at 50% -10%, #1c2133 0%, transparent 70%), var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
@@ -252,13 +253,13 @@ button {
   touch-action: none;
   cursor: grab;
   transition: opacity 0.15s;
-  top: 16px;
+  top: 8px;
   left: 50%;
   margin-left: calc(var(--card-w) / -2);
-  /* 60px leaves room for the outer cards' rotation. */
-  --spacing: min(62px, (min(100vw, 430px) - 2 * var(--gutter) - var(--card-w) - 60px) / var(--gaps));
-  transform: translateX(calc(var(--offset) * var(--spacing))) translateY(calc(var(--abs-offset) * 6px))
-    rotate(calc(var(--offset) * 5deg));
+  /* 44px leaves room for the outer cards' rotation; wider cards and a gentler fan keep the names readable. */
+  --spacing: min(64px, (min(100vw, 430px) - 2 * var(--gutter) - var(--card-w) - 44px) / var(--gaps));
+  transform: translateX(calc(var(--offset) * var(--spacing))) translateY(calc(var(--abs-offset) * 4px))
+    rotate(calc(var(--offset) * 3.5deg));
   transform-origin: 50% 120%;
 }
 
@@ -528,8 +529,21 @@ button {
 
 .primary {
   border: 0;
-  background: var(--accent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent));
   color: #1b1405;
+  box-shadow: 0 4px 14px rgb(245 184 61 / 0.25);
+}
+
+.primary--alt {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  box-shadow: none;
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(0.98);
 }
 
 .primary:disabled {
@@ -538,7 +552,7 @@ button {
 
 .secondary {
   border: 1px solid var(--line);
-  background: var(--surface-2);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
 }
 
 .overlay--detail {
@@ -747,17 +761,47 @@ button {
 
 .menu__header h1 {
   margin: 0;
-  font-size: 44px;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, #fff 30%, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .menu__header p {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   color: var(--muted);
+}
+
+.menu__factions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.menu__factions span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--faction);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--faction) 70%, transparent);
 }
 
 .menu__nav {
   display: grid;
   gap: 12px;
+}
+
+.menu__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.menu__grid .secondary {
+  min-width: 0;
 }
 
 .list {
@@ -1802,7 +1846,7 @@ textarea {
 .duel {
   position: relative;
   display: grid;
-  grid-template-rows: 64px minmax(0, 1fr) 60px 160px;
+  grid-template-rows: 64px minmax(0, 1fr) 60px 190px;
   width: 100%;
   max-width: 430px;
   height: 100dvh;
@@ -2453,6 +2497,8 @@ textarea {
 .duel .hand {
   position: relative;
   display: block;
+  --card-w: 96px;
+  --card-h: 138px;
 }
 
 .duel .hand__slot {
