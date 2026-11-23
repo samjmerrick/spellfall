@@ -1,0 +1,185 @@
+/* ---------- Polish: idle motion and small effects (all of it off with Reduce motion) ---------- */
+
+/* Menu: the logo floats over a pulsing glow, the title shimmers once, buttons rise in turn. */
+.menu__logo {
+  display: block;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  box-shadow: 0 0 36px rgb(245 184 61 / 0.28);
+  animation:
+    logo-float 4.5s ease-in-out infinite,
+    logo-glow 3s ease-in-out infinite;
+}
+
+@keyframes logo-float {
+  50% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+}
+
+@keyframes logo-glow {
+  50% {
+    box-shadow: 0 0 52px rgb(245 184 61 / 0.5);
+  }
+}
+
+.menu__header h1 {
+  animation: title-shimmer 1.4s ease-out both;
+}
+
+@keyframes title-shimmer {
+  from {
+    letter-spacing: 0.06em;
+    opacity: 0;
+  }
+}
+
+.menu__nav > *,
+.menu__grid > * {
+  animation: rise-in 0.45s ease-out both;
+}
+
+.menu__nav > :nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.menu__nav > :nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+.menu__grid > :nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.menu__grid > :nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.menu__grid > :nth-child(4) {
+  animation-delay: 0.24s;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.menu__factions span {
+  animation: dot-twinkle 2.4s ease-in-out infinite;
+}
+
+.menu__factions span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.menu__factions span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.menu__factions span:nth-child(4) {
+  animation-delay: 0.9s;
+}
+
+.menu__factions span:nth-child(5) {
+  animation-delay: 1.2s;
+}
+
+@keyframes dot-twinkle {
+  50% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+}
+
+/* Buttons: a light sweep over the filled ones. */
+.primary:not(.primary--alt):not(:disabled) {
+  position: relative;
+  overflow: hidden;
+}
+
+.primary:not(.primary--alt):not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.35) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: sweep 5s ease-in-out 1.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  30%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* Match: playable cards breathe, ready units glow, the turn button invites a tap, mana pops. */
+.duel .hand__slot--playable:not(.hand__slot--dragging):not(.hand__slot--picked) .card {
+  animation:
+    card-draw calc(var(--t) * 0.4) ease-out both,
+    playable-breathe 2.6s ease-in-out 0.6s infinite;
+}
+
+@keyframes playable-breathe {
+  50% {
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 14px 3px rgb(245 184 61 / 0.55);
+  }
+}
+
+.duel .end-turn:enabled {
+  animation: end-turn-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes end-turn-glow {
+  50% {
+    box-shadow: 0 0 18px 2px rgb(245 184 61 / 0.55);
+  }
+}
+
+.duel-bar__mana {
+  transition: transform 0.2s;
+}
+
+/* Result: a win throws sparks, a loss dims the field. */
+.result--win::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 30%, rgb(245 184 61 / 0.5) 0 3px, transparent 4px),
+    radial-gradient(circle at 80% 25%, rgb(124 196 255 / 0.55) 0 3px, transparent 4px),
+    radial-gradient(circle at 35% 70%, rgb(255 255 255 / 0.5) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 65%, rgb(245 184 61 / 0.5) 0 3px, transparent 4px),
+    radial-gradient(circle at 50% 15%, rgb(255 255 255 / 0.5) 0 2px, transparent 3px);
+  animation: sparks 2.2s ease-out both;
+}
+
+@keyframes sparks {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.result--win .result__title {
+  text-shadow: 0 0 22px rgb(245 184 61 / 0.7);
+}
+
+/* Screens: a soft fade when one replaces another. */
+.screen,
+.menu {
+  animation: fade-in 0.25s ease-out both;
+}

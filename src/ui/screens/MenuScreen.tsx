@@ -15,6 +15,13 @@ export function MenuScreen() {
   return (
     <main className={`menu${showTip ? ' menu--tip' : ''}`} aria-label="Main menu">
       <header className="menu__header">
+        <img
+          className="menu__logo"
+          src={`${import.meta.env.BASE_URL}icon.svg`}
+          alt=""
+          width="96"
+          height="96"
+        />
         <div className="menu__factions" aria-hidden="true">
           {['ember', 'tide', 'grove', 'bastion', 'dusk'].map((f) => (
             <span key={f} className={`faction-${f}`} />

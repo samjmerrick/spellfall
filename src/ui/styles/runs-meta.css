@@ -1,0 +1,523 @@
+/* ---------- Rotate notice (portrait only) ---------- */
+
+.rotate-notice {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .match,
+  .menu,
+  .screen {
+    display: none;
+  }
+
+  .rotate-notice {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--bg);
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .rotate-notice p {
+    margin: 0;
+  }
+
+  .rotate-notice__hint {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .rotate-notice__icon {
+    width: 40px;
+    height: 64px;
+    border: 3px solid var(--text);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transform: rotate(-90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- Runs ---------- */
+
+.hero-row {
+  align-items: flex-start;
+}
+
+.hero-row__glyph {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 2px solid var(--faction);
+  background: color-mix(in srgb, var(--faction) 22%, var(--surface-2));
+  font-size: 20px;
+}
+
+.hero-row__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hero-row__name {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.hero-row__title,
+.hero-row__deck {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.hero-row__passive {
+  font-size: 13px;
+}
+
+.run-bar {
+  position: sticky;
+  top: 56px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 10px;
+  background: var(--bg);
+  font-weight: 800;
+}
+
+.run-bar__hearts {
+  display: flex;
+  gap: 2px;
+  font-size: 20px;
+}
+
+.heart {
+  color: var(--line);
+}
+
+.heart--on {
+  color: var(--hp);
+}
+
+.run-bar__gold {
+  color: var(--accent);
+  margin-right: auto;
+}
+
+.run-map {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.run-map__paths {
+  position: absolute;
+  inset: 0;
+}
+
+.run-map__paths line {
+  stroke: var(--line);
+  stroke-width: 3;
+  stroke-dasharray: 4 6;
+  stroke-linecap: round;
+}
+
+.run-map__paths .run-map__path--next {
+  stroke: var(--accent);
+  stroke-dasharray: none;
+}
+
+.map-node {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 18px;
+  cursor: default;
+}
+
+.map-node--boss {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  font-size: 26px;
+  border-color: var(--ember);
+}
+
+.map-node--past {
+  opacity: 0.45;
+}
+
+.map-node--here {
+  border-color: var(--text);
+  color: var(--text);
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.15);
+}
+
+.map-node--next {
+  border-color: var(--accent);
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface-2));
+  cursor: pointer;
+  animation: node-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes node-pulse {
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-node--next {
+    animation: none;
+  }
+}
+
+.encounter,
+.run-panel {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.encounter h2,
+.run-panel h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.encounter .label {
+  margin: 0;
+}
+
+.encounter__rule {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ember) 18%, var(--surface-2));
+  font-weight: 700;
+}
+
+.shop-item {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.shop-item__price {
+  font-weight: 800;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.relic-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relic {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.list__row.relic:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.relic__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 25%, var(--surface-2));
+  color: var(--accent);
+}
+
+.relic__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.relic__text {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.overlay--sheet {
+  position: fixed;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.sheet {
+  width: min(100%, 430px);
+  max-height: 85dvh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  background: var(--bg);
+  text-align: left;
+}
+
+.sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 0 16px;
+}
+
+.sheet__header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.sheet__body {
+  display: grid;
+  gap: 10px;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.summary__title {
+  margin: 8px 0 0;
+  font-size: 32px;
+}
+
+.summary__title--won {
+  color: var(--accent);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.summary dt {
+  color: var(--muted);
+}
+
+.summary dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.summary__seed {
+  font-family: ui-monospace, monospace;
+  user-select: text;
+}
+
+.shop-item .grid-card {
+  width: 100%;
+}
+
+/* ---------- Events and act transitions ---------- */
+
+.event__text,
+.event__result {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.event__result {
+  font-weight: 700;
+}
+
+.event__cost {
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.event__outcomes {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+}
+
+.segmented--wrap {
+  background: none;
+  padding: 0;
+}
+
+.segmented--wrap button[class*='faction-'] {
+  color: var(--faction);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+/* ---------- Soak badges, forecast, damage counter ---------- */
+
+.loss {
+  position: absolute;
+  right: 1px;
+  bottom: 23px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: rgb(15 17 23 / 0.9);
+  border: 1px solid #ff6b6b;
+  color: #ff8c8c;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Arrows sit on the strip edge nearest the hero they point at. */
+
+/* ---------- Meta progression (M6) ---------- */
+
+.stats__empty {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.stats__totals dd {
+  white-space: nowrap;
+}
+
+.stats__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.stats__name {
+  min-width: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.stats__value {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: right;
+}
+
+.ascent {
+  display: grid;
+  gap: 8px;
+}
+
+.ascent .label {
+  margin-top: 0;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  align-items: center;
+  gap: 8px;
+}
+
+.stepper .icon-button {
+  min-height: 48px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.stepper .icon-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stepper__value {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.ascent__rules {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.ascent__rules li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.ascent__rule--new {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.ascent__n {
+  flex: none;
+  min-width: 18px;
+  color: var(--accent);
+  font-weight: 800;
+}

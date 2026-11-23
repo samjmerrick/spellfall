@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useApp } from './app';
-import { DetailOverlay, DuelScreen } from './duel/DuelScreen';
+import { DuelScreen } from './duel/DuelScreen';
+import { DetailOverlay } from './duel/Overlays';
 import { RotateNotice } from './RotateNotice';
 import { useReduceMotion } from './useReduceMotion';
 import { CollectionScreen } from './screens/CollectionScreen';

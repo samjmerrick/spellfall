@@ -1,0 +1,146 @@
+/* ---------- Settings toggles and the iOS tip ---------- */
+
+.toggles {
+  display: grid;
+  gap: 8px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.toggle__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toggle__label {
+  font-weight: 700;
+}
+
+.toggle__hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.toggle__track {
+  flex: none;
+  width: 48px;
+  height: 28px;
+  padding: 2px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  transition: background-color 0.15s;
+}
+
+.toggle__thumb {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.15s;
+}
+
+.toggle[aria-checked='true'] .toggle__track {
+  background: var(--accent);
+}
+
+.toggle[aria-checked='true'] .toggle__thumb {
+  transform: translateX(20px);
+  background: #1b1405;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ios-tip {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  gap: 8px;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  border-radius: 14px 14px 0 0;
+  background: var(--surface-2);
+}
+
+.ios-tip p {
+  margin: 0;
+}
+
+.ios-tip .primary {
+  justify-self: end;
+}
+
+/* ---------- Reduce motion ----------
+   The app toggles `.reduce-motion` on <html> from the setting; the media query covers the system
+   preference before the app has loaded. Movement goes; opacity fades (and colour changes) stay. */
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation: none !important;
+}
+
+.reduce-motion .toggle__thumb {
+  transition: none;
+}
+
+/* ---------- Shift (drag a unit to another lane) ---------- */
+
+/* A unit that may Shift now: a dotted inner outline and a grab cursor. */
+
+/* The unit that has a Shift planned stays put until End Turn, faded. */
+
+/* ---------- Run content icons ---------- */
+
+.icon {
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-row__glyph .icon {
+  width: 40px;
+  height: 40px;
+}
+
+.relic__icon .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.icon--hero {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+}
+
+/* Inline in the 56 px lane strip: negative block margins keep the line box at its normal height. */
+
+.hero-row__faction {
+  font-weight: 400;
+  color: var(--muted);
+}
