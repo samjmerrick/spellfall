@@ -57,10 +57,16 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
   `tests/sim/rules-bulk.test.ts` with the bots in `tools/sim/rules-bot.ts`. e2e: `tests/e2e/duel.ts` (`playCard`, `attackOnce`,
   `playDuel`) plays matches by tapping.
 
+## Preview vs live
+
+- **Preview** = the claude.ai test-build artifact (below). Built from the working branch after every batch of changes, before merge.
+- **Live** = GitHub Pages (`https://samjmerrick.github.io/spellfall/`). Updated only from `main`, by `pages.yml` after CI passes
+  (or by hand: Actions > Deploy live site > Run workflow). Never publish live from a branch.
+
 ## Working rules
 
 - One milestone (V0–V8, see spec) per branch and PR; don't start the next until CI is green. CI runs on PRs and `main`
-  (jobs `check` and `e2e` in parallel; `deploy` to Pages after both, on `main` only).
+  (jobs `check` and `e2e` in parallel). `.github/workflows/pages.yml` deploys the live site once CI succeeds on `main`.
 - Spec silent on something? Pick the simplest option and log it in `docs/decisions.md` (date, question, decision).
 - Any game-rule change updates `docs/spec.md` in the same PR.
 - After UI changes, run `pnpm e2e` and look at `test-results/screens/*.png` before committing.
