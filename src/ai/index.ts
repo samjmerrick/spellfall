@@ -76,7 +76,7 @@ export function actNormal(view: PlayerView, rng: RngState): ActResult {
  * Every (pruned) legal action with Normal's one-step value, best first. Passing scores the current board;
  * acting gets a small bonus, so spending mana now beats holding it when the boards tie. Stable order.
  */
-export function rankActions(view: PlayerView): { action: Action; value: number }[] {
+export function rankActions(view: PlayerView, depth = 0): { action: Action; value: number }[] {
   const player = view.viewer;
   const legal = pruned(view, legalActions(view));
   const out: { action: Action; value: number }[] = [];
@@ -89,13 +89,29 @@ export function rankActions(view: PlayerView): { action: Action; value: number }
     const s = simulate(view, a);
     // Between equal choices, a Discover pick prefers the more expensive card.
     const bonus = a.type === 'choose' ? getCard(view.pending![0]!.options[a.index]!).cost * 0.001 : 0;
-    if (s) out.push({ action: a, value: score(s, player) + 0.01 + bonus });
+    if (!s) continue;
+    let value = score(s, player) + 0.01 + bonus;
+    // A Burst spell keeps priority, so it is worth what it sets up: look one play further (the Spark's mana
+    // only counts through the card it pays for).
+    if (depth === 0 && isBurst(view, a) && s.phase === 'main' && s.priority === player) {
+      const follow = rankActions({ ...s, viewer: player } as PlayerView, 1).find(
+        (x) => x.action.type !== 'pass',
+      );
+      if (follow) value = Math.max(value, follow.value);
+    }
+    out.push({ action: a, value });
   }
   // Pass first among equals, so a tie never acts for nothing.
   return out
     .map((x, i) => ({ ...x, i: x.action.type === 'pass' ? -1 : i }))
     .sort((a, b) => b.value - a.value || a.i - b.i)
     .map(({ action, value }) => ({ action, value }));
+}
+
+function isBurst(view: PlayerView, a: Action): boolean {
+  if (a.type !== 'castSpell') return false;
+  const card = view.players[a.player].hand.find((c) => c.uid === a.uid)?.cardId;
+  return card !== undefined && card !== HIDDEN && getCard(card).speed === 'burst';
 }
 
 /** What passing leads to: with a stack, the stack resolves; with an empty stack the board stays. */

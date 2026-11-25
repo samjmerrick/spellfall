@@ -18,6 +18,7 @@
     "e2e": "playwright test",
     "screens": "UPDATE_SCREENS=1 playwright test tests/e2e/screens.spec.ts",
     "sim": "tsx tools/sim/index.ts",
+    "sim:balance": "tsx tools/sim/balance.ts",
     "sim:run": "tsx tools/sim/runs.ts",
     "coverage": "vitest run tests/unit --coverage",
     "content:text": "tsx tools/content/texts.ts",

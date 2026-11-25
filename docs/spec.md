@@ -28,9 +28,9 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 - Each hero starts on 30 HP.
 - Decks are 30 cards in Quick Play; run decks start at 12 and grow.
-- The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana).
+- The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana), and the first player skips the draw on their first turn.
 - One mulligan: replace any number of your starting cards once.
-- Hand limit is 10; a draw past 10 is burned (discarded).
+- Hand limit is 7; a card drawn or added past 7 is burned (destroyed).
 - Each side of the board holds up to 6 units in one row. A unit is played into any position in the row; units to its right move over. When a unit dies, the gap closes.
 
 **Mana**
@@ -40,7 +40,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 **Turn sequence**
 
-1. **Start of turn:** max mana +1 and refill; draw 1 card (from an empty deck you take fatigue damage instead: 1, then 2, then 3, …); then Start of Turn triggers.
+1. **Start of turn:** max mana +1 and refill; draw 1 card (not on the match's first turn; from an empty deck you take fatigue damage instead: 1, then 2, then 3, …); then Start of Turn triggers.
 2. **Main phase:** the active player has priority. With an empty stack they may, in any order and as often as they can pay: play a unit, cast a spell of any speed, declare an attack, or end the turn.
 3. **End of turn:** End of Turn triggers, then effects that last "this turn" expire, and the other player's turn starts (unspent mana is kept).
 
@@ -140,9 +140,9 @@ About 175 cards: 35 per faction across 5 factions (17 Legendaries, 14 spells per
 | ------- | -------------------------------------------------------------------------------------------------------------- |
 | Ember   | Volcano Lord (7, 6/6 Quick: On Play destroy all other units), Ashen Dragon (8, 7/6 Quick, Overwhelm: On Play 5 damage to the enemy hero), Inferno Pyromancer (4, 2/5: whenever you cast a spell, 2 damage to the enemy hero), Supernova (8, Slow: 8 damage to the enemy hero and 3 to all units) |
 | Tide    | Sea Queen (8, 5/7 Elusive, Barrier: On Play return all enemy units to their owners' hands and draw 2), Archmage Spellthief (5, 3/5: whenever the enemy casts a spell, add a copy to your hand), Turn the Tide (7, Slow: take an extra turn) |
-| Grove   | World Tree (7, 6/7 Growth, Regenerate: Start of Turn gain an empty mana slot; End of Turn other friendly units +1/+1), Gaia, the Heartwood (6, 5/5 Guard, Growth: On Play gain 2 empty mana slots and other friendly units +2/+2), Primal Surge (5, Slow: max mana 10 and refill) |
+| Grove   | World Tree (7, 6/7 Growth, Regenerate: Start of Turn gain an empty mana slot; End of Turn other friendly units +1/+1), Gaia, the Heartwood (7, 5/5 Guard, Growth: On Play gain an empty mana slot and other friendly units +1/+1), Primal Surge (5, Slow: max mana 10 and refill) |
 | Bastion | Grand Marshal (7, 5/6: On Play summon three Levies and other friendly units +2/+2), Archon (8, 6/8 Guard: On Play other friendly units Barrier; Ongoing other friendly units +1/+1), Legion Matriarch (6, 3/7 Guard: End of Turn summon two Levies), Aegis Eternal (4, Fast: heal your hero by 8 and it cannot drop below 1 HP this turn) |
-| Dusk    | Night Queen (8, 6/7 Lifesteal: On Play destroy all enemy units), Lich King (6, 5/5: On Play take control of an enemy unit), Rise of the Fallen (6, Slow: revive all friendly units that died this match) |
+| Dusk    | Night Queen (9, 6/7 Lifesteal: On Play destroy all enemy units), Lich King (7, 5/5: On Play take control of an enemy unit), Rise of the Fallen (6, Slow: revive all friendly units that died this match) |
 
 **Balance baselines**
 
@@ -197,7 +197,7 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 | Stack strip      | 72 px           | Stack items as round tokens showing their card art (an attack shows the attacker with a sword badge), newest on the right, each with a connector line to its targets; when empty, the current turn and priority ("Your turn", "Opponent's turn", "Your response"), always derived from the live state |
 | Your board       | 150 px          | Up to 6 unit cards in a row; at the right, **your hero slot** (portrait art and HP)  |
 | Your bar         | 60 px           | Your mana and deck count, the main button on the right                            |
-| Hand             | 170 px          | Fanned hand of up to 10 cards; the dragged card lifts above your thumb            |
+| Hand             | 170 px          | Fanned hand of up to 7 cards; the dragged card lifts above your thumb            |
 | Safe-area margin | rest            | Space for the phone's home indicator                                              |
 
 **Touch rules**
