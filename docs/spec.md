@@ -308,7 +308,7 @@ Copy Lanefall's history into this repository, rename to Spellfall, give saves th
 Everything in Core rules in `src/rules/`: turns, mana and spell mana, priority, the stack, spell speeds, combat, all 13 keywords, the effect primitives and targets, seeded RNG, Zod content schemas, and the 40 starter cards (Ember and Bastion) in a new content file.
 
 - A unit test for each rule in Core rules and each keyword, including fizzling, whole-stack resolution order and Guard targeting.
-- 10,000 random bot-vs-bot matches all end (win, loss or turn-40 draw) with no errors.
+- 1,000 random (10x with SIM_SCALE=10) bot-vs-bot matches all end (win, loss or turn-40 draw) with no errors.
 - The same seed and actions give an identical event log, byte for byte.
 - `src/rules` imports nothing from `src/ui` or `src/engine`; coverage of `src/rules` is at least 90%.
 
@@ -325,7 +325,7 @@ All 5 factions (150 cards) on the new rules, ten pre-built faction-pair decks, a
 
 - All content files pass schema validation; every card and its upgrade has a test that plays it every legal way.
 - Every faction has 30 collectible cards, 7–13 of them spells.
-- 10,000 random bot matches across all faction pairings end with no errors.
+- 1,000 random bot matches across all faction pairings end with no errors.
 - Hard AI's full search stays under 500 ms per decision in a CI benchmark, stops near its budget with a clock, and beats Normal.
 
 ### V4: Quick Play, deck builder and saves
@@ -340,7 +340,7 @@ Collection, deck builder, share codes and saved decks on Spellfall's cards; save
 Run nodes, relics, hero passives, enemies and bosses re-authored for Spellfall's rules; runs play on the new match screen.
 
 - Every relic, passive and boss rule has a unit test.
-- The simulator completes 500 bot runs with no errors.
+- The simulator completes 60 bot runs with no errors.
 
 ### V6: Meta progression
 

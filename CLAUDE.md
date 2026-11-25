@@ -7,7 +7,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm dev` — dev server
 - `pnpm lint` — ESLint + Prettier check (`pnpm format` to fix)
 - `pnpm typecheck` — `tsc -b`
-- `pnpm test` — Vitest unit and simulation tests (includes 10,000 random bot matches and 500 bot runs, a few minutes)
+- `pnpm test` — Vitest unit and simulation tests (includes a light bot smoke test, about a minute; `SIM_SCALE=10 pnpm test:sim` for the full soak)
 - `pnpm test:sim` — only the simulation tests (CI runs `coverage` + `test:sim` instead of `test`)
 - `pnpm coverage` — unit tests with the coverage gate (≥90%) on `src/rules`, `src/run` and `src/save`
 - `pnpm e2e` — Playwright (builds, serves on :4173, tests at 360×740, 390×844, 430×932)

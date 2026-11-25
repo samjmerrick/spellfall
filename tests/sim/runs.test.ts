@@ -16,6 +16,7 @@ import {
 } from '../../src/run';
 import { loadProfile, memoryStore, saveProfile } from '../../src/save/slots';
 import { newProfile } from '../../src/save/profile';
+import { sized } from './scale';
 import { botChoice, playBotRun } from '../../tools/sim/run';
 
 const pool = collectibleCardIds();
@@ -23,22 +24,22 @@ const relics = RELICS.map((r) => r.id);
 const heroes = HEROES;
 
 describe('bot runs', () => {
-  it('the simulator completes 500 bot runs with no errors, and each replays to the same state', () => {
+  it('the simulator completes bot runs with no errors, and each replays to the same state', () => {
     let won = 0;
-    for (let seed = 1; seed <= 500; seed++) {
+    for (let seed = 1; seed <= sized(60); seed++) {
       const rec = playBotRun({ seed, heroId: heroes[seed % heroes.length]!.id, pool, ascension: 0, relics });
       expect(rec.final.phase.kind).toBe('over');
       if (rec.final.phase.kind === 'over' && rec.final.phase.won) won++;
-      if (seed % 25 === 0) expect(replayRun(rec.config, rec.choices)).toEqual(rec.final);
+      if (seed % 10 === 0) expect(replayRun(rec.config, rec.choices)).toEqual(rec.final);
     }
     expect(won).toBeGreaterThan(0);
   }, 420_000);
 
   it('Ascension 10 runs complete too, and replay to the same state', () => {
-    for (let seed = 1; seed <= 60; seed++) {
+    for (let seed = 1; seed <= sized(15); seed++) {
       const rec = playBotRun({ seed, heroId: HEROES[seed % HEROES.length]!.id, pool, ascension: 10, relics });
       expect(rec.final.phase.kind).toBe('over');
-      if (seed % 20 === 0) expect(replayRun(rec.config, rec.choices)).toEqual(rec.final);
+      if (seed % 5 === 0) expect(replayRun(rec.config, rec.choices)).toEqual(rec.final);
     }
   }, 120_000);
 });

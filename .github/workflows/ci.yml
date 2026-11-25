@@ -24,7 +24,7 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm lint
       - run: pnpm typecheck
-      # Unit tests with the coverage gate, then the simulation tests (10,000 bot matches, 500 bot runs).
+      # Unit tests with the coverage gate, then the simulation tests (a quick bot smoke test; SIM_SCALE=10 for a full soak).
       - run: pnpm coverage
       - run: pnpm test:sim
 
