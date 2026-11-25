@@ -87,7 +87,28 @@ function CardName({ name }: { name: string }) {
   );
 }
 
-/** A Spellfall card in hand or enlarged. */
+/** Effect text on a card; the type shrinks until the text fits its box (hand and collection sizes). */
+function CardText({ text, cardId }: { text: string; cardId: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.fontSize = '';
+    const base = parseFloat(getComputedStyle(el).fontSize);
+    let size = base;
+    while (el.scrollHeight > el.clientHeight + 1 && size > 6) {
+      size -= 0.5;
+      el.style.fontSize = `${size}px`;
+    }
+  }, [text, cardId]);
+  return (
+    <p className="card__text" ref={ref}>
+      {text}
+    </p>
+  );
+}
+
+/** A Spellfall card in hand, in the collection or enlarged: the same frame, with its effect text. */
 export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'hand' | 'large' }) {
   const card = getCard(cardId);
   const isUnit = card.type === 'unit';
@@ -106,7 +127,11 @@ export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'ha
         <CardArt id={card.id} faction={card.faction} />
       </div>
       <CardName name={card.name} />
-      {size === 'large' && <p className="card__text">{card.text || 'No abilities.'}</p>}
+      {size === 'large' ? (
+        <p className="card__text">{card.text || 'No abilities.'}</p>
+      ) : (
+        card.text && <CardText text={card.text} cardId={cardId} />
+      )}
       <div className="card__foot">
         {isUnit ? (
           <>
