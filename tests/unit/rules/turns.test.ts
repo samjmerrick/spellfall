@@ -11,7 +11,7 @@ describe('setup', () => {
     expect(initMatch({ decks: [deck, deck], firstPlayer: 1 }, 2).firstPlayer).toBe(1);
   });
 
-  it('the first player draws 3, the second 4 and gets the Spark after the mulligan', () => {
+  it('the first player draws 3 and skips the turn-1 draw; the second draws 4 and gets the Spark', () => {
     let s = initMatch({ decks: [deck, deck], firstPlayer: 0 }, 1);
     expect(s.phase).toBe('mulligan');
     expect(s.players[0].hand).toHaveLength(3);
@@ -23,8 +23,9 @@ describe('setup', () => {
     expect(s.turn).toBe(1);
     expect(s.players[1].hand.map((c) => c.cardId)).toContain(SPARK_ID);
     expect(s.players[1].hand).toHaveLength(5);
-    // The first player's turn-1 draw.
-    expect(s.players[0].hand).toHaveLength(4);
+    // No draw on the match's first turn.
+    expect(s.players[0].hand).toHaveLength(3);
+    expect(s.players[0].deck).toHaveLength(27);
     expect(s.players[0].maxMana).toBe(1);
   });
 

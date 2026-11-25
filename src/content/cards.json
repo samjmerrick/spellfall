@@ -145,7 +145,7 @@
     "type": "unit",
     "cost": 3,
     "power": 4,
-    "health": 2,
+    "health": 3,
     "effects": [
       {
         "trigger": "onPlay",
@@ -214,7 +214,7 @@
     "type": "unit",
     "cost": 4,
     "power": 5,
-    "health": 4,
+    "health": 5,
     "text": "Guard.",
     "rarity": "common",
     "keywords": ["guard"]
@@ -249,7 +249,7 @@
     "type": "unit",
     "cost": 5,
     "power": 5,
-    "health": 5,
+    "health": 6,
     "effects": [
       {
         "trigger": "lastBreath",
@@ -487,7 +487,7 @@
     "type": "unit",
     "cost": 1,
     "power": 1,
-    "health": 2,
+    "health": 3,
     "keywords": ["guard"],
     "text": "Guard.",
     "rarity": "common"
@@ -589,7 +589,7 @@
     "type": "unit",
     "cost": 3,
     "power": 2,
-    "health": 4,
+    "health": 5,
     "keywords": ["guard"],
     "text": "Guard. Last Breath: give all friendly units +1 Health.",
     "rarity": "common",
@@ -612,7 +612,7 @@
     "faction": "bastion",
     "type": "unit",
     "cost": 3,
-    "power": 2,
+    "power": 3,
     "health": 3,
     "effects": [
       {
@@ -634,7 +634,7 @@
     "type": "unit",
     "cost": 3,
     "power": 3,
-    "health": 2,
+    "health": 3,
     "keywords": ["barrier"],
     "text": "Barrier. On Play: heal your hero by 3.",
     "rarity": "uncommon",
@@ -1119,7 +1119,7 @@
     "faction": "ember",
     "type": "unit",
     "cost": 5,
-    "power": 4,
+    "power": 5,
     "health": 5,
     "effects": [
       {
@@ -1290,7 +1290,7 @@
     "name": "Reinforcements",
     "faction": "bastion",
     "type": "spell",
-    "cost": 4,
+    "cost": 3,
     "speed": "slow",
     "effects": [
       {
@@ -1363,7 +1363,7 @@
     "type": "unit",
     "cost": 5,
     "power": 4,
-    "health": 4,
+    "health": 5,
     "keywords": ["barrier"],
     "text": "Barrier. On Play: deal 2 damage to an enemy unit.",
     "rarity": "common",
@@ -1589,7 +1589,7 @@
     "faction": "tide",
     "type": "unit",
     "cost": 2,
-    "power": 1,
+    "power": 2,
     "health": 3,
     "effects": [
       {
@@ -1744,7 +1744,7 @@
     "name": "Insight",
     "faction": "tide",
     "type": "spell",
-    "cost": 2,
+    "cost": 1,
     "speed": "slow",
     "effects": [
       {
@@ -1944,7 +1944,7 @@
     "faction": "tide",
     "type": "unit",
     "cost": 5,
-    "power": 4,
+    "power": 5,
     "health": 5,
     "keywords": ["elusive"],
     "text": "Elusive. On Play: add a random Tide spell to your hand.",
@@ -1996,7 +1996,7 @@
     "type": "unit",
     "cost": 5,
     "power": 5,
-    "health": 5,
+    "health": 6,
     "targets": [
       {
         "kind": "enemyUnit",
@@ -2022,7 +2022,7 @@
     "type": "unit",
     "cost": 5,
     "power": 4,
-    "health": 5,
+    "health": 6,
     "keywords": ["barrier"],
     "effects": [
       {
@@ -2196,7 +2196,7 @@
     "name": "Wild Growth",
     "faction": "grove",
     "type": "spell",
-    "cost": 1,
+    "cost": 2,
     "speed": "slow",
     "effects": [
       {
@@ -2272,7 +2272,7 @@
     "type": "unit",
     "cost": 2,
     "power": 1,
-    "health": 2,
+    "health": 1,
     "effects": [
       {
         "trigger": "onPlay",
@@ -2534,7 +2534,7 @@
     "faction": "grove",
     "type": "unit",
     "cost": 4,
-    "power": 5,
+    "power": 4,
     "health": 5,
     "text": "",
     "rarity": "common"
@@ -2657,7 +2657,7 @@
     "name": "Stampede",
     "faction": "grove",
     "type": "spell",
-    "cost": 6,
+    "cost": 7,
     "speed": "slow",
     "effects": [
       {
@@ -3287,7 +3287,7 @@
     "name": "Doom",
     "faction": "dusk",
     "type": "spell",
-    "cost": 4,
+    "cost": 5,
     "speed": "slow",
     "targets": [
       {
@@ -3548,7 +3548,7 @@
     "name": "Night Queen",
     "faction": "dusk",
     "type": "unit",
-    "cost": 8,
+    "cost": 9,
     "power": 6,
     "health": 7,
     "keywords": ["lifesteal"],
@@ -3631,7 +3631,7 @@
     "faction": "tide",
     "type": "unit",
     "cost": 5,
-    "power": 3,
+    "power": 4,
     "health": 5,
     "effects": [
       {
@@ -3686,7 +3686,7 @@
     "name": "Gaia, the Heartwood",
     "faction": "grove",
     "type": "unit",
-    "cost": 6,
+    "cost": 7,
     "power": 5,
     "health": 5,
     "keywords": ["guard", "growth"],
@@ -3695,7 +3695,7 @@
         "trigger": "onPlay",
         "action": {
           "op": "gainMaxMana",
-          "amount": 2
+          "amount": 1
         }
       },
       {
@@ -3703,13 +3703,13 @@
         "action": {
           "op": "buff",
           "target": "otherFriendlyUnits",
-          "power": 2,
-          "health": 2,
+          "power": 1,
+          "health": 1,
           "duration": "permanent"
         }
       }
     ],
-    "text": "Guard. Growth. On Play: gain 2 empty mana slots and give other friendly units +2/+2.",
+    "text": "Guard. Growth. On Play: gain an empty mana slot and give other friendly units +1/+1.",
     "rarity": "legendary"
   },
   {
@@ -3765,7 +3765,7 @@
     "name": "Lich King",
     "faction": "dusk",
     "type": "unit",
-    "cost": 6,
+    "cost": 7,
     "power": 5,
     "health": 5,
     "targets": [

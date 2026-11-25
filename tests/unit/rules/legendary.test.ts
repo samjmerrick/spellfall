@@ -96,7 +96,7 @@ describe('Guard (taunt)', () => {
   });
 
   it('a stolen Guard protects its new owner, and exposes its old one', () => {
-    let s = setup({ mana: 6 });
+    let s = setup({ mana: 7 });
     place(s, 0, 'ember-spark-imp');
     const g = place(s, 1, 'bastion-shieldbearer');
     place(s, 1, FILLER);
@@ -128,7 +128,7 @@ describe('Guard (taunt)', () => {
 
 describe('steal (take control)', () => {
   it('Lich King takes an enemy unit; it cannot attack this turn unless Quick', () => {
-    let s = setup({ mana: 6 });
+    let s = setup({ mana: 7 });
     const t = place(s, 1, 'ember-magma-brute');
     s = play(s, 0, 'dusk-lich-king', [unit(t.uid)]);
     expect(s.boards[1]).toHaveLength(0);
@@ -143,7 +143,7 @@ describe('steal (take control)', () => {
   });
 
   it('a stolen unit attacks for its new owner next turn and dies into the new owner’s discard', () => {
-    let s = setup({ mana: 6 });
+    let s = setup({ mana: 7 });
     const t = place(s, 1, 'ember-magma-brute');
     s = play(s, 0, 'dusk-lich-king', [unit(t.uid)]);
     s = pass(s);
@@ -154,7 +154,7 @@ describe('steal (take control)', () => {
   });
 
   it('needs room: a full board takes nothing', () => {
-    const s = setup({ mana: 6 });
+    const s = setup({ mana: 7 });
     for (let i = 0; i < BOARD_LIMIT; i++) place(s, 0, FILLER);
     const t = place(s, 1, FILLER);
     run(s, { op: 'steal', target: 'allEnemyUnits' });
@@ -163,7 +163,7 @@ describe('steal (take control)', () => {
   });
 
   it('cannot choose an Elusive unit, and an On Play with no legal target does nothing', () => {
-    const s = setup({ mana: 6 });
+    const s = setup({ mana: 7 });
     const e = place(s, 1, FILLER, { keywords: ['elusive'] });
     expect(() => play(s, 0, 'dusk-lich-king', [unit(e.uid)])).toThrow(/illegal target/);
     const r = play(s, 0, 'dusk-lich-king');
@@ -432,14 +432,14 @@ describe('reworked and new Legendaries', () => {
     expect(s.players[0].maxMana).toBe(7); // +1 for the turn, +1 from the tree
   });
 
-  it('Gaia is a Guard that ramps 2 and grows the team', () => {
-    let s = setup({ mana: 6 });
-    s.players[0].maxMana = 6;
+  it('Gaia is a Guard that ramps 1 and grows the team', () => {
+    let s = setup({ mana: 7 });
+    s.players[0].maxMana = 7;
     const f = place(s, 0, FILLER);
     s = play(s, 0, 'grove-gaia');
     expect(s.players[0].maxMana).toBe(8);
-    expect(unitPower(s, u(s, f.uid))).toBe(3);
-    expect(unitMaxHealth(s, u(s, f.uid))).toBe(4);
+    expect(unitPower(s, u(s, f.uid))).toBe(2);
+    expect(unitMaxHealth(s, u(s, f.uid))).toBe(3);
     expect(u(s, s.boards[0][1]!.uid).keywords).toEqual(['guard', 'growth']);
   });
 
@@ -470,7 +470,7 @@ describe('reworked and new Legendaries', () => {
   });
 
   it('Night Queen destroys all enemy units', () => {
-    let s = setup({ mana: 8 });
+    let s = setup({ mana: 9 });
     const mine = place(s, 0, FILLER);
     place(s, 1, FILLER);
     place(s, 1, 'tide-mist-sprite', { keywords: ['elusive'] });

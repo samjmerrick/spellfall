@@ -128,7 +128,8 @@ function startTurn(ctx: Ctx, player: PlayerId): void {
   }
   for (const u of s.boards[player]) u.attacked = false;
   ctx.events.push({ type: 'TurnStarted', turn: s.turn, player, maxMana: p.maxMana });
-  drawCard(ctx, player);
+  // The first player skips the draw on the match's first turn (the second player's catch-up, with the Spark).
+  if (s.turn > 1) drawCard(ctx, player);
   if (settle(ctx)) return;
   for (const u of [...s.boards[player]].sort((a, b) => a.playOrder - b.playOrder)) {
     if (!findUnit(s, u.uid)) continue;

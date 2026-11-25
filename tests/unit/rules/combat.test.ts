@@ -127,7 +127,7 @@ describe('keywords', () => {
     const a2 = place(s, 0, 'ember-phoenix');
     const d2 = place(s, 1, 'bastion-paladin'); // 3/3 Barrier
     s = pass(attack(s, a2, unit(d2.uid)));
-    expect(s.players[1].hp).toBe(17);
+    expect(s.players[1].hp).toBe(18);
     expect(onBoard(s, d2.uid)).toBe(true);
   });
 

@@ -4,7 +4,7 @@ export type PlayerId = 0 | 1;
 
 export const BOARD_LIMIT = 6;
 export const MAX_MANA = 10;
-export const HAND_LIMIT = 10;
+export const HAND_LIMIT = 7;
 export const FIRST_HAND = 3;
 export const SECOND_HAND = 4;
 export const DEFAULT_HERO_HP = 30;
