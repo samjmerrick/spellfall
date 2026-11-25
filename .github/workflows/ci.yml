@@ -1,6 +1,7 @@
 name: CI
 
-# PRs are checked once (not again for the branch push); main is checked and deployed.
+# PRs are checked once (not again for the branch push); main is checked. The live site is deployed by pages.yml
+# once this workflow succeeds on main.
 on:
   push:
     branches: [main]
@@ -12,7 +13,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  # Superseded PR runs are cancelled; a run on main is never cut short mid-deploy.
+  # Superseded PR runs are cancelled; a run on main is never cut short.
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
@@ -44,26 +45,3 @@ jobs:
           name: screenshots
           path: test-results/screens
           if-no-files-found: ignore
-
-  deploy:
-    needs: [check, e2e]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - run: pnpm build
-        env:
-          VITE_BASE: /${{ github.event.repository.name }}/
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-      - id: deployment
-        uses: actions/deploy-pages@v4
