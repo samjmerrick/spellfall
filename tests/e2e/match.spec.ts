@@ -121,7 +121,8 @@ test.describe('interaction', () => {
     await keepHand(page);
     await waitForPlayer(page);
     const unplayable = page.locator('.hand__slot:not(.hand__slot--playable)').first();
-    await unplayable.click();
+    // Click the visible left edge: later cards in the fan cover the middle.
+    await unplayable.click({ position: { x: 8, y: 70 } });
     const detail = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Close' }) });
     await expect(detail).toBeVisible();
     await detail.getByRole('button', { name: 'Close' }).click();
