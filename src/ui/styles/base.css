@@ -417,10 +417,21 @@ button {
 
 /* ---------- Drag and drop ---------- */
 
+/* Hand cards cast a slight shadow onto the card beside them; ones you can afford and play glow gold and lift. */
+.hand__slot .card {
+  box-shadow: -4px 3px 10px rgb(0 0 0 / 0.55);
+}
+
+.hand__slot:not(.hand__slot--playable) .card {
+  filter: brightness(0.8) saturate(0.85);
+}
+
 .hand__slot--playable .card {
+  translate: 0 -6px;
   box-shadow:
-    0 0 0 2px var(--accent),
-    0 6px 16px rgb(0 0 0 / 0.45);
+    0 0 0 3px var(--accent),
+    0 0 14px 3px rgb(245 184 61 / 0.5),
+    -4px 3px 10px rgb(0 0 0 / 0.55);
 }
 
 .hand__slot--dragging {
