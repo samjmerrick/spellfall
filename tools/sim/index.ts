@@ -4,7 +4,7 @@ import type { Difficulty } from '../../src/ai';
 import { FACTIONS } from '../../src/rules';
 import { aiMatch, factionDeck } from './rules-bot';
 
-const n = Number(process.argv[2] ?? 200);
+const n = Number(process.argv[2] ?? 100);
 const a = (process.argv[3] ?? 'normal') as Difficulty;
 const b = (process.argv[4] ?? 'normal') as Difficulty;
 const fa = process.argv[5];

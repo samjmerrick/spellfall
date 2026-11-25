@@ -5,7 +5,7 @@ import { playBotRun } from './run';
 
 // pnpm sim:run [runs=500] [player=easy] [ascension=0]
 // Plays with every collectible card, relic and hero available.
-const n = Number(process.argv[2] ?? 500);
+const n = Number(process.argv[2] ?? 100);
 const player = (process.argv[3] as Difficulty) ?? 'easy';
 const ascension = Number(process.argv[4] ?? 0);
 const pool = collectibleCards().map((c) => c.id);
