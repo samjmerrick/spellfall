@@ -396,13 +396,21 @@
         "action": {
           "op": "buff",
           "target": "allFriendlyUnits",
-          "power": 2,
+          "power": 1,
           "health": 0,
           "duration": "turn"
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "grantKeyword",
+          "target": "allFriendlyUnits",
+          "keyword": "quick"
+        }
       }
     ],
-    "text": "Give all friendly units +2 Power this turn.",
+    "text": "Give all friendly units +1 Power this turn and give all friendly units Quick.",
     "rarity": "uncommon"
   },
   {
@@ -834,9 +842,20 @@
           "target": "target",
           "amount": 4
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 1
+        },
+        "if": {
+          "kind": "hpAtMost",
+          "amount": 12
+        }
       }
     ],
-    "text": "Heal a friendly character by 4.",
+    "text": "Heal a friendly character by 4. If your hero has 12 or less HP, draw a card.",
     "rarity": "common"
   },
   {
@@ -882,13 +901,14 @@
         "action": {
           "op": "buff",
           "target": "target",
-          "power": 2,
-          "health": 2,
-          "duration": "permanent"
+          "power": 1,
+          "health": 1,
+          "duration": "permanent",
+          "per": "friendlyUnits"
         }
       }
     ],
-    "text": "Give a friendly unit +2/+2.",
+    "text": "Give a friendly unit +1/+1 for each friendly unit.",
     "rarity": "common"
   },
   {
@@ -1055,7 +1075,7 @@
     "name": "Wildfire",
     "faction": "ember",
     "type": "spell",
-    "cost": 3,
+    "cost": 4,
     "speed": "slow",
     "effects": [
       {
@@ -1063,19 +1083,12 @@
         "action": {
           "op": "damage",
           "target": "allEnemyUnits",
-          "amount": 1
-        }
-      },
-      {
-        "trigger": "spell",
-        "action": {
-          "op": "damage",
-          "target": "enemyHero",
-          "amount": 1
+          "amount": 1,
+          "per": "friendlyUnits"
         }
       }
     ],
-    "text": "Deal 1 damage to all enemy units and deal 1 damage to the enemy hero.",
+    "text": "Deal 1 damage to all enemy units for each friendly unit.",
     "rarity": "uncommon"
   },
   {
@@ -1287,9 +1300,17 @@
           "cardId": "bastion-levy",
           "count": 3
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 3
+        }
       }
     ],
-    "text": "Summon three 1/1 Levies.",
+    "text": "Summon three 1/1 Levies and heal your hero by 3.",
     "rarity": "uncommon"
   },
   {
@@ -1474,9 +1495,20 @@
           "op": "draw",
           "count": 1
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "draw",
+          "count": 1
+        },
+        "if": {
+          "kind": "handAtMost",
+          "amount": 1
+        }
       }
     ],
-    "text": "Draw a card.",
+    "text": "Draw a card. If you have 1 or fewer cards in hand, draw a card.",
     "rarity": "common"
   },
   {
@@ -1619,15 +1651,12 @@
       {
         "trigger": "spell",
         "action": {
-          "op": "buff",
-          "target": "target",
-          "power": -3,
-          "health": 0,
-          "duration": "turn"
+          "op": "freeze",
+          "target": "target"
         }
       }
     ],
-    "text": "Give an enemy unit -3 Power this turn.",
+    "text": "Freeze an enemy unit.",
     "rarity": "common"
   },
   {
@@ -1721,12 +1750,15 @@
       {
         "trigger": "spell",
         "action": {
-          "op": "draw",
-          "count": 2
+          "op": "discover",
+          "filter": {
+            "type": "spell",
+            "faction": "tide"
+          }
         }
       }
     ],
-    "text": "Draw 2 cards.",
+    "text": "Discover a Tide spell.",
     "rarity": "common"
   },
   {
@@ -1942,11 +1974,8 @@
       {
         "trigger": "spell",
         "action": {
-          "op": "buff",
-          "target": "allEnemyUnits",
-          "power": -2,
-          "health": 0,
-          "duration": "turn"
+          "op": "freeze",
+          "target": "allEnemyUnits"
         }
       },
       {
@@ -1957,7 +1986,7 @@
         }
       }
     ],
-    "text": "Give all enemy units -2 Power this turn and draw a card.",
+    "text": "Freeze all enemy units and draw a card.",
     "rarity": "rare"
   },
   {
@@ -2327,11 +2356,8 @@
       {
         "trigger": "spell",
         "action": {
-          "op": "buff",
-          "target": "target",
-          "power": -2,
-          "health": 0,
-          "duration": "turn"
+          "op": "freeze",
+          "target": "target"
         }
       },
       {
@@ -2343,7 +2369,7 @@
         }
       }
     ],
-    "text": "Give an enemy unit -2 Power this turn and deal 2 damage to it.",
+    "text": "Freeze an enemy unit and deal 2 damage to it.",
     "rarity": "common"
   },
   {
@@ -2423,6 +2449,14 @@
       {
         "trigger": "spell",
         "action": {
+          "op": "summon",
+          "cardId": "grove-sapling",
+          "count": 1
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
           "op": "buff",
           "target": "allFriendlyUnits",
           "power": 1,
@@ -2431,7 +2465,7 @@
         }
       }
     ],
-    "text": "Give all friendly units +1/+1.",
+    "text": "Summon a 1/1 Sapling and give all friendly units +1/+1.",
     "rarity": "common"
   },
   {
@@ -2745,9 +2779,16 @@
           "target": "target",
           "amount": 6
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "gainMaxMana",
+          "amount": 1
+        }
       }
     ],
-    "text": "Deal 6 damage to an enemy unit.",
+    "text": "Deal 6 damage to an enemy unit and gain an empty mana slot.",
     "rarity": "uncommon"
   },
   {
@@ -3020,7 +3061,8 @@
         "action": {
           "op": "damage",
           "target": "enemyHero",
-          "amount": 2
+          "amount": 1,
+          "per": "fallen"
         }
       },
       {
@@ -3032,7 +3074,7 @@
         }
       }
     ],
-    "text": "Deal 2 damage to the enemy hero and heal your hero by 2.",
+    "text": "Deal 1 damage to the enemy hero for each friendly unit that died this match and heal your hero by 2.",
     "rarity": "common"
   },
   {
@@ -3140,9 +3182,21 @@
           "target": "target",
           "amount": 4
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 4
+        },
+        "if": {
+          "kind": "hpAtMost",
+          "amount": 12
+        }
       }
     ],
-    "text": "Deal 4 damage to an enemy unit.",
+    "text": "Deal 4 damage to an enemy unit. If your hero has 12 or less HP, heal your hero by 4.",
     "rarity": "common"
   },
   {
@@ -3837,9 +3891,21 @@
           "target": "target",
           "amount": 3
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 3
+        },
+        "if": {
+          "kind": "enemyHpAtMost",
+          "amount": 10
+        }
       }
     ],
-    "text": "Deal 3 damage to an enemy.",
+    "text": "Deal 3 damage to an enemy. If the enemy hero has 10 or less HP, deal 3 damage to the enemy hero.",
     "rarity": "uncommon"
   },
   {
@@ -3915,9 +3981,16 @@
           "op": "bounce",
           "target": "target"
         }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "drainMana",
+          "amount": 1
+        }
       }
     ],
-    "text": "Return an enemy unit to its owner's hand.",
+    "text": "Return an enemy unit to its owner's hand and the enemy has 1 less mana next turn.",
     "rarity": "uncommon"
   },
   {
@@ -3991,6 +4064,9 @@
     "targets": [
       {
         "kind": "enemyUnit"
+      },
+      {
+        "kind": "friendlyUnit"
       }
     ],
     "effects": [
@@ -3999,11 +4075,21 @@
         "action": {
           "op": "damage",
           "target": "target",
-          "amount": 4
+          "amount": 2
+        }
+      },
+      {
+        "trigger": "spell",
+        "action": {
+          "op": "buff",
+          "target": "target2",
+          "power": 2,
+          "health": 0,
+          "duration": "permanent"
         }
       }
     ],
-    "text": "Deal 4 damage to an enemy unit.",
+    "text": "Deal 2 damage to an enemy unit and give a friendly unit +2 Power.",
     "rarity": "uncommon"
   },
   {
