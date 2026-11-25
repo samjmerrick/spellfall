@@ -48,9 +48,7 @@
     "cost": 1,
     "power": 2,
     "health": 1,
-    "keywords": [
-      "quick"
-    ],
+    "keywords": ["quick"],
     "text": "Quick.",
     "rarity": "common"
   },
@@ -62,10 +60,7 @@
     "cost": 1,
     "power": 3,
     "health": 1,
-    "keywords": [
-      "quick",
-      "ephemeral"
-    ],
+    "keywords": ["quick", "ephemeral"],
     "text": "Quick. Ephemeral.",
     "rarity": "common"
   },
@@ -77,9 +72,7 @@
     "cost": 2,
     "power": 2,
     "health": 1,
-    "keywords": [
-      "quick"
-    ],
+    "keywords": ["quick"],
     "text": "Quick. Whenever you play another unit: give this unit +1 Power.",
     "rarity": "common",
     "effects": [
@@ -103,9 +96,7 @@
     "cost": 2,
     "power": 2,
     "health": 1,
-    "keywords": [
-      "overwhelm"
-    ],
+    "keywords": ["overwhelm"],
     "text": "Overwhelm. Whenever another friendly unit dies: give this unit +1 Power.",
     "rarity": "common",
     "effects": [
@@ -202,10 +193,7 @@
     "cost": 3,
     "power": 4,
     "health": 3,
-    "keywords": [
-      "quick",
-      "ephemeral"
-    ],
+    "keywords": ["quick", "ephemeral"],
     "text": "Quick. Ephemeral. On Play: deal 1 damage to the enemy hero.",
     "rarity": "uncommon",
     "effects": [
@@ -229,9 +217,7 @@
     "health": 4,
     "text": "Guard.",
     "rarity": "common",
-    "keywords": [
-      "guard"
-    ]
+    "keywords": ["guard"]
   },
   {
     "id": "ember-war-drummer",
@@ -285,9 +271,7 @@
     "cost": 6,
     "power": 5,
     "health": 4,
-    "keywords": [
-      "overwhelm"
-    ],
+    "keywords": ["overwhelm"],
     "text": "Overwhelm. Last Breath: add two copies of Cinder Bolt to your hand.",
     "rarity": "rare",
     "effects": [
@@ -320,9 +304,7 @@
     ],
     "text": "Quick. On Play: destroy all other units.",
     "rarity": "legendary",
-    "keywords": [
-      "quick"
-    ]
+    "keywords": ["quick"]
   },
   {
     "id": "ember-cinder-bolt",
@@ -506,9 +488,7 @@
     "cost": 1,
     "power": 1,
     "health": 2,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "text": "Guard.",
     "rarity": "common"
   },
@@ -610,9 +590,7 @@
     "cost": 3,
     "power": 2,
     "health": 4,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "text": "Guard. Last Breath: give all friendly units +1 Health.",
     "rarity": "common",
     "effects": [
@@ -657,9 +635,7 @@
     "cost": 3,
     "power": 3,
     "health": 2,
-    "keywords": [
-      "barrier"
-    ],
+    "keywords": ["barrier"],
     "text": "Barrier. On Play: heal your hero by 3.",
     "rarity": "uncommon",
     "effects": [
@@ -704,9 +680,7 @@
     "cost": 4,
     "power": 3,
     "health": 4,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "text": "Guard. Whenever this survives damage: summon a 1/1 Levy.",
     "rarity": "common",
     "effects": [
@@ -728,9 +702,7 @@
     "cost": 5,
     "power": 4,
     "health": 5,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "text": "Guard. On Play: heal your hero by 4.",
     "rarity": "uncommon",
     "effects": [
@@ -781,9 +753,7 @@
     "cost": 6,
     "power": 5,
     "health": 6,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -1086,9 +1056,7 @@
     "cost": 4,
     "power": 3,
     "health": 3,
-    "keywords": [
-      "overwhelm"
-    ],
+    "keywords": ["overwhelm"],
     "text": "Overwhelm. Attack: deal 1 damage to a random enemy unit.",
     "rarity": "uncommon",
     "effects": [
@@ -1133,9 +1101,7 @@
     "health": 4,
     "text": "Guard. Last Breath: deal 2 damage to all enemy units.",
     "rarity": "common",
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -1196,10 +1162,7 @@
     "cost": 8,
     "power": 7,
     "health": 6,
-    "keywords": [
-      "quick",
-      "overwhelm"
-    ],
+    "keywords": ["quick", "overwhelm"],
     "text": "Quick. Overwhelm. On Play: deal 5 damage to the enemy hero.",
     "rarity": "legendary",
     "effects": [
@@ -1256,9 +1219,7 @@
     "cost": 3,
     "power": 3,
     "health": 3,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -1310,10 +1271,7 @@
     "cost": 4,
     "power": 3,
     "health": 3,
-    "keywords": [
-      "guard",
-      "barrier"
-    ],
+    "keywords": ["guard", "barrier"],
     "text": "Guard. Barrier. Whenever you play another unit: heal your hero by 1.",
     "rarity": "uncommon",
     "effects": [
@@ -1406,9 +1364,7 @@
     "cost": 5,
     "power": 4,
     "health": 4,
-    "keywords": [
-      "barrier"
-    ],
+    "keywords": ["barrier"],
     "text": "Barrier. On Play: deal 2 damage to an enemy unit.",
     "rarity": "common",
     "targets": [
@@ -1465,9 +1421,7 @@
     "cost": 8,
     "power": 6,
     "health": 8,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -1523,9 +1477,7 @@
     "cost": 1,
     "power": 2,
     "health": 1,
-    "keywords": [
-      "elusive"
-    ],
+    "keywords": ["elusive"],
     "text": "Elusive.",
     "rarity": "common"
   },
@@ -1592,9 +1544,7 @@
     "cost": 2,
     "power": 2,
     "health": 1,
-    "keywords": [
-      "barrier"
-    ],
+    "keywords": ["barrier"],
     "text": "Barrier. On Play: Freeze an enemy unit.",
     "rarity": "common",
     "targets": [
@@ -1620,9 +1570,7 @@
     "cost": 2,
     "power": 2,
     "health": 2,
-    "keywords": [
-      "elusive"
-    ],
+    "keywords": ["elusive"],
     "text": "Elusive. Attack: draw a card.",
     "rarity": "common",
     "effects": [
@@ -1719,9 +1667,7 @@
     "cost": 2,
     "power": 3,
     "health": 1,
-    "keywords": [
-      "elusive"
-    ],
+    "keywords": ["elusive"],
     "text": "Elusive.",
     "rarity": "uncommon"
   },
@@ -1733,10 +1679,7 @@
     "cost": 3,
     "power": 2,
     "health": 3,
-    "keywords": [
-      "guard",
-      "barrier"
-    ],
+    "keywords": ["guard", "barrier"],
     "text": "Guard. Barrier. Whenever you cast a spell: give this unit +1 Health.",
     "rarity": "common",
     "effects": [
@@ -1760,9 +1703,7 @@
     "cost": 3,
     "power": 3,
     "health": 3,
-    "keywords": [
-      "elusive"
-    ],
+    "keywords": ["elusive"],
     "text": "Elusive. Attack: Freeze a random enemy unit.",
     "rarity": "common",
     "effects": [
@@ -1872,9 +1813,7 @@
     "cost": 4,
     "power": 3,
     "health": 4,
-    "keywords": [
-      "barrier"
-    ],
+    "keywords": ["barrier"],
     "text": "Barrier. On Play: give a friendly unit Barrier.",
     "rarity": "common",
     "targets": [
@@ -1985,9 +1924,7 @@
     "health": 4,
     "text": "Guard. Whenever the enemy casts a spell: give this unit +1/+1.",
     "rarity": "common",
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "whenEnemyCast",
@@ -2009,9 +1946,7 @@
     "cost": 5,
     "power": 4,
     "health": 5,
-    "keywords": [
-      "elusive"
-    ],
+    "keywords": ["elusive"],
     "text": "Elusive. On Play: add a random Tide spell to your hand.",
     "rarity": "common",
     "effects": [
@@ -2088,9 +2023,7 @@
     "cost": 5,
     "power": 4,
     "health": 5,
-    "keywords": [
-      "barrier"
-    ],
+    "keywords": ["barrier"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -2158,10 +2091,7 @@
     "cost": 6,
     "power": 4,
     "health": 5,
-    "keywords": [
-      "elusive",
-      "barrier"
-    ],
+    "keywords": ["elusive", "barrier"],
     "text": "Elusive. Barrier. Whenever you cast a spell: deal 1 damage to a random enemy unit.",
     "rarity": "uncommon",
     "effects": [
@@ -2183,9 +2113,7 @@
     "cost": 7,
     "power": 5,
     "health": 7,
-    "keywords": [
-      "barrier"
-    ],
+    "keywords": ["barrier"],
     "text": "Barrier. On Play: Discover a Tide spell.",
     "rarity": "rare",
     "effects": [
@@ -2209,10 +2137,7 @@
     "cost": 8,
     "power": 5,
     "health": 7,
-    "keywords": [
-      "elusive",
-      "barrier"
-    ],
+    "keywords": ["elusive", "barrier"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -2240,9 +2165,7 @@
     "cost": 1,
     "power": 1,
     "health": 1,
-    "keywords": [
-      "growth"
-    ],
+    "keywords": ["growth"],
     "text": "Growth.",
     "rarity": "common"
   },
@@ -2256,9 +2179,7 @@
     "health": 1,
     "text": "Guard. Last Breath: summon a 1/1 Sapling.",
     "rarity": "common",
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "lastBreath",
@@ -2372,9 +2293,7 @@
     "cost": 2,
     "power": 1,
     "health": 2,
-    "keywords": [
-      "growth"
-    ],
+    "keywords": ["growth"],
     "text": "Growth. Whenever you play another unit: heal your hero by 1.",
     "rarity": "common",
     "effects": [
@@ -2482,9 +2401,7 @@
     "cost": 3,
     "power": 2,
     "health": 3,
-    "keywords": [
-      "regenerate"
-    ],
+    "keywords": ["regenerate"],
     "text": "Regenerate. Whenever this survives damage: heal your hero by 2.",
     "rarity": "common",
     "effects": [
@@ -2630,10 +2547,7 @@
     "cost": 4,
     "power": 3,
     "health": 4,
-    "keywords": [
-      "guard",
-      "regenerate"
-    ],
+    "keywords": ["guard", "regenerate"],
     "text": "Guard. Regenerate. Whenever this survives damage: deal 1 damage to a random enemy unit.",
     "rarity": "common",
     "effects": [
@@ -2682,9 +2596,7 @@
     "cost": 4,
     "power": 2,
     "health": 4,
-    "keywords": [
-      "growth"
-    ],
+    "keywords": ["growth"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -2705,9 +2617,7 @@
     "cost": 4,
     "power": 1,
     "health": 5,
-    "keywords": [
-      "regenerate"
-    ],
+    "keywords": ["regenerate"],
     "text": "Regenerate. On Play: give other friendly units Regenerate.",
     "rarity": "common",
     "effects": [
@@ -2792,9 +2702,7 @@
     "cost": 5,
     "power": 3,
     "health": 5,
-    "keywords": [
-      "regenerate"
-    ],
+    "keywords": ["regenerate"],
     "effects": [
       {
         "trigger": "endOfTurn",
@@ -2838,10 +2746,7 @@
     "cost": 6,
     "power": 3,
     "health": 5,
-    "keywords": [
-      "growth",
-      "regenerate"
-    ],
+    "keywords": ["growth", "regenerate"],
     "text": "Growth. Regenerate. Start of Turn: draw a card.",
     "rarity": "rare",
     "effects": [
@@ -2914,10 +2819,7 @@
     "cost": 7,
     "power": 6,
     "health": 7,
-    "keywords": [
-      "growth",
-      "regenerate"
-    ],
+    "keywords": ["growth", "regenerate"],
     "effects": [
       {
         "trigger": "startOfTurn",
@@ -2948,9 +2850,7 @@
     "cost": 1,
     "power": 1,
     "health": 1,
-    "keywords": [
-      "growth"
-    ],
+    "keywords": ["growth"],
     "text": "Growth.",
     "rarity": "common",
     "token": true
@@ -3067,9 +2967,7 @@
     "cost": 2,
     "power": 2,
     "health": 2,
-    "keywords": [
-      "lifesteal"
-    ],
+    "keywords": ["lifesteal"],
     "text": "Lifesteal.",
     "rarity": "common"
   },
@@ -3092,9 +2990,7 @@
     ],
     "text": "Guard. Last Breath: summon a 1/1 Shade.",
     "rarity": "common",
-    "keywords": [
-      "guard"
-    ]
+    "keywords": ["guard"]
   },
   {
     "id": "dusk-night-stalker",
@@ -3231,9 +3127,7 @@
     "cost": 3,
     "power": 2,
     "health": 2,
-    "keywords": [
-      "lifesteal"
-    ],
+    "keywords": ["lifesteal"],
     "text": "Lifesteal. Whenever you cast a spell: heal your hero by 1.",
     "rarity": "common",
     "effects": [
@@ -3353,9 +3247,7 @@
     "cost": 4,
     "power": 3,
     "health": 3,
-    "keywords": [
-      "lifesteal"
-    ],
+    "keywords": ["lifesteal"],
     "text": "Lifesteal. Whenever another friendly unit dies: deal 1 damage to the enemy hero.",
     "rarity": "uncommon",
     "effects": [
@@ -3434,9 +3326,7 @@
     ],
     "text": "Guard. Last Breath: heal your hero by 2.",
     "rarity": "common",
-    "keywords": [
-      "guard"
-    ]
+    "keywords": ["guard"]
   },
   {
     "id": "dusk-blood-ritual",
@@ -3536,9 +3426,7 @@
     "cost": 5,
     "power": 4,
     "health": 4,
-    "keywords": [
-      "lifesteal"
-    ],
+    "keywords": ["lifesteal"],
     "text": "Lifesteal. On Play: deal 2 damage to the enemy hero and heal your hero by 2.",
     "rarity": "uncommon",
     "effects": [
@@ -3617,9 +3505,7 @@
     "cost": 6,
     "power": 5,
     "health": 4,
-    "keywords": [
-      "lifesteal"
-    ],
+    "keywords": ["lifesteal"],
     "text": "Lifesteal. Last Breath: add a random Dusk spell costing 3 or less to your hand.",
     "rarity": "uncommon",
     "effects": [
@@ -3665,9 +3551,7 @@
     "cost": 8,
     "power": 6,
     "health": 7,
-    "keywords": [
-      "lifesteal"
-    ],
+    "keywords": ["lifesteal"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -3805,10 +3689,7 @@
     "cost": 6,
     "power": 5,
     "health": 5,
-    "keywords": [
-      "guard",
-      "growth"
-    ],
+    "keywords": ["guard", "growth"],
     "effects": [
       {
         "trigger": "onPlay",
@@ -3865,9 +3746,7 @@
     "cost": 6,
     "power": 3,
     "health": 7,
-    "keywords": [
-      "guard"
-    ],
+    "keywords": ["guard"],
     "effects": [
       {
         "trigger": "endOfTurn",
