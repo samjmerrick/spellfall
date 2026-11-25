@@ -62,7 +62,7 @@ describe('triggers', () => {
   it('End of Turn effects resolve for the active player’s units', () => {
     let s = setup();
     const c = place(s, 0, 'bastion-high-cleric');
-    const m = place(s, 0, 'bastion-militia', { damage: 2 });
+    const m = place(s, 0, 'bastion-cathedral-guard', { damage: 2 });
     c.damage = 1;
     s.players[0].hp = 15;
     s = pass(s);
@@ -171,11 +171,11 @@ describe('primitives', () => {
 
   it('destroy, draw, heal and buff', () => {
     const s = setup();
-    const a = place(s, 1, 'bastion-militia', { damage: 2 });
+    const a = place(s, 1, 'bastion-cathedral-guard', { damage: 2 });
     run(s, { op: 'heal', target: 'allEnemyUnits', amount: 'full' });
     expect(a.damage).toBe(0);
     run(s, { op: 'buff', target: 'allEnemyUnits', power: 1, health: 2, duration: 'permanent' });
-    expect(a).toMatchObject({ basePower: 3, baseHealth: 5 });
+    expect(a).toMatchObject({ basePower: 5, baseHealth: 7 });
     run(s, { op: 'destroy', target: 'allEnemyUnits' });
     expect(a.doomed).toBe(true);
     run(s, { op: 'draw', count: 2 });
