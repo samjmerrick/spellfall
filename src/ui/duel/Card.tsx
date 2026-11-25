@@ -14,7 +14,7 @@ import { PATHS } from '../keywordPaths';
 import { GLOSSARY, TRIGGER_NAME, keywordName } from './glossary';
 
 /** Keywords that say nothing more once a unit is on the board. */
-const SPENT_IN_PLAY = new Set<Keyword>(['quick', 'guard']);
+const SPENT_IN_PLAY = new Set<Keyword>(['quick']);
 
 const SPEED_LABEL = { burst: 'Burst', fast: 'Fast', slow: 'Slow' } as const;
 
@@ -133,7 +133,7 @@ export function UnitFace({ s, unit }: { s: GameState; unit: Unit }) {
       <div className="unit__art">
         <CardArt id={card.id} faction={card.faction} />
       </div>
-      {/* Only what still matters in play: not Quick or On Play (done), not Guard (it has its own frame and badge). */}
+      {/* Only what still matters in play: not Quick or On Play (done); Guard stays, next to its frame. */}
       <Icons
         keywords={unit.keywords.filter((k) => !SPENT_IN_PLAY.has(k))}
         effects={unit.silenced ? [] : card.effects.filter((e) => e.trigger !== 'onPlay')}

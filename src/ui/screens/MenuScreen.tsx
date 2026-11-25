@@ -15,6 +15,18 @@ export function MenuScreen() {
   return (
     <main className={`menu${showTip ? ' menu--tip' : ''}`} aria-label="Main menu">
       <header className="menu__header">
+        <img
+          className="menu__logo"
+          src={`${import.meta.env.BASE_URL}icon.svg`}
+          alt=""
+          width="96"
+          height="96"
+        />
+        <div className="menu__factions" aria-hidden="true">
+          {['ember', 'tide', 'grove', 'bastion', 'dusk'].map((f) => (
+            <span key={f} className={`faction-${f}`} />
+          ))}
+        </div>
         <h1>Spellfall</h1>
         <p>Pick your targets. Answer every spell.</p>
       </header>
@@ -38,21 +50,27 @@ export function MenuScreen() {
             New run
           </button>
         )}
-        <button type="button" className={active ? 'secondary' : 'primary'} onClick={() => go('quickplay')}>
+        <button
+          type="button"
+          className={active ? 'secondary' : 'primary primary--alt'}
+          onClick={() => go('quickplay')}
+        >
           Quick Play
         </button>
-        <button type="button" className="secondary" onClick={() => go('decks')}>
-          Decks
-        </button>
-        <button type="button" className="secondary" onClick={() => go('collection')}>
-          Collection
-        </button>
-        <button type="button" className="secondary" onClick={() => go('stats')}>
-          Stats
-        </button>
-        <button type="button" className="secondary" onClick={() => go('settings')}>
-          Settings
-        </button>
+        <div className="menu__grid">
+          <button type="button" className="secondary" onClick={() => go('decks')}>
+            Decks
+          </button>
+          <button type="button" className="secondary" onClick={() => go('collection')}>
+            Collection
+          </button>
+          <button type="button" className="secondary" onClick={() => go('stats')}>
+            Stats
+          </button>
+          <button type="button" className="secondary" onClick={() => go('settings')}>
+            Settings
+          </button>
+        </div>
       </nav>
       {showTip && (
         <aside className="ios-tip" data-testid="ios-tip" aria-label="Install tip">
