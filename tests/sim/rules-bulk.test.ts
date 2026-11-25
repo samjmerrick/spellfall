@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { applyAction, initMatch } from '../../src/rules';
 import { factionDeck, randomMatch } from '../../tools/sim/rules-bot';
+import { sized } from './scale';
+
+const MATCHES = sized(1000);
 
 const FACTIONS = ['ember', 'tide', 'grove', 'bastion', 'dusk'];
 const decks: [string[], string[]] = [factionDeck('ember'), factionDeck('bastion')];
@@ -11,10 +14,10 @@ const pairFor = (seed: number): [string[], string[]] => [
 ];
 
 describe('Spellfall rules: bulk random matches', () => {
-  it('10,000 random bot matches all end with no errors', { timeout: 300_000 }, () => {
+  it(`${MATCHES} random bot matches all end with no errors`, { timeout: 300_000 }, () => {
     const results = { 0: 0, 1: 0, draw: 0, turns: 0 };
     let longest = 0;
-    for (let seed = 1; seed <= 10_000; seed++) {
+    for (let seed = 1; seed <= MATCHES; seed++) {
       const { state } = randomMatch(pairFor(seed), seed);
       expect(state.phase).toBe('over');
       const r = state.result!;
@@ -23,7 +26,7 @@ describe('Spellfall rules: bulk random matches', () => {
       else results[r.winner]++;
       longest = Math.max(longest, state.turn);
     }
-    expect(results[0] + results[1] + results.draw + results.turns).toBe(10_000);
+    expect(results[0] + results[1] + results.draw + results.turns).toBe(MATCHES);
     expect(longest).toBeLessThanOrEqual(40);
   });
 
