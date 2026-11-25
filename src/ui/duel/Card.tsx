@@ -149,7 +149,7 @@ function RichText({ text }: { text: string }) {
 }
 
 /** Effect text on a card; the type shrinks until the text fits its box (hand and collection sizes). */
-function CardText({ text, cardId }: { text: string; cardId: string }) {
+function CardText({ text, cardId, unit }: { text: string; cardId: string; unit: boolean }) {
   const ref = useRef<HTMLParagraphElement>(null);
   useLayoutEffect(() => {
     const el = ref.current;
@@ -164,6 +164,14 @@ function CardText({ text, cardId }: { text: string; cardId: string }) {
   }, [text, cardId]);
   return (
     <p className="card__text" ref={ref}>
+      {unit && (
+        <>
+          <i className="cut cut--tl" />
+          <i className="cut cut--tr" />
+          <i className="cut cut--bl" />
+          <i className="cut cut--br" />
+        </>
+      )}
       <RichText text={text} />
     </p>
   );
@@ -188,7 +196,7 @@ export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'ha
         <CardArt id={card.id} faction={card.faction} />
       </div>
       <CardName name={card.name} />
-      {card.text && <CardText text={card.text} cardId={cardId} />}
+      {card.text && <CardText text={card.text} cardId={cardId} unit={isUnit} />}
       {isUnit ? (
         <>
           <span className="card__power">{card.power}</span>

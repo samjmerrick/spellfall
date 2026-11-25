@@ -614,6 +614,38 @@ button {
 
 /* Units: Power and Health overhang the bottom corners, so the text keeps clear of them. */
 .card--unit .card__text {
-  padding: 0 5px 12px;
+  display: block;
+  padding: 2px 0 0;
   box-sizing: border-box;
+}
+
+/* Floats that carve the two badge corners out of the text, so the text keeps the full width above them. */
+.cut {
+  display: block;
+  width: 0;
+  height: calc(100% - 17px);
+}
+
+.cut--tl,
+.cut--bl {
+  float: left;
+}
+
+.cut--tr,
+.cut--br {
+  float: right;
+}
+
+.cut--bl,
+.cut--br {
+  width: 17px;
+  height: 17px;
+}
+
+.cut--bl {
+  clear: left;
+}
+
+.cut--br {
+  clear: right;
 }
