@@ -222,7 +222,7 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 
 ## Tech stack and architecture
 
-Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Pages via GitHub Actions on every push to `main`.
+Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Pages (the live site) via GitHub Actions from `main` once CI passes; the claude.ai test-build artifact is the preview.
 
 **Folders**
 
