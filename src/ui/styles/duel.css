@@ -583,10 +583,6 @@
   font-weight: 700;
 }
 
-.card--large.card--spell .card__art {
-  width: 150px;
-}
-
 /* Legendaries: a gold frame, an inner ring in the faction colour and a gold crest. */
 .card--legendary {
   border-color: var(--gold);
@@ -625,12 +621,6 @@
   clip-path: polygon(0 0, 100% 0, 85% 100%, 65% 45%, 50% 100%, 35% 45%, 15% 100%);
   z-index: 2;
   pointer-events: none;
-}
-
-.card--large .card__crest {
-  width: 36px;
-  height: 18px;
-  margin-left: -18px;
 }
 
 .unit--legendary {

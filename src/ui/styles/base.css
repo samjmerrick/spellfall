@@ -18,8 +18,8 @@
   --dusk: #8e4ec6;
 
   --gutter: 8px;
-  --card-w: 86px;
-  --card-h: 124px;
+  --card-w: 108px;
+  --card-h: 158px;
 
   font-family:
     system-ui,
@@ -189,15 +189,6 @@ button {
   pointer-events: none;
 }
 
-.card--large .card-art__glyph {
-  top: 4px;
-  right: 4px;
-  min-width: 22px;
-  height: 22px;
-  font-size: 14px;
-  border-radius: 7px;
-}
-
 .deck-tile__cover .card-art,
 .deck-list__cover .card-art {
   width: 100%;
@@ -282,7 +273,7 @@ button {
 }
 
 /* Effect text in hand and collection: a fixed box under the name; the type shrinks to fit (CardText). */
-.card:not(.card--large) .card__text {
+.card .card__text {
   margin: 0;
   height: 3.4em;
   overflow: hidden;
@@ -511,7 +502,9 @@ button {
 
 .mulligan--three {
   grid-template-columns: repeat(3, auto);
-  gap: 8px;
+  gap: 6px;
+  --card-w: 98px;
+  --card-h: 143px;
 }
 
 .mulligan__card {
@@ -579,53 +572,11 @@ button {
   gap: 16px;
 }
 
+/* The enlarged card is the same frame, scaled: nothing about its layout differs from hand and collection. */
 .card--large {
-  --card-w: 220px;
-  --card-h: 316px;
-  grid-template-rows: 150px auto 1fr 36px;
-  padding: 10px;
-}
-
-.card--large .card__foot {
-  margin: 0 -6px -6px;
-  gap: 6px;
-}
-
-.card--large .card__kw {
-  gap: 4px;
-}
-
-.card--large .card__kw .kw {
-  width: 20px;
-  height: 20px;
-}
-
-.card--large .card__type {
-  font-size: 12px;
-}
-
-.card--large .card__art .emblem,
-.card--large .card__art .card-art {
-  max-width: 140px;
-}
-
-.card--large .card__name {
-  font-size: 18px;
-}
-
-.card--large .card__text {
-  margin: 6px 0 0;
-  font-size: 13px;
-  line-height: 1.35;
-  text-align: center;
-}
-
-.card--large .card__cost,
-.card--large .card__foot .card__power,
-.card--large .card__foot .card__health {
-  width: 36px;
-  height: 36px;
-  font-size: 20px;
+  --card-w: 108px;
+  --card-h: 158px;
+  zoom: 2.05;
 }
 
 .glossary {
@@ -657,7 +608,7 @@ button {
 }
 
 /* The hand fan overlaps cards, so their text starts at the visible left edge; hold a card to read it all. */
-.hand__slot .card:not(.card--large) .card__text {
+.hand__slot .card .card__text {
   justify-content: flex-start;
   text-align: left;
 }

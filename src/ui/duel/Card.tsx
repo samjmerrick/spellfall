@@ -137,11 +137,7 @@ export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'ha
         <CardArt id={card.id} faction={card.faction} />
       </div>
       <CardName name={card.name} />
-      {size === 'large' ? (
-        <p className="card__text">{card.text || 'No abilities.'}</p>
-      ) : (
-        card.text && <CardText text={card.text} cardId={cardId} />
-      )}
+      {card.text && <CardText text={card.text} cardId={cardId} />}
       <div className="card__foot">
         {isUnit ? (
           <>
