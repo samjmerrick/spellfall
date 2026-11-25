@@ -268,14 +268,14 @@ button {
   border: 2px solid var(--faction);
   box-shadow: 0 6px 16px rgb(0 0 0 / 0.45);
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto 24px;
-  overflow: hidden;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  overflow: visible;
 }
 
 /* Effect text in hand and collection: a fixed box under the name; the type shrinks to fit (CardText). */
 .card .card__text {
   margin: 0;
-  height: 3.4em;
+  height: 4.6em;
   overflow: hidden;
   font-size: 7.5px;
   line-height: 1.12;
@@ -287,10 +287,10 @@ button {
 }
 
 .card__cost {
-  top: 3px;
-  left: 3px;
-  width: 24px;
-  height: 24px;
+  top: -7px;
+  left: -7px;
+  width: 26px;
+  height: 26px;
   font-size: 15px;
   background: var(--mana);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
@@ -324,55 +324,11 @@ button {
   min-width: 0;
 }
 
-/* Bottom row: Power, keyword icons, Health. Own row, so nothing can overlap the name. */
+/* Spells: the speed label sits in its own row at the bottom. */
 .card__foot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2px;
-  min-width: 0;
-  margin: 0 -3px -3px;
-}
-
-.card__kw {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 1px;
-  overflow: hidden;
-  color: color-mix(in srgb, var(--text) 88%, var(--faction));
-}
-
-.card__kw .kw {
-  flex: none;
-  width: 10px;
-  height: 10px;
-}
-
-/* Hand cards: keyword icons ride a column on the art, large enough to read at 360px. */
-.card--hand .card__kw {
-  position: absolute;
-  top: 6px;
-  right: 4px;
-  flex: none;
-  flex-direction: column;
-  gap: 3px;
-  padding: 2px;
-  border-radius: 6px;
-  background: rgb(10 12 18 / 0.72);
-  color: #fff;
-  z-index: 1;
-}
-
-.card--hand .card__kw .kw {
-  width: 16px;
-  height: 16px;
-}
-
-.card__foot .card__type {
-  flex: 1;
+  padding-top: 2px;
 }
 
 .card__type {
@@ -384,14 +340,37 @@ button {
   letter-spacing: 0.08em;
 }
 
-.card__foot .card__power,
-.card__foot .card__health {
-  position: static;
-  flex: none;
-  width: 22px;
-  height: 22px;
-  font-size: 14px;
-  border-radius: 7px;
+.card > .card__power,
+.card > .card__health {
+  bottom: -7px;
+  width: 26px;
+  height: 26px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid rgb(0 0 0 / 0.35);
+  z-index: 1;
+}
+
+.card > .card__power {
+  left: -7px;
+}
+
+.card > .card__health {
+  right: -7px;
+}
+
+/* Keywords in effect text: bold, bright, with their icon. */
+.kwt {
+  font-weight: 800;
+  color: color-mix(in srgb, var(--faction) 45%, #fff);
+  white-space: nowrap;
+}
+
+.kwt__icon {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+  margin-right: 0.12em;
 }
 
 .card__power {
