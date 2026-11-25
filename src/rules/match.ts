@@ -204,6 +204,24 @@ function resolveItem(ctx: Ctx, item: StackItem): void {
     resolveCombat(ctx, att.unit, item.target, (u) => unitPower(s, u));
     return;
   }
+  if (item.kind === 'ability') {
+    const card = getCard(item.cardId);
+    const unit = findUnit(s, item.unitUid);
+    // A unit silenced in response loses its ability; one that died in response still gets it.
+    if (unit?.unit.silenced) {
+      ctx.events.push({ type: 'Fizzled', id: item.id, reason: 'silenced' });
+      return;
+    }
+    const chosen = item.targets ?? [];
+    const targets = chosen.map((t, i) => (targetMatches(s, card.targets[i]!, item.owner, t) ? t : null));
+    if (chosen.length > 0 && targets.every((t) => t === null)) {
+      ctx.events.push({ type: 'Fizzled', id: item.id, reason: 'targets gone' });
+      return;
+    }
+    const src: Source = { owner: item.owner, unitUid: item.unitUid, targets, stackId: item.id };
+    for (const e of card.effects) if (e.trigger === 'onPlay') runEffect(ctx, e, src);
+    return;
+  }
   const card = getCard(item.cardId);
   const targets = item.targets.map((t, i) =>
     targetMatches(s, card.targets[i]!, item.owner, t, item.id) ? t : null,
@@ -238,6 +256,14 @@ function pay(ctx: Ctx, player: PlayerId, cost: number): void {
   if (cost > 0) ctx.events.push({ type: 'ManaSpent', player, mana: cost });
 }
 
+// ---------- Abilities waiting for targets ----------
+
+/** The On Play ability on top of the stack that still needs its owner to choose targets, if any. */
+export function awaitingAbility(s: GameState): Extract<StackItem, { kind: 'ability' }> | null {
+  const top = s.stack[s.stack.length - 1];
+  return top?.kind === 'ability' && top.targets === null ? top : null;
+}
+
 // ---------- Legal actions ----------
 
 /**
@@ -262,6 +288,15 @@ export function legalActions(s: GameState): Action[] {
   const out: Action[] = [];
   const choice = s.pending?.[0];
   if (choice) return choice.options.map((_, index) => ({ type: 'choose', player: choice.player, index }));
+  const waiting = awaitingAbility(s);
+  if (waiting) {
+    const specs = getCard(waiting.cardId).targets;
+    return targetCombos(s, specs, waiting.owner).map((targets) => ({
+      type: 'target',
+      player: waiting.owner,
+      targets,
+    }));
+  }
   for (const c of p.hand) {
     const card = getCard(c.cardId);
     if (card.type === 'unit') {
@@ -356,6 +391,7 @@ function applyActionInner(state: GameState, action: Action): { state: GameState;
     return { state: s, events: ctx.events };
   }
   if (s.pending?.length) illegal('a choice is open');
+  if (awaitingAbility(s) && action.type !== 'target') illegal('choose targets for the ability first');
 
   if (action.type === 'mulligan') {
     if (s.phase !== 'mulligan') illegal('not in the mulligan');
@@ -392,7 +428,24 @@ function applyActionInner(state: GameState, action: Action): { state: GameState;
   const open = s.stack.length === 0 && player === s.activePlayer;
 
   switch (action.type) {
+    case 'target': {
+      const waiting = awaitingAbility(s);
+      if (!waiting || waiting.owner !== player) illegal('no ability is waiting for targets');
+      const card = getCard(waiting.cardId);
+      if (action.targets.length !== card.targets.length)
+        illegal(`${waiting.cardId} takes ${card.targets.length} targets`);
+      action.targets.forEach((t, i) => {
+        if (!targetMatches(s, card.targets[i]!, player, t)) illegal(`illegal target for ${waiting.cardId}`);
+      });
+      if (action.targets.length === 2 && sameTarget(action.targets[0]!, action.targets[1]!))
+        illegal('the two targets must differ');
+      waiting.targets = action.targets;
+      ctx.events.push({ type: 'AbilityTargeted', id: waiting.id, targets: action.targets });
+      s.priority = other(player);
+      break;
+    }
     case 'pass': {
+      if (awaitingAbility(s)) illegal('choose targets for the ability first');
       if (s.stack.length === 0) {
         if (player !== s.activePlayer) illegal('only the active player can end the turn');
         endTurn(ctx);
@@ -417,7 +470,8 @@ function applyActionInner(state: GameState, action: Action): { state: GameState;
         !Number.isInteger(action.position)
       )
         illegal('bad position');
-      checkTargets(s, cardId, player, action.targets, true);
+      // Targets may be left out: the ability goes on the stack and its owner chooses them there.
+      if (action.targets.length > 0) checkTargets(s, cardId, player, action.targets, true);
       p.hand.splice(hi, 1);
       pay(ctx, player, card.cost);
       const unit = createUnit(ctx, cardId, player, action.uid);
@@ -430,7 +484,22 @@ function applyActionInner(state: GameState, action: Action): { state: GameState;
         position: action.position,
         targets: action.targets,
       });
-      runTrigger(ctx, unit, 'onPlay', action.targets);
+      if (card.effects.some((e) => e.trigger === 'onPlay')) {
+        const given = action.targets.length > 0;
+        const choosable =
+          !given && card.targets.length > 0 && targetCombos(s, card.targets, player).length > 0;
+        const item: StackItem = {
+          id: nextStackId(s),
+          kind: 'ability',
+          owner: player,
+          cardId,
+          unitUid: unit.uid,
+          targets: choosable ? null : action.targets,
+        };
+        s.stack.push(item);
+        ctx.events.push({ type: 'StackItemAdded', item });
+        s.priority = choosable ? player : other(player);
+      }
       for (const f of [...s.boards[player]].sort((a, b) => a.playOrder - b.playOrder)) {
         if (f.uid !== unit.uid && findUnit(s, f.uid)) runTrigger(ctx, f, 'whenFriendlyPlay');
       }

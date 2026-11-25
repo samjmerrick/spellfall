@@ -29,13 +29,10 @@ export function actionsFor(legal: Action[], src: Pick | Source): Action[] {
       return legal.filter((a) => (a.type === 'playUnit' || a.type === 'castSpell') && a.uid === src.uid);
     case 'unit':
       return legal.filter((a) => a.type === 'attack' && a.attacker === src.uid);
-    case 'placeTargets':
+    case 'abilityTargets':
       return legal.filter(
         (a) =>
-          a.type === 'playUnit' &&
-          a.uid === src.uid &&
-          a.position === src.position &&
-          src.chosen.every((c, i) => a.targets[i] && sameTarget(a.targets[i]!, c)),
+          a.type === 'target' && src.chosen.every((c, i) => a.targets[i] && sameTarget(a.targets[i]!, c)),
       );
     case 'spellTargets':
       return legal.filter(
@@ -52,7 +49,7 @@ export function dropKeys(legal: Action[], src: Pick | Source): Set<DropKey> {
   const out = new Set<DropKey>();
   for (const a of actionsFor(legal, src)) {
     if (a.type === 'attack') out.add(refKey(a.target));
-    else if (src.kind === 'placeTargets' || src.kind === 'spellTargets') {
+    else if (src.kind === 'abilityTargets' || src.kind === 'spellTargets') {
       const t = (a as { targets: TargetRef[] }).targets[src.chosen.length];
       if (t) out.add(refKey(t));
     } else if (a.type === 'playUnit') out.add('board');
@@ -112,7 +109,7 @@ export function targetedKeys(stack: StackItem[]): Set<DropKey> {
   const out = new Set<DropKey>();
   for (const i of stack) {
     if (i.kind === 'attack') out.add(refKey(i.target));
-    else for (const t of i.targets) out.add(refKey(t));
+    else for (const t of i.targets ?? []) out.add(refKey(t));
   }
   return out;
 }

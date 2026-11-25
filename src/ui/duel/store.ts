@@ -46,8 +46,8 @@ export interface Banner {
 export type Pick =
   | { kind: 'card'; uid: number }
   | { kind: 'unit'; uid: number }
-  /** A unit is being placed at `position` and needs On Play targets. */
-  | { kind: 'placeTargets'; uid: number; position: number; chosen: TargetRef[] }
+  /** A unit's On Play ability is on the stack and its owner is choosing its targets. */
+  | { kind: 'abilityTargets'; chosen: TargetRef[] }
   /** A spell with two targets: the first is chosen. */
   | { kind: 'spellTargets'; uid: number; chosen: TargetRef[] };
 
