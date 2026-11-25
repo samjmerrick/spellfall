@@ -43,5 +43,8 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+      # deploy-pages looks the artifact up by name right after the upload and sometimes finds none ("Found 0
+      # artifact(s)"; seen on 2026-11-25 on one run in three), so give the Actions API a moment to list it.
+      - run: sleep 15
       - id: deployment
         uses: actions/deploy-pages@v5
