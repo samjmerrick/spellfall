@@ -658,8 +658,8 @@
 .duel .hand {
   position: relative;
   display: block;
-  --card-w: 96px;
-  --card-h: 138px;
+  --card-w: 108px;
+  --card-h: 158px;
 }
 
 .duel .hand__slot {

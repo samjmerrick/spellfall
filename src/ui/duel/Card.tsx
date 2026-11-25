@@ -106,7 +106,7 @@ function CardText({ text, cardId }: { text: string; cardId: string }) {
     el.style.fontSize = '';
     const base = parseFloat(getComputedStyle(el).fontSize);
     let size = base;
-    while (el.scrollHeight > el.clientHeight + 1 && size > 6) {
+    while (el.scrollHeight > el.clientHeight + 1 && size > 5.5) {
       size -= 0.5;
       el.style.fontSize = `${size}px`;
     }
