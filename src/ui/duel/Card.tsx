@@ -221,6 +221,11 @@ export function UnitFace({ s, unit }: { s: GameState; unit: Unit }) {
         className="unit__kw"
         max={3}
       />
+      {unit.frozen && (
+        <span className="unit__freeze" role="img" aria-label="Frozen">
+          ❄
+        </span>
+      )}
       <span className={`unit__power${power > unit.basePower ? ' unit__stat--up' : ''}`}>{power}</span>
       <span className={`unit__health${hurt ? ' unit__health--hurt' : ''}`}>{health}</span>
     </>

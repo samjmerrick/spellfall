@@ -704,3 +704,32 @@
 .duel .icon-button {
   flex: none;
 }
+
+/* Frozen units: an icy tint and a snowflake badge, until the freeze ends. */
+.unit--frozen {
+  box-shadow:
+    0 0 0 2px #9fe3ff,
+    0 0 12px 2px rgb(120 210 255 / 0.65);
+}
+
+.unit--frozen .unit__art {
+  filter: saturate(0.6) brightness(1.15) hue-rotate(150deg);
+}
+
+.unit__freeze {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1e5f8a;
+  border: 1px solid #9fe3ff;
+  color: #e6f8ff;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}

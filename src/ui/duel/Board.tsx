@@ -165,6 +165,7 @@ export function BoardRow({ side, input }: { side: PlayerId; input: Input }) {
               card.rarity === 'legendary' ? 'unit--legendary' : '',
               u.keywords.includes('guard') ? 'unit--guard' : '',
               u.barrier ? 'unit--barrier' : '',
+              u.frozen ? 'unit--frozen' : '',
               ready ? 'unit--ready' : '',
               picked ? 'unit--picked' : '',
               attacking === u.uid ? `unit--attacking unit--attacking-${side}` : '',
