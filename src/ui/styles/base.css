@@ -270,6 +270,7 @@ button {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto;
   overflow: visible;
+  container-type: inline-size;
 }
 
 /* Effect text in hand and collection: a fixed box under the name; the type shrinks to fit (CardText). */
@@ -277,7 +278,7 @@ button {
   margin: 0;
   height: 4.6em;
   overflow: hidden;
-  font-size: 7.5px;
+  font-size: max(7px, 7.2cqw);
   line-height: 1.12;
   text-align: center;
   color: var(--text);
@@ -324,11 +325,25 @@ button {
   min-width: 0;
 }
 
-/* Spells: the speed label sits in its own row at the bottom. */
+/* Spells: the speed label rides the bottom edge, half off the frame, like Power and Health. */
 .card__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
   display: flex;
   justify-content: center;
-  padding-top: 2px;
+  z-index: 1;
+}
+
+.card--spell .card__text {
+  padding: 0 4px 6px;
+  box-sizing: border-box;
+}
+
+/* Cards show no faction glyph in the corner. */
+.card .card-art__glyph {
+  display: none;
 }
 
 .card__type {
@@ -475,15 +490,15 @@ button {
 .mulligan {
   display: grid;
   grid-template-columns: repeat(2, auto);
-  gap: 12px;
+  gap: 20px 18px;
   margin: 8px 0;
 }
 
 .mulligan--three {
   grid-template-columns: repeat(3, auto);
-  gap: 6px;
-  --card-w: 98px;
-  --card-h: 143px;
+  gap: 16px 14px;
+  --card-w: 94px;
+  --card-h: 137px;
 }
 
 .mulligan__card {
@@ -596,4 +611,10 @@ button {
 .hand__slot .card:not(.card--large) .card__name {
   text-align: left;
   padding-left: 14px;
+}
+
+/* Units: Power and Health overhang the bottom corners, so the text keeps clear of them. */
+.card--unit .card__text {
+  padding: 0 11px;
+  box-sizing: border-box;
 }
