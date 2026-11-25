@@ -19,7 +19,7 @@
 
   --gutter: 8px;
   --card-w: 108px;
-  --card-h: 158px;
+  --card-h: 148px;
 
   font-family:
     system-ui,
@@ -289,11 +289,11 @@ button {
 }
 
 .card__cost {
-  top: -7px;
-  left: -7px;
-  width: 26px;
-  height: 26px;
-  font-size: 15px;
+  top: -9px;
+  left: -9px;
+  width: 30px;
+  height: 30px;
+  font-size: 17px;
   background: var(--mana);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
   z-index: 1;
@@ -358,21 +358,21 @@ button {
 
 .card > .card__power,
 .card > .card__health {
-  bottom: -7px;
-  width: 26px;
-  height: 26px;
-  font-size: 15px;
+  bottom: -8px;
+  width: 29px;
+  height: 29px;
+  font-size: 17px;
   border-radius: 8px;
   border: 1px solid rgb(0 0 0 / 0.35);
   z-index: 1;
 }
 
 .card > .card__power {
-  left: -7px;
+  left: -8px;
 }
 
 .card > .card__health {
-  right: -7px;
+  right: -8px;
 }
 
 /* Keywords in effect text: bold, bright, with their icon. */
@@ -499,7 +499,7 @@ button {
   grid-template-columns: repeat(3, auto);
   gap: 16px 14px;
   --card-w: 94px;
-  --card-h: 137px;
+  --card-h: 129px;
 }
 
 .mulligan__card {
@@ -570,7 +570,7 @@ button {
 /* The enlarged card is the same frame, scaled: nothing about its layout differs from hand and collection. */
 .card--large {
   --card-w: 108px;
-  --card-h: 158px;
+  --card-h: 148px;
   zoom: 2.05;
 }
 
@@ -616,6 +616,6 @@ button {
 
 /* Units: Power and Health overhang the bottom corners, so the text keeps clear of them. */
 .card--unit .card__text {
-  padding: 0 11px;
+  padding: 0 14px;
   box-sizing: border-box;
 }

@@ -65,7 +65,7 @@
 .grid-card .card {
   width: 100%;
   height: auto;
-  aspect-ratio: 108 / 158;
+  aspect-ratio: 108 / 148;
 }
 
 .grid-card--locked .card {
