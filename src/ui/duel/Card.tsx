@@ -164,6 +164,12 @@ function CardText({ text, cardId, unit }: { text: string; cardId: string; unit: 
   }, [text, cardId]);
   return (
     <p className="card__text" ref={ref}>
+      {!unit && (
+        <>
+          <i className="cut cut--tl cut--spell" />
+          <i className="cut cut--base" />
+        </>
+      )}
       {unit && (
         <>
           <i className="cut cut--tl" />

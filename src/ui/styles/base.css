@@ -337,8 +337,21 @@ button {
 }
 
 .card--spell .card__text {
-  padding: 0 5px 12px;
+  display: block;
+  padding: 2px 5px 0;
   box-sizing: border-box;
+}
+
+/* The speed label rides the bottom edge: a full-width strip above it that text cannot enter. */
+.card .cut--spell {
+  height: calc(100% - 11px);
+}
+
+.card .cut--base {
+  float: left;
+  clear: left;
+  width: 100%;
+  height: 11px;
 }
 
 /* Cards show no faction glyph in the corner. */
