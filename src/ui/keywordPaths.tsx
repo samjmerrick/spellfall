@@ -47,5 +47,19 @@ export const PATHS: Record<string, ReactNode> = {
       <path d="M12 7v5l3 2" />
     </>
   ),
+  onAttack: <path d="M5 19L19 5M14 5h5v5M5 14l5 5" />,
+  whenFriendlyPlay: (
+    <>
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 20c0-3 3-5 6-5M17 12v8M13 16h8" />
+    </>
+  ),
+  whenFriendlyDies: (
+    <>
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 20c0-3 3-5 6-5M14 14l6 6M20 14l-6 6" />
+    </>
+  ),
+  whenDamaged: <path d="M12 3l2.5 6 6 .5-4.6 4 1.4 6L12 16.5 6.7 19.5l1.4-6L3.5 9.5l6-.5z" />,
   lastBreath: <path d="M6 12a6 6 0 0 1 12 0v3h-2.5v4h-7v-4H6zM9.5 12h.01M14.5 12h.01" />,
 };

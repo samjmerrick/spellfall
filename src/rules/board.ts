@@ -71,7 +71,7 @@ export function unitRemainingHealth(s: GameState, u: Unit): number {
 
 /** Whether `u` can declare an attack now (ignoring priority and the stack). */
 export function canAttack(s: GameState, u: Unit): boolean {
-  if (u.attacked || u.doomed) return false;
+  if (u.attacked || u.doomed || u.frozen) return false;
   if (u.owner !== s.activePlayer) return false;
   if (unitPower(s, u) <= 0) return false;
   return u.enteredTurn < s.turn || hasKeyword(u, 'quick');

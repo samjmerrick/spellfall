@@ -54,6 +54,11 @@ export function determinise(view: PlayerView, rng: RngState): [GameState, RngSta
   const opp = other(view.viewer);
   s.players[opp].hand = s.players[opp].hand.map((c) => (c.cardId === HIDDEN ? { ...c, cardId: pick() } : c));
   s.players[opp].deck = s.players[opp].deck.map((id) => (id === HIDDEN ? pick() : id));
+  if (s.pending)
+    s.pending = s.pending.map((c) => ({
+      ...c,
+      options: c.options.map((id) => (id === HIDDEN ? pick() : id)),
+    }));
   return [s, r];
 }
 

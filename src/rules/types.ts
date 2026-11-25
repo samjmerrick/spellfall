@@ -33,6 +33,8 @@ export interface Unit {
   attacked: boolean;
   /** Set by destroy effects and Ephemeral; it dies at the next death check. */
   doomed: boolean;
+  /** Frozen: cannot attack until the end of its owner's next turn. */
+  frozen?: boolean;
   /** Global play order: trigger order. */
   playOrder: number;
 }
@@ -67,6 +69,14 @@ export interface PlayerState {
   turnsTaken: number;
   /** Set by Death Ward: the hero cannot drop below 1 HP until the end of the turn. */
   deathWard?: boolean;
+  /** Mana this player loses at the start of its next turn (Drain). */
+  manaPenalty?: number;
+}
+
+/** A "choose 1 of N" offered by Discover: the chooser must pick before anything else happens. */
+export interface PendingChoice {
+  player: PlayerId;
+  options: string[];
 }
 
 export interface MatchResult {
@@ -95,6 +105,10 @@ export interface GameState {
   modifiers: [MatchModifier[], MatchModifier[]];
   /** Set by an extra-turn effect: this player takes the next turn as well. */
   extraTurn?: PlayerId;
+  /** Open Discover choices, oldest first. While any is open, `priority` is its chooser and only `choose` is legal. */
+  pending?: PendingChoice[];
+  /** Who had priority when the first choice opened; they get it back when all are made. */
+  choiceReturn?: PlayerId;
 }
 
 export interface MatchConfig {
@@ -110,6 +124,8 @@ export type Action =
   | { type: 'playUnit'; player: PlayerId; uid: number; position: number; targets: TargetRef[] }
   | { type: 'castSpell'; player: PlayerId; uid: number; targets: TargetRef[] }
   | { type: 'attack'; player: PlayerId; attacker: number; target: TargetRef }
+  /** Picks option `index` of the oldest open Discover choice. */
+  | { type: 'choose'; player: PlayerId; index: number }
   /** With an empty stack: end the turn. With items on the stack: resolve the whole stack. */
   | { type: 'pass'; player: PlayerId };
 
@@ -152,6 +168,10 @@ export type GameEvent =
   | { type: 'HeroWarded'; player: PlayerId }
   | { type: 'UnitControlled'; uid: number; from: PlayerId; to: PlayerId; position: number }
   | { type: 'ExtraTurn'; player: PlayerId }
+  | { type: 'UnitFrozen'; uid: number }
+  | { type: 'ManaDrained'; player: PlayerId; amount: number }
+  | { type: 'ChoiceOffered'; player: PlayerId; options: string[] }
+  | { type: 'ChoiceMade'; player: PlayerId; cardId: string }
   | { type: 'TurnEnded'; turn: number; player: PlayerId }
   | { type: 'MatchEnded'; winner: PlayerId | null; reason: 'hp' | 'turns' };
 

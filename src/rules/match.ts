@@ -8,6 +8,7 @@ import {
   healUnit,
   processDeaths,
   resolveCombat,
+  runEffect,
   runPrimitive,
   runTrigger,
   type Ctx,
@@ -121,6 +122,10 @@ function startTurn(ctx: Ctx, player: PlayerId): void {
   p.turnsTaken += 1;
   p.maxMana = Math.min(MAX_MANA, p.maxMana + 1);
   p.mana = p.maxMana;
+  if (p.manaPenalty) {
+    p.mana = Math.max(0, p.mana - p.manaPenalty);
+    delete p.manaPenalty;
+  }
   for (const u of s.boards[player]) u.attacked = false;
   ctx.events.push({ type: 'TurnStarted', turn: s.turn, player, maxMana: p.maxMana });
   drawCard(ctx, player);
@@ -150,6 +155,7 @@ function endTurn(ctx: Ctx): void {
       ctx.events.push({ type: 'UnitBuffed', uid: u.uid, power: 1, health: 1, duration: 'permanent' });
     }
     if (hasKeyword(u, 'ephemeral')) u.doomed = true;
+    delete u.frozen;
   }
   if (settle(ctx)) return;
   for (const u of [...s.boards[0], ...s.boards[1]]) {
@@ -207,7 +213,7 @@ function resolveItem(ctx: Ctx, item: StackItem): void {
     return;
   }
   const src: Source = { owner: item.owner, unitUid: null, targets, stackId: item.id };
-  for (const e of card.effects) runPrimitive(ctx, e.action, src);
+  for (const e of card.effects) runEffect(ctx, e, src);
 }
 
 /** Resolves the whole stack, newest first, with no priority in between. */
@@ -254,6 +260,8 @@ export function legalActions(s: GameState): Action[] {
   const p = s.players[player];
   const open = s.stack.length === 0 && player === s.activePlayer;
   const out: Action[] = [];
+  const choice = s.pending?.[0];
+  if (choice) return choice.options.map((_, index) => ({ type: 'choose', player: choice.player, index }));
   for (const c of p.hand) {
     const card = getCard(c.cardId);
     if (card.type === 'unit') {
@@ -308,9 +316,46 @@ function checkTargets(
 }
 
 export function applyAction(state: GameState, action: Action): { state: GameState; events: GameEvent[] } {
+  const r = applyActionInner(state, action);
+  finishChoices(r.state);
+  return r;
+}
+
+/** While a Discover choice is open its chooser holds priority; when the last one is made, priority goes back. */
+function finishChoices(s: GameState): void {
+  if (s.phase === 'over') {
+    delete s.pending;
+    delete s.choiceReturn;
+    return;
+  }
+  const next = s.pending?.[0];
+  if (next) {
+    s.choiceReturn ??= s.priority;
+    s.priority = next.player;
+  } else if (s.choiceReturn !== undefined) {
+    s.priority = s.choiceReturn;
+    delete s.choiceReturn;
+    delete s.pending;
+  }
+}
+
+function applyActionInner(state: GameState, action: Action): { state: GameState; events: GameEvent[] } {
   if (state.phase === 'over') illegal('the match is over');
   const s = clone(state);
   const ctx: Ctx = { s, events: [] };
+
+  if (action.type === 'choose') {
+    const choice = s.pending?.[0];
+    if (!choice || s.phase !== 'main') illegal('there is nothing to choose');
+    if (action.player !== choice.player) illegal('not your choice');
+    const cardId = choice.options[action.index];
+    if (!Number.isInteger(action.index) || cardId === undefined) illegal('no such option');
+    s.pending!.shift();
+    ctx.events.push({ type: 'ChoiceMade', player: action.player, cardId });
+    addToHand(ctx, action.player, cardId);
+    return { state: s, events: ctx.events };
+  }
+  if (s.pending?.length) illegal('a choice is open');
 
   if (action.type === 'mulligan') {
     if (s.phase !== 'mulligan') illegal('not in the mulligan');
@@ -386,6 +431,9 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
         targets: action.targets,
       });
       runTrigger(ctx, unit, 'onPlay', action.targets);
+      for (const f of [...s.boards[player]].sort((a, b) => a.playOrder - b.playOrder)) {
+        if (f.uid !== unit.uid && findUnit(s, f.uid)) runTrigger(ctx, f, 'whenFriendlyPlay');
+      }
       settle(ctx);
       break;
     }
@@ -419,7 +467,7 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
       if (settle(ctx)) break;
       if (card.speed === 'burst') {
         const src: Source = { owner: player, unitUid: null, targets: action.targets };
-        for (const e of card.effects) runPrimitive(ctx, e.action, src);
+        for (const e of card.effects) runEffect(ctx, e, src);
         settle(ctx);
       } else {
         const item: StackItem = {
@@ -464,6 +512,8 @@ export function applyAction(state: GameState, action: Action): { state: GameStat
       });
       ctx.events.push({ type: 'StackItemAdded', item });
       s.priority = other(player);
+      runTrigger(ctx, att.unit, 'onAttack');
+      settle(ctx);
       break;
     }
   }

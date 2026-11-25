@@ -1,9 +1,9 @@
 // Effect primitives, selectors, damage, deaths and triggers. Every function here mutates a draft state
 // owned by the caller (applyAction clones the state first).
 import { allUnits, findUnit, hasKeyword, unitEffects, unitMaxHealth, unitRemainingHealth } from './board';
-import { getCard } from './content';
+import { collectibleCardIds, getCard } from './content';
 import { nextInt } from './rng';
-import type { Primitive, Trigger, UnitSelector } from './schema';
+import type { CardFilter, Condition, Effect, Primitive, Trigger, UnitSelector } from './schema';
 import {
   BOARD_LIMIT,
   HAND_LIMIT,
@@ -110,6 +110,63 @@ function selectHero(sel: string, src: Source): PlayerId | null {
   return null;
 }
 
+// ---------- Conditions and counts ----------
+
+export function conditionMet(ctx: Ctx, c: Condition, src: Source): boolean {
+  const s = ctx.s;
+  switch (c.kind) {
+    case 'hpAtMost':
+      return s.players[src.owner].hp <= c.amount;
+    case 'enemyHpAtMost':
+      return s.players[other(src.owner)].hp <= c.amount;
+    case 'friendlyUnitsAtLeast':
+      return s.boards[src.owner].length >= c.amount;
+    case 'enemyUnitsAtLeast':
+      return s.boards[other(src.owner)].length >= c.amount;
+    case 'handAtMost':
+      return s.players[src.owner].hand.length <= c.amount;
+    case 'selfDamaged': {
+      const loc = src.unitUid === null ? null : findUnit(s, src.unitUid);
+      return !!loc && loc.unit.damage > 0;
+    }
+  }
+}
+
+function countOf(
+  ctx: Ctx,
+  per: NonNullable<Extract<Primitive, { op: 'damage' }>['per']>,
+  src: Source,
+): number {
+  const s = ctx.s;
+  switch (per) {
+    case 'friendlyUnits':
+      return s.boards[src.owner].length;
+    case 'enemyUnits':
+      return s.boards[other(src.owner)].length;
+    case 'handSize':
+      return s.players[src.owner].hand.length;
+    case 'enemyHandSize':
+      return s.players[other(src.owner)].hand.length;
+    case 'fallen':
+      return s.players[src.owner].discard.filter((id) => getCard(id).type === 'unit').length;
+  }
+}
+
+/** Collectible cards that fit a filter, in content order. */
+export function cardPool(filter: CardFilter): string[] {
+  return collectibleCardIds().filter((id) => {
+    const c = getCard(id);
+    return (
+      (filter.type === undefined || c.type === filter.type) &&
+      (filter.faction === undefined || c.faction === filter.faction) &&
+      (filter.minCost === undefined || c.cost >= filter.minCost) &&
+      (filter.maxCost === undefined || c.cost <= filter.maxCost) &&
+      (filter.rarity === undefined || c.rarity === filter.rarity) &&
+      (filter.keyword === undefined || c.keywords.includes(filter.keyword))
+    );
+  });
+}
+
 // ---------- Mutations ----------
 
 /** Deals damage to a unit; Barrier prevents it. Returns the damage actually dealt. */
@@ -123,6 +180,7 @@ export function damageUnit(ctx: Ctx, unit: Unit, amount: number): number {
   }
   unit.damage += amount;
   ctx.events.push({ type: 'DamageDealt', uid: unit.uid, amount });
+  if (unitRemainingHealth(ctx.s, unit) > 0 && !unit.doomed) runTrigger(ctx, unit, 'whenDamaged');
   return amount;
 }
 
@@ -279,38 +337,39 @@ export function grantKeyword(ctx: Ctx, unit: Unit, keyword: Unit['keywords'][num
 export function runPrimitive(ctx: Ctx, action: Primitive, src: Source): void {
   switch (action.op) {
     case 'damage': {
+      const amount = action.amount * (action.per ? countOf(ctx, action.per, src) : 1);
+      if (amount <= 0) return;
       const hero = selectHero(action.target, src);
-      if (hero !== null) damageHero(ctx, hero, action.amount);
-      else
-        for (const u of selectUnits(ctx, action.target as UnitSelector, src))
-          damageUnit(ctx, u, action.amount);
+      if (hero !== null) damageHero(ctx, hero, amount);
+      else for (const u of selectUnits(ctx, action.target as UnitSelector, src)) damageUnit(ctx, u, amount);
       return;
     }
     case 'heal': {
+      const amount =
+        action.amount === 'full' ? 'full' : action.amount * (action.per ? countOf(ctx, action.per, src) : 1);
+      if (amount === 0) return;
       const hero = selectHero(action.target, src);
-      if (hero !== null) healHero(ctx, hero, action.amount);
-      else
-        for (const u of selectUnits(ctx, action.target as UnitSelector, src)) healUnit(ctx, u, action.amount);
+      if (hero !== null) healHero(ctx, hero, amount);
+      else for (const u of selectUnits(ctx, action.target as UnitSelector, src)) healUnit(ctx, u, amount);
       return;
     }
-    case 'buff':
+    case 'buff': {
+      const n = action.per ? countOf(ctx, action.per, src) : 1;
+      const power = action.power * n;
+      const health = action.health * n;
+      if (power === 0 && health === 0) return;
       for (const u of selectUnits(ctx, action.target, src)) {
         if (action.duration === 'permanent') {
-          u.basePower += action.power;
-          u.baseHealth += action.health;
+          u.basePower += power;
+          u.baseHealth += health;
         } else {
-          u.turnPower += action.power;
-          u.turnHealth += action.health;
+          u.turnPower += power;
+          u.turnHealth += health;
         }
-        ctx.events.push({
-          type: 'UnitBuffed',
-          uid: u.uid,
-          power: action.power,
-          health: action.health,
-          duration: action.duration,
-        });
+        ctx.events.push({ type: 'UnitBuffed', uid: u.uid, power, health, duration: action.duration });
       }
       return;
+    }
     case 'draw':
       for (let i = 0; i < action.count; i++) drawCard(ctx, src.owner);
       return;
@@ -382,7 +441,62 @@ export function runPrimitive(ctx: Ctx, action: Primitive, src: Source): void {
     case 'copySpell':
       if (src.castCardId !== undefined) addToHand(ctx, src.owner, src.castCardId);
       return;
+    case 'conjure':
+      for (let i = 0; i < action.count; i++) addToHand(ctx, src.owner, action.cardId);
+      return;
+    case 'conjureRandom': {
+      const pool = cardPool(action.filter);
+      for (let i = 0; i < action.count; i++) {
+        const id = pickRandom(ctx, pool);
+        if (id !== undefined) addToHand(ctx, src.owner, id);
+      }
+      return;
+    }
+    case 'fetch': {
+      const deck = ctx.s.players[src.owner].deck;
+      const ok = new Set(cardPool(action.filter));
+      for (let i = deck.length - 1; i >= 0; i--) {
+        if (!ok.has(deck[i]!)) continue;
+        const [id] = deck.splice(i, 1);
+        addToHand(ctx, src.owner, id!);
+        return;
+      }
+      return;
+    }
+    case 'discover': {
+      const pool = [...cardPool(action.filter)];
+      const options: string[] = [];
+      while (options.length < 3 && pool.length > 0) {
+        const i = randomInt(ctx, 0, pool.length - 1);
+        options.push(pool.splice(i, 1)[0]!);
+      }
+      if (options.length === 0) return;
+      (ctx.s.pending ??= []).push({ player: src.owner, options });
+      ctx.events.push({ type: 'ChoiceOffered', player: src.owner, options });
+      return;
+    }
+    case 'freeze':
+      for (const u of selectUnits(ctx, action.target, src)) {
+        u.frozen = true;
+        ctx.events.push({ type: 'UnitFrozen', uid: u.uid });
+      }
+      return;
+    case 'drainMana': {
+      const foe = ctx.s.players[other(src.owner)];
+      foe.manaPenalty = (foe.manaPenalty ?? 0) + action.amount;
+      ctx.events.push({ type: 'ManaDrained', player: other(src.owner), amount: action.amount });
+      return;
+    }
+    case 'copyUnit':
+      for (const u of selectUnits(ctx, action.target, src)) summon(ctx, u.cardId, src.owner);
+      return;
   }
+}
+
+/** Runs one effect if its condition holds. */
+export function runEffect(ctx: Ctx, effect: Effect, src: Source): void {
+  if (effect.if && !conditionMet(ctx, effect.if, src)) return;
+  runPrimitive(ctx, effect.action, src);
 }
 
 /** Runs one trigger of a unit's card effects (none if silenced). */
@@ -395,7 +509,7 @@ export function runTrigger(
 ): void {
   const src: Source = { owner: unit.owner, unitUid: unit.uid, targets, castCardId };
   for (const effect of unitEffects(unit)) {
-    if (effect.trigger === trigger) runPrimitive(ctx, effect.action, src);
+    if (effect.trigger === trigger) runEffect(ctx, effect, src);
   }
 }
 
@@ -416,6 +530,11 @@ export function processDeaths(ctx: Ctx): void {
       ctx.events.push({ type: 'UnitDied', uid: u.uid, cardId: u.cardId, owner: u.owner });
     }
     for (const u of dying) runTrigger(ctx, u, 'lastBreath');
+    for (const u of dying) {
+      for (const f of [...ctx.s.boards[u.owner]].sort(byPlayOrder)) {
+        if (findUnit(ctx.s, f.uid) && !f.doomed) runTrigger(ctx, f, 'whenFriendlyDies');
+      }
+    }
   }
   throw new Error('processDeaths did not settle');
 }
