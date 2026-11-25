@@ -18,8 +18,8 @@
   --dusk: #8e4ec6;
 
   --gutter: 8px;
-  --card-w: 86px;
-  --card-h: 124px;
+  --card-w: 108px;
+  --card-h: 148px;
 
   font-family:
     system-ui,
@@ -189,15 +189,6 @@ button {
   pointer-events: none;
 }
 
-.card--large .card-art__glyph {
-  top: 4px;
-  right: 4px;
-  min-width: 22px;
-  height: 22px;
-  font-size: 14px;
-  border-radius: 7px;
-}
-
 .deck-tile__cover .card-art,
 .deck-list__cover .card-art {
   width: 100%;
@@ -277,30 +268,31 @@ button {
   border: 2px solid var(--faction);
   box-shadow: 0 6px 16px rgb(0 0 0 / 0.45);
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto 24px;
-  overflow: hidden;
+  grid-template-rows: minmax(0, 56%) auto minmax(0, 1fr);
+  overflow: visible;
 }
 
 /* Effect text in hand and collection: a fixed box under the name; the type shrinks to fit (CardText). */
-.card:not(.card--large) .card__text {
+.card .card__text {
   margin: 0;
-  height: 3.9em;
+  min-height: 0;
   overflow: hidden;
-  font-size: 8.5px;
-  line-height: 1.15;
+  font-size: 10px;
+  line-height: 1.12;
   text-align: center;
   color: var(--text);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 3px;
 }
 
 .card__cost {
-  top: 3px;
-  left: 3px;
-  width: 24px;
-  height: 24px;
-  font-size: 15px;
+  top: -9px;
+  left: -9px;
+  width: 30px;
+  height: 30px;
+  font-size: 17px;
   background: var(--mana);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
   z-index: 1;
@@ -326,62 +318,45 @@ button {
   font-size: 11px;
   font-weight: 700;
   text-align: center;
-  padding: 2px 0 1px;
+  padding: 2px 0 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
 
-/* Bottom row: Power, keyword icons, Health. Own row, so nothing can overlap the name. */
+/* Spells: the speed label rides the bottom edge, half off the frame, like Power and Health. */
 .card__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2px;
-  min-width: 0;
-  margin: 0 -3px -3px;
-}
-
-.card__kw {
-  flex: 1 1 0;
-  min-width: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 1px;
-  overflow: hidden;
-  color: color-mix(in srgb, var(--text) 88%, var(--faction));
-}
-
-.card__kw .kw {
-  flex: none;
-  width: 10px;
-  height: 10px;
-}
-
-/* Hand cards: keyword icons ride a column on the art, large enough to read at 360px. */
-.card--hand .card__kw {
-  position: absolute;
-  top: 6px;
-  right: 4px;
-  flex: none;
-  flex-direction: column;
-  gap: 3px;
-  padding: 2px;
-  border-radius: 6px;
-  background: rgb(10 12 18 / 0.72);
-  color: #fff;
   z-index: 1;
 }
 
-.card--hand .card__kw .kw {
-  width: 16px;
-  height: 16px;
+.card--spell .card__text {
+  display: block;
+  padding: 2px 5px 0;
+  box-sizing: border-box;
 }
 
-.card__foot .card__type {
-  flex: 1;
+/* The speed label rides the bottom edge: a full-width strip above it that text cannot enter. */
+.card .cut--spell {
+  height: calc(100% - 11px);
+}
+
+.card .cut--base {
+  float: left;
+  clear: left;
+  width: 100%;
+  height: 11px;
+}
+
+/* Cards show no faction glyph in the corner. */
+.card .card-art__glyph {
+  display: none;
 }
 
 .card__type {
@@ -393,14 +368,37 @@ button {
   letter-spacing: 0.08em;
 }
 
-.card__foot .card__power,
-.card__foot .card__health {
-  position: static;
-  flex: none;
-  width: 22px;
-  height: 22px;
-  font-size: 14px;
-  border-radius: 7px;
+.card > .card__power,
+.card > .card__health {
+  bottom: -8px;
+  width: 29px;
+  height: 29px;
+  font-size: 17px;
+  border-radius: 8px;
+  border: 1px solid rgb(0 0 0 / 0.35);
+  z-index: 1;
+}
+
+.card > .card__power {
+  left: -8px;
+}
+
+.card > .card__health {
+  right: -8px;
+}
+
+/* Keywords in effect text: bold, bright, with their icon. */
+.kwt {
+  font-weight: 800;
+  color: color-mix(in srgb, var(--faction) 45%, #fff);
+  white-space: nowrap;
+}
+
+.kwt__icon {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+  margin-right: 0.12em;
 }
 
 .card__power {
@@ -431,10 +429,21 @@ button {
 
 /* ---------- Drag and drop ---------- */
 
+/* Hand cards cast a slight shadow onto the card beside them; ones you can afford and play glow gold and lift. */
+.hand__slot .card {
+  box-shadow: -4px 3px 10px rgb(0 0 0 / 0.55);
+}
+
+.hand__slot:not(.hand__slot--playable) .card {
+  filter: brightness(0.8) saturate(0.85);
+}
+
 .hand__slot--playable .card {
+  translate: 0 -6px;
   box-shadow:
-    0 0 0 2px var(--accent),
-    0 6px 16px rgb(0 0 0 / 0.45);
+    0 0 0 3px var(--accent),
+    0 0 14px 3px rgb(245 184 61 / 0.5),
+    -4px 3px 10px rgb(0 0 0 / 0.55);
 }
 
 .hand__slot--dragging {
@@ -505,13 +514,15 @@ button {
 .mulligan {
   display: grid;
   grid-template-columns: repeat(2, auto);
-  gap: 12px;
+  gap: 20px 18px;
   margin: 8px 0;
 }
 
 .mulligan--three {
   grid-template-columns: repeat(3, auto);
-  gap: 8px;
+  gap: 16px 14px;
+  --card-w: 94px;
+  --card-h: 129px;
 }
 
 .mulligan__card {
@@ -579,53 +590,11 @@ button {
   gap: 16px;
 }
 
+/* The enlarged card is the same frame, scaled: nothing about its layout differs from hand and collection. */
 .card--large {
-  --card-w: 220px;
-  --card-h: 316px;
-  grid-template-rows: 150px auto 1fr 36px;
-  padding: 10px;
-}
-
-.card--large .card__foot {
-  margin: 0 -6px -6px;
-  gap: 6px;
-}
-
-.card--large .card__kw {
-  gap: 4px;
-}
-
-.card--large .card__kw .kw {
-  width: 20px;
-  height: 20px;
-}
-
-.card--large .card__type {
-  font-size: 12px;
-}
-
-.card--large .card__art .emblem,
-.card--large .card__art .card-art {
-  max-width: 140px;
-}
-
-.card--large .card__name {
-  font-size: 18px;
-}
-
-.card--large .card__text {
-  margin: 6px 0 0;
-  font-size: 13px;
-  line-height: 1.35;
-  text-align: center;
-}
-
-.card--large .card__cost,
-.card--large .card__foot .card__power,
-.card--large .card__foot .card__health {
-  width: 36px;
-  height: 36px;
-  font-size: 20px;
+  --card-w: 108px;
+  --card-h: 148px;
+  zoom: 2.05;
 }
 
 .glossary {
@@ -656,8 +625,40 @@ button {
   color: #ffd6d8;
 }
 
-/* The hand fan overlaps cards, so their text starts at the visible left edge; hold a card to read it all. */
-.hand__slot .card:not(.card--large) .card__text {
-  justify-content: flex-start;
-  text-align: left;
+/* Units: Power and Health overhang the bottom corners, so the text keeps clear of them. */
+.card--unit .card__text {
+  display: block;
+  padding: 2px 0 0;
+  box-sizing: border-box;
+}
+
+/* Floats that carve the two badge corners out of the text, so the text keeps the full width above them. */
+.cut {
+  display: block;
+  width: 0;
+  height: calc(100% - 17px);
+}
+
+.cut--tl,
+.cut--bl {
+  float: left;
+}
+
+.cut--tr,
+.cut--br {
+  float: right;
+}
+
+.cut--bl,
+.cut--br {
+  width: 17px;
+  height: 17px;
+}
+
+.cut--bl {
+  clear: left;
+}
+
+.cut--br {
+  clear: right;
 }

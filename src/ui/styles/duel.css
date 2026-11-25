@@ -578,13 +578,9 @@
   flex: none;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgb(10 12 18 / 0.6);
+  background: rgb(10 12 18);
   border: 1px solid currentColor;
   font-weight: 700;
-}
-
-.card--large.card--spell .card__art {
-  width: 150px;
 }
 
 /* Legendaries: a gold frame, an inner ring in the faction colour and a gold crest. */
@@ -627,12 +623,6 @@
   pointer-events: none;
 }
 
-.card--large .card__crest {
-  width: 36px;
-  height: 18px;
-  margin-left: -18px;
-}
-
 .unit--legendary {
   border-color: var(--gold);
   background:
@@ -658,8 +648,8 @@
 .duel .hand {
   position: relative;
   display: block;
-  --card-w: 96px;
-  --card-h: 138px;
+  --card-w: 108px;
+  --card-h: 148px;
 }
 
 .duel .hand__slot {
@@ -713,4 +703,33 @@
 
 .duel .icon-button {
   flex: none;
+}
+
+/* Frozen units: an icy tint and a snowflake badge, until the freeze ends. */
+.unit--frozen {
+  box-shadow:
+    0 0 0 2px #9fe3ff,
+    0 0 12px 2px rgb(120 210 255 / 0.65);
+}
+
+.unit--frozen .unit__art {
+  filter: saturate(0.6) brightness(1.15) hue-rotate(150deg);
+}
+
+.unit__freeze {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1e5f8a;
+  border: 1px solid #9fe3ff;
+  color: #e6f8ff;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
 }

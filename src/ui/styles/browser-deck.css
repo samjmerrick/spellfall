@@ -50,7 +50,7 @@
 .card-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 18px 14px;
 }
 
 .grid-card {
@@ -64,8 +64,10 @@
 
 .grid-card .card {
   width: 100%;
+  max-width: var(--card-w);
   height: auto;
-  aspect-ratio: 86 / 124;
+  aspect-ratio: 108 / 148;
+  margin: 0 auto;
 }
 
 .grid-card--locked .card {

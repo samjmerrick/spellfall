@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import {
   getCard,
   unitPower,
@@ -97,8 +97,59 @@ function CardName({ name }: { name: string }) {
   );
 }
 
+/** Keyword and trigger names in effect text that get an icon: the name, then its path key. */
+const MARKS: Record<string, string> = {
+  Guard: 'guard',
+  Barrier: 'barrier',
+  Overwhelm: 'overwhelm',
+  Lifesteal: 'lifesteal',
+  Quick: 'quick',
+  Elusive: 'elusive',
+  Growth: 'growth',
+  Regenerate: 'regenerate',
+  Ephemeral: 'ephemeral',
+  'On Play': 'onPlay',
+  Ongoing: 'ongoing',
+  'Start of Turn': 'startOfTurn',
+  'End of Turn': 'endOfTurn',
+  'Last Breath': 'lastBreath',
+  'Attack(?=:)': 'onAttack',
+};
+const MARK_RE = new RegExp(`\\b(${Object.keys(MARKS).join('|')})`, 'g');
+
+/** Effect text with each keyword set in bold beside its icon. */
+function RichText({ text }: { text: string }) {
+  const out: ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(MARK_RE)) {
+    const name = m[1]!;
+    const key = MARKS[name] ?? MARKS[`${name}(?=:)`]!;
+    if (m.index > last) out.push(text.slice(last, m.index));
+    out.push(
+      <b className="kwt" key={m.index}>
+        <svg
+          className={`kwt__icon kw--${key}`}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {PATHS[key as Keyword]}
+        </svg>
+        {name}
+      </b>,
+    );
+    last = m.index + name.length;
+  }
+  out.push(text.slice(last));
+  return <span>{out}</span>;
+}
+
 /** Effect text on a card; the type shrinks until the text fits its box (hand and collection sizes). */
-function CardText({ text, cardId }: { text: string; cardId: string }) {
+function CardText({ text, cardId, unit }: { text: string; cardId: string; unit: boolean }) {
   const ref = useRef<HTMLParagraphElement>(null);
   useLayoutEffect(() => {
     const el = ref.current;
@@ -106,14 +157,28 @@ function CardText({ text, cardId }: { text: string; cardId: string }) {
     el.style.fontSize = '';
     const base = parseFloat(getComputedStyle(el).fontSize);
     let size = base;
-    while (el.scrollHeight > el.clientHeight + 1 && size > 6) {
+    while (el.scrollHeight > el.clientHeight + 1 && size > 5.5) {
       size -= 0.5;
       el.style.fontSize = `${size}px`;
     }
   }, [text, cardId]);
   return (
     <p className="card__text" ref={ref}>
-      {text}
+      {!unit && (
+        <>
+          <i className="cut cut--tl cut--spell" />
+          <i className="cut cut--base" />
+        </>
+      )}
+      {unit && (
+        <>
+          <i className="cut cut--tl" />
+          <i className="cut cut--tr" />
+          <i className="cut cut--bl" />
+          <i className="cut cut--br" />
+        </>
+      )}
+      <RichText text={text} />
     </p>
   );
 }
@@ -137,22 +202,17 @@ export function DuelCard({ cardId, size = 'hand' }: { cardId: string; size?: 'ha
         <CardArt id={card.id} faction={card.faction} />
       </div>
       <CardName name={card.name} />
-      {size === 'large' ? (
-        <p className="card__text">{card.text || 'No abilities.'}</p>
+      {card.text && <CardText text={card.text} cardId={cardId} unit={isUnit} />}
+      {isUnit ? (
+        <>
+          <span className="card__power">{card.power}</span>
+          <span className="card__health">{card.health}</span>
+        </>
       ) : (
-        card.text && <CardText text={card.text} cardId={cardId} />
-      )}
-      <div className="card__foot">
-        {isUnit ? (
-          <>
-            <span className="card__power">{card.power}</span>
-            <Icons keywords={card.keywords} effects={card.effects} className="card__kw" />
-            <span className="card__health">{card.health}</span>
-          </>
-        ) : (
+        <div className="card__foot">
           <span className={`card__type card__type--${card.speed}`}>{SPEED_LABEL[card.speed!]}</span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -175,6 +235,11 @@ export function UnitFace({ s, unit }: { s: GameState; unit: Unit }) {
         className="unit__kw"
         max={3}
       />
+      {unit.frozen && (
+        <span className="unit__freeze" role="img" aria-label="Frozen">
+          ❄
+        </span>
+      )}
       <span className={`unit__power${power > unit.basePower ? ' unit__stat--up' : ''}`}>{power}</span>
       <span className={`unit__health${hurt ? ' unit__health--hurt' : ''}`}>{health}</span>
     </>
