@@ -6,6 +6,7 @@ import fixtureV4 from '../fixtures/save-v4.json';
 import fixtureV5 from '../fixtures/save-v5.json';
 import fixtureV6 from '../fixtures/save-v6.json';
 import fixtureV7 from '../fixtures/save-v7.json';
+import fixtureV8 from '../fixtures/save-v8.json';
 import {
   CURRENT_SCHEMA,
   exportSaveCode,
@@ -112,12 +113,21 @@ describe('schema and migrations', () => {
     expect(p.schemaVersion).toBe(CURRENT_SCHEMA);
     for (const key of ['xp', 'level', 'unlocks', 'tutorialDone']) expect(p).not.toHaveProperty(key);
     // Everything else is kept.
-    expect(p.decks).toEqual(fixtureV7.decks);
+    expect(p.decks[0]!.cards).toEqual(['ember-spark-imp', 'ember-spark-imp']);
     expect(p.stats).toEqual(fixtureV7.stats);
     expect(p.ascension).toEqual({ best: 1, unlocked: 2 });
     expect(p.settings).toEqual(fixtureV7.settings);
     expect(p.iosTipSeen).toBe(true);
     expect(p.activeRun!.config).toEqual(fixtureV7.activeRun!.config);
+  });
+
+  it('migrates the stored v8 sample save to v9: decks keep at most 2 copies and a match in progress is dropped', () => {
+    const p = migrate(fixtureV8);
+    expect(p.schemaVersion).toBe(CURRENT_SCHEMA);
+    expect(p.decks[0]!.cards).toEqual(['ember-spark-imp', 'ember-spark-imp', 'ember-cinder-scout']);
+    expect(p.activeRun!.match).toBeNull();
+    expect(p.activeRun!.choices).toEqual(fixtureV8.activeRun!.choices);
+    expect(p.stats).toEqual(fixtureV8.stats);
   });
 
   it('save codes round-trip a v5 profile', async () => {

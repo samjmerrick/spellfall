@@ -1,3 +1,4 @@
+import { getCard, hasCard } from '../rules/content';
 import { RELICS } from '../run/content';
 import { MAX_ASCENSION } from '../run/meta';
 import { CURRENT_SCHEMA, ProfileSchema, type Profile } from './profile';
@@ -50,6 +51,21 @@ export const migrations: Record<number, (old: Record<string, unknown>) => Record
     const rest = { ...old };
     for (const key of ['xp', 'level', 'unlocks', 'tutorialDone']) delete rest[key];
     return rest;
+  },
+  // v9: hero HP is 30 and a deck holds at most 2 copies of a card (1 of a Legendary). Saved decks lose their extra copies
+  // (the builder shows them as short of 30), and a match in progress (started on 20 HP) is dropped; the run replays.
+  8: (old) => {
+    const decks = ((old.decks ?? []) as { cards: string[] }[]).map((d) => {
+      const seen = new Map<string, number>();
+      const cards = d.cards.filter((id) => {
+        const n = (seen.get(id) ?? 0) + 1;
+        seen.set(id, n);
+        return n <= (hasCard(id) && getCard(id).rarity === 'legendary' ? 1 : 2);
+      });
+      return { ...d, cards };
+    });
+    const run = old.activeRun as Record<string, unknown> | null | undefined;
+    return { ...old, decks, activeRun: run ? { ...run, match: null } : null };
   },
 };
 

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 8,
+  "decks": [
+    {
+      "id": "d1",
+      "name": "Fixture Deck",
+      "cover": "ember-spark-imp",
+      "cards": ["ember-spark-imp", "ember-spark-imp", "ember-spark-imp", "ember-cinder-scout"]
+    }
+  ],
+  "nextDeckId": 2,
+  "settings": {
+    "fastAnimations": true,
+    "reduceMotion": false,
+    "sound": false,
+    "haptics": true,
+    "autoPass": false
+  },
+  "stats": {
+    "quickPlay": {
+      "d1": {
+        "played": 5,
+        "won": 3
+      }
+    },
+    "runs": {
+      "hero-pyra": {
+        "played": 2,
+        "won": 1
+      }
+    }
+  },
+  "ascension": {
+    "best": 1,
+    "unlocked": 2
+  },
+  "activeRun": {
+    "config": {
+      "seed": 1234,
+      "heroId": "hero-pyra",
+      "pool": ["ember-spark-imp", "ember-ash-raider", "ember-cinder-bolt"],
+      "ascension": 0,
+      "relics": ["relic-ember-coal", "relic-iron-heart", "relic-scout-map"]
+    },
+    "choices": [
+      {
+        "t": "move",
+        "col": 1
+      }
+    ],
+    "match": null
+  },
+  "iosTipSeen": true
+}

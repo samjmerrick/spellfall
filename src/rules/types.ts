@@ -7,7 +7,7 @@ export const MAX_MANA = 10;
 export const HAND_LIMIT = 10;
 export const FIRST_HAND = 3;
 export const SECOND_HAND = 4;
-export const DEFAULT_HERO_HP = 20;
+export const DEFAULT_HERO_HP = 30;
 /** The match is a draw when this turn ends with no winner (20 turns each). */
 export const TURN_LIMIT = 40;
 export const SPARK_ID = 'neutral-spark';

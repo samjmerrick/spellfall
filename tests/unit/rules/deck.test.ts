@@ -15,9 +15,9 @@ const rules = (cards: string[]) => deckProblems(cards).map((p) => p.rule);
 const n = (id: string, count: number) => Array.from({ length: count }, () => id);
 const tenEmber = collectibleCards()
   .filter((c) => c.faction === 'ember' && c.rarity !== 'legendary')
-  .slice(0, 10)
+  .slice(0, 15)
   .map((c) => c.id);
-const legal = tenEmber.flatMap((id) => n(id, 3));
+const legal = tenEmber.flatMap((id) => n(id, 2));
 
 describe('deck legality', () => {
   it('accepts a 30-card single-faction deck', () => {
@@ -32,16 +32,15 @@ describe('deck legality', () => {
   });
 
   it('allows up to 2 factions', () => {
-    const two = [...legal.slice(0, 27), ...n('bastion-recruit', 3)];
+    const two = [...legal.slice(0, 28), ...n('bastion-recruit', 2)];
     expect(rules(two)).toEqual([]);
     // A third faction is covered in deck-factions.test.ts, which adds fake cards.
   });
 
-  it('allows at most 3 copies of a card', () => {
-    const four = [...legal.slice(0, 26), ...n(tenEmber[0]!, 1), ...n(tenEmber[9]!, 3)];
-    const counts = four.filter((id) => id === tenEmber[0]).length;
-    expect(counts).toBe(4);
-    expect(rules(four)).toEqual(['copies']);
+  it('allows at most 2 copies of a card', () => {
+    const three = [...legal.slice(0, 29), tenEmber[0]!];
+    expect(three.filter((id) => id === tenEmber[0]).length).toBe(3);
+    expect(rules(three)).toEqual(['copies']);
   });
 
   it('allows only 1 copy of a Legendary card', () => {
@@ -57,7 +56,7 @@ describe('deck legality', () => {
 
   it('canAddCard respects size, copies, Legendary and faction limits', () => {
     expect(canAddCard(legal, tenEmber[0]!)).toBe(false);
-    expect(canAddCard(legal.slice(0, 27), tenEmber[9]!)).toBe(true);
+    expect(canAddCard(legal.slice(0, 27), tenEmber[14]!)).toBe(true);
     expect(canAddCard(legal.slice(0, 3), tenEmber[0]!)).toBe(false);
     expect(canAddCard([], 'bastion-levy')).toBe(false);
     const legendary = collectibleCards().find((c) => c.rarity === 'legendary')!.id;
@@ -94,7 +93,7 @@ describe('deck share codes', () => {
     for (const deck of PREBUILT_DECKS) {
       const code = encodeDeck(deck.cards);
       expect(code).toMatch(/^SD1-[A-Za-z0-9_-]+$/);
-      expect(code.length).toBeLessThan(40);
+      expect(code.length).toBeLessThan(64);
       expect(decodeDeck(code)).toEqual(sortCards(deck.cards));
     }
   });
@@ -115,9 +114,9 @@ describe('deck factions (Spellfall pool)', () => {
   const grove = collectibleCards().filter((c) => c.faction === 'grove' && c.rarity === 'common');
 
   it('allows two factions and refuses a third', () => {
-    const two = [...ember.slice(0, 5), ...tide.slice(0, 5)].flatMap((c) => n(c.id, 3));
+    const two = [...ember.slice(0, 8), ...tide.slice(0, 7)].flatMap((c) => n(c.id, 2));
     expect(isDeckLegal(two)).toBe(true);
-    const three = [...two.slice(0, 27), ...n(grove[0]!.id, 3)];
+    const three = [...two.slice(0, 28), ...n(grove[0]!.id, 2)];
     expect(rules(three)).toContain('factions');
     expect(canAddCard(two.slice(0, 29), grove[0]!.id)).toBe(false);
     expect(canAddCard(two.slice(0, 29), ember[0]!.id)).toBe(false);

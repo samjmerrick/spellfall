@@ -4,7 +4,7 @@ import type { Faction } from './schema';
 
 export const DECK_SIZE = 30;
 export const MAX_FACTIONS = 2;
-export const MAX_COPIES = 3;
+export const MAX_COPIES = 2;
 export const MAX_LEGENDARY_COPIES = 1;
 
 export interface DeckProblem {
