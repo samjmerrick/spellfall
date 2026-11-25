@@ -602,18 +602,6 @@ button {
   color: #ffd6d8;
 }
 
-/* The hand fan overlaps cards, so their text starts at the visible left edge; hold a card to read it all. */
-.hand__slot .card .card__text {
-  justify-content: flex-start;
-  text-align: left;
-}
-
-/* Names too: left-aligned, so a neighbour's overlap hides the end of a long name, not its start. */
-.hand__slot .card:not(.card--large) .card__name {
-  text-align: left;
-  padding-left: 14px;
-}
-
 /* Units: Power and Health overhang the bottom corners, so the text keeps clear of them. */
 .card--unit .card__text {
   padding: 0 14px;
