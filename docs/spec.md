@@ -206,6 +206,8 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 - **Auto-pass** (setting, on by default): when you get priority but have no legal play, you pass automatically. When you can respond, the newest stack item pulses and the button reads _Resolve_. There are no timers.
 - All tap targets are at least 44 × 44 px.
 
+**Card text.** A card in hand, in the collection and in the deck builder is one frame (`DuelCard`) with its effect text under the name (the type shrinks to fit; keyword-only cards show their keywords as text). On the board a unit shows no text, only keyword and trigger icons for what still matters. Hold a card for the enlarged version with the glossary. Cards in the hand fan overlap, so their text starts at the left edge.
+
 **Vector art style** — as in Lanefall (`docs/v1/spec.md`): CSS/SVG card frames tinted by faction, line-icon art per card id (`src/content/art/<id>.svg`, style in `docs/art.md`), a glyph per faction, dark theme by default. Units have a rectangular art frame; spells have a round art window at the top (the token they become on the stack) and a speed pill at the bottom. Legendaries have a gold frame with an inner ring in the faction colour and a gold crest, in hand and on the board. Units on the board show no name (hold to read it). Their keyword icons sit in a pill on the bottom edge, half out of the frame, between Power and Health, and only for what still matters in play: not Quick or On Play (already used), not Guard (it has its own frame and badge). Hero portraits: in a run, your hero and the enemy's art; in Quick Play, a hero of each deck's first faction.
 
 **Motion and feedback**
