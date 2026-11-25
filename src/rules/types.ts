@@ -50,7 +50,19 @@ export type TargetRef =
 
 export type StackItem =
   | { id: number; kind: 'spell'; owner: PlayerId; cardId: string; targets: TargetRef[] }
-  | { id: number; kind: 'attack'; owner: PlayerId; attacker: number; target: TargetRef };
+  | { id: number; kind: 'attack'; owner: PlayerId; attacker: number; target: TargetRef }
+  /**
+   * A unit's On Play effects, on the stack after the unit entered the board. `targets` is null while its owner
+   * still has to choose them (the owner keeps priority until they do).
+   */
+  | {
+      id: number;
+      kind: 'ability';
+      owner: PlayerId;
+      cardId: string;
+      unitUid: number;
+      targets: TargetRef[] | null;
+    };
 
 export interface PlayerState {
   hp: number;
@@ -126,6 +138,8 @@ export type Action =
   | { type: 'attack'; player: PlayerId; attacker: number; target: TargetRef }
   /** Picks option `index` of the oldest open Discover choice. */
   | { type: 'choose'; player: PlayerId; index: number }
+  /** Chooses the targets of the On Play ability on top of the stack, which is waiting for them. */
+  | { type: 'target'; player: PlayerId; targets: TargetRef[] }
   /** With an empty stack: end the turn. With items on the stack: resolve the whole stack. */
   | { type: 'pass'; player: PlayerId };
 
@@ -149,6 +163,7 @@ export type GameEvent =
   | { type: 'SpellCast'; player: PlayerId; uid: number; cardId: string; speed: string; targets: TargetRef[] }
   | { type: 'AttackDeclared'; player: PlayerId; attacker: number; target: TargetRef; stackId: number }
   | { type: 'StackItemAdded'; item: StackItem }
+  | { type: 'AbilityTargeted'; id: number; targets: TargetRef[] }
   | { type: 'PriorityPassed'; from: PlayerId; to: PlayerId }
   | { type: 'StackResolving'; id: number }
   | { type: 'Fizzled'; id: number; reason: string }

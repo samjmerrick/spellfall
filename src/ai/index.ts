@@ -3,6 +3,7 @@
 import { nextFloat, nextInt, type RngState } from '../rules/rng';
 import {
   applyAction,
+  awaitingAbility,
   getCard,
   HIDDEN,
   legalActions,
@@ -46,13 +47,13 @@ export function simulate(view: GameState, a: Action, resolve = true): GameState 
       resolve && i < 8 && s.phase === 'main' && (s.stack.length > 0 || s.pending?.length);
       i++
     ) {
-      // An open Discover choice is settled with its first option, so the rest of the plan can be judged.
-      s = applyAction(
-        s,
-        s.pending?.length
-          ? { type: 'choose', player: s.priority, index: 0 }
-          : { type: 'pass', player: s.priority },
-      ).state;
+      // An open Discover choice or untargeted ability is settled with its first option, so the rest of the plan can be judged.
+      const next =
+        s.pending?.length || awaitingAbility(s)
+          ? legalActions(s)[0]
+          : { type: 'pass' as const, player: s.priority };
+      if (!next) break;
+      s = applyAction(s, next).state;
     }
     return s;
   } catch {
@@ -124,7 +125,7 @@ function pruned(view: GameState, legal: Action[]): Action[] {
 export function actEasy(view: PlayerView, rng: RngState): ActResult {
   const player = view.viewer;
   if (view.phase === 'mulligan') return { action: mulligan(view, player), rng };
-  if (view.pending?.length) {
+  if (view.pending?.length || awaitingAbility(view)) {
     const picks = legalActions(view);
     const [i, next] = nextInt(rng, 0, picks.length - 1);
     return { action: picks[i]!, rng: next };

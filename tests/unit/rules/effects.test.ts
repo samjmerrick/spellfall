@@ -39,7 +39,10 @@ describe('triggers', () => {
     s = play(s, 0, 'ember-torchbearer');
     expect(s.boards[0]).toHaveLength(1);
     place(s, 1, FILLER);
-    expect(() => play(s, 0, 'ember-torchbearer')).toThrow(/needs targets/);
+    // With a legal target the ability waits for it on the stack (see ability-stack.test.ts) instead of refusing the play.
+    s = play(s, 0, 'ember-torchbearer');
+    expect(s.boards[0]).toHaveLength(2);
+    expect(s.stack).toHaveLength(1);
   });
 
   it('On Play targets may be heroes where the card allows', () => {

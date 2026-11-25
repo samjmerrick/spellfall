@@ -64,7 +64,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 **Units**
 
-- Playing a unit costs its mana and can only happen in your main phase with an empty stack. It does not use the stack: the unit enters at once and its On Play effect resolves at once. Targets for an On Play effect are chosen as the unit is played; if no legal target exists, the unit can still be played and that effect does nothing. Spells always need all their targets.
+- Playing a unit costs its mana and can only happen in your main phase with an empty stack. The unit enters at once, and its On Play effect goes on the stack above it as an ability item (`kind: 'ability'`). If the effect needs targets, the unit's owner chooses them after it has entered, with a `target` action; until then they hold priority and nothing else is legal. The opponent then gets priority and can respond like to any stack item. If no legal target exists, the unit is still played and the effect does nothing; if the targets are gone when it resolves, it fizzles. A `playUnit` action may also give the targets up front (the bots do). Spells always need all their targets.
 - A unit can attack once per turn, but not on the turn it entered unless it has **Quick**. Units with 0 Power cannot attack. Summoned units count as entering when summoned.
 
 **Combat**
@@ -77,7 +77,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 **Triggered abilities**
 
-- On Play, Last Breath, Start of Turn and End of Turn effects resolve immediately and do not use the stack. When several trigger at once, the active player's resolve first, each side in play order.
+- On Play effects use the stack (see above). Last Breath, Start of Turn and End of Turn effects resolve immediately and do not use the stack. When several trigger at once, the active player's resolve first, each side in play order.
 
 **Winning**
 

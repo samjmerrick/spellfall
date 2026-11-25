@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { getCard, legalActions, sameTarget, type TargetRef } from '../../rules';
+import { awaitingAbility, getCard, legalActions, sameTarget, type TargetRef } from '../../rules';
 import { useDurationScale } from '../motion';
 import { AI, HUMAN, useDuel, type Pick } from './store';
 import {
@@ -24,7 +24,7 @@ import { DiscoverOverlay, MulliganOverlay, ResultOverlay, ErrorToast } from './O
 export function DuelScreen() {
   const game = useDuel((s) => s.game);
   const busy = useDuel((s) => s.busy);
-  const pick = useDuel((s) => s.pick);
+  const storedPick = useDuel((s) => s.pick);
   const setPick = useDuel((s) => s.setPick);
   const perform = useDuel((s) => s.perform);
   const motionScale = useDurationScale();
@@ -34,6 +34,15 @@ export function DuelScreen() {
   const holdRef = useRef<{ timer: number; x0: number; y0: number } | null>(null);
   /** Set when a hold opened the reader, so the click that follows the release is ignored. */
   const heldRef = useRef(false);
+
+  // While your On Play ability waits on the stack for targets, choosing them is the only thing to do.
+  const waiting = game && game.priority === HUMAN ? awaitingAbility(game) : undefined;
+  const pick: Pick | null =
+    waiting && waiting.owner === HUMAN
+      ? storedPick?.kind === 'abilityTargets'
+        ? storedPick
+        : { kind: 'abilityTargets', chosen: [] }
+      : storedPick;
 
   const legal = useMemo(
     () => (game && !busy && game.phase === 'main' && game.priority === HUMAN ? legalActions(game) : []),
@@ -63,9 +72,8 @@ export function DuelScreen() {
       (o) => o.type === 'playUnit' && o.position === position,
     );
     if (here.length === 0) return setPick(null);
-    if (here.length === 1 && (here[0] as { targets: TargetRef[] }).targets.length === 0)
-      return void perform(here[0]!);
-    setPick({ kind: 'placeTargets', uid, position, chosen: [] });
+    // The unit enters at once; an On Play ability goes on the stack and its targets are chosen there.
+    void perform({ type: 'playUnit', player: HUMAN, uid, position, targets: [] });
   }
 
   /** Completes (or advances) a choice by dropping or tapping `src` onto `key` at screen x. */
@@ -173,8 +181,9 @@ export function DuelScreen() {
 
   /** A tap on a source: pick it (or unpick). A targeted spell goes straight to the stack to wait for targets. */
   function tapSource(src: Source) {
-    if (pick && pick.kind !== 'unit' && src.kind === 'card' && pick.uid === src.uid) return setPick(null);
-    if (pick && pick.kind === src.kind && pick.uid === src.uid) return setPick(null);
+    if (pick && 'uid' in pick && pick.kind !== 'unit' && src.kind === 'card' && pick.uid === src.uid)
+      return setPick(null);
+    if (pick && 'uid' in pick && pick.kind === src.kind && pick.uid === src.uid) return setPick(null);
     const options = actionsFor(legal, src);
     if (options.length === 0) return setPick(null);
     const card = src.kind === 'card' ? cardOf(src.uid) : null;
@@ -220,7 +229,7 @@ export function DuelScreen() {
     tapTarget,
   };
   const prompt =
-    pick?.kind === 'placeTargets' || pick?.kind === 'spellTargets'
+    pick?.kind === 'abilityTargets' || pick?.kind === 'spellTargets'
       ? 'Choose a target'
       : pick?.kind === 'unit'
         ? 'Choose what to attack'

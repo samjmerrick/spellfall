@@ -1,5 +1,5 @@
 // Public API of Spellfall's rules. The UI, AI and simulator import from here only.
-export { initMatch, legalActions, applyAction } from './match';
+export { initMatch, legalActions, applyAction, awaitingAbility } from './match';
 export { viewFor, eventsFor, HIDDEN, type PlayerView } from './view';
 export {
   findUnit,

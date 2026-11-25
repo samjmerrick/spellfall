@@ -1,4 +1,5 @@
 import {
+  awaitingAbility,
   applyAction,
   getCard,
   initMatch,
@@ -115,13 +116,22 @@ export function play(
   targets: TargetRef[] = [],
   position?: number,
 ): GameState {
-  return act(s, {
+  const played = act(s, {
     type: 'playUnit',
     player,
     uid: give(s, player, cardId),
     position: position ?? s.boards[player].length,
     targets,
   });
+  return resolveAbility(played);
+}
+
+/** Lets an On Play ability on the stack resolve (the opponent passes), unless it still waits for targets. */
+export function resolveAbility(s: GameState): GameState {
+  if (s.stack.length === 0 || awaitingAbility(s)) return s;
+  const top = s.stack[s.stack.length - 1]!;
+  if (top.kind !== 'ability') return s;
+  return act(s, { type: 'pass', player: s.priority });
 }
 
 export const pass = (s: GameState, player: PlayerId = s.priority): GameState =>

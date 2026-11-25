@@ -17,6 +17,7 @@ function stackLabel(s: GameState, item: StackItem): string {
     return `${a ? getCard(a.cardId).name : 'Attack'} → ${target(item.target)}`;
   }
   const name = getCard(item.cardId).name;
+  if (item.targets === null) return `${name}: choosing a target`;
   return item.targets.length ? `${name} → ${item.targets.map(target).join(', ')}` : name;
 }
 
@@ -67,9 +68,9 @@ export function StackStrip({ prompt, input }: { prompt: string | null; input: In
             {game.stack.map((item, i) => {
               const key = `stack:${item.id}`;
               const cardId =
-                item.kind === 'spell'
-                  ? item.cardId
-                  : game.boards[item.owner].find((u) => u.uid === item.attacker)?.cardId;
+                item.kind === 'attack'
+                  ? game.boards[item.owner].find((u) => u.uid === item.attacker)?.cardId
+                  : item.cardId;
               return (
                 <li
                   key={item.id}
@@ -79,6 +80,7 @@ export function StackStrip({ prompt, input }: { prompt: string | null; input: In
                     i === game.stack.length - 1 && !pending ? 'stack-item--top' : '',
                     input.valid.has(key) ? 'drop--valid' : '',
                     resolving === item.id ? 'stack-item--resolving' : '',
+                    item.kind === 'ability' && item.targets === null ? 'stack-item--pending' : '',
                   ].join(' ')}
                   data-drop={key}
                   data-ref={key}
@@ -89,7 +91,7 @@ export function StackStrip({ prompt, input }: { prompt: string | null; input: In
                   onClick={(e) => {
                     if (input.consumeHold()) return;
                     if (input.tapTarget(key, e.clientX)) return;
-                    if (item.kind === 'spell') showDetail(item.cardId);
+                    if (item.kind !== 'attack') showDetail(item.cardId);
                   }}
                 >
                   {cardId ? <Orb cardId={cardId} attack={item.kind === 'attack'} /> : '⚔'}
@@ -138,11 +140,16 @@ export function Connectors() {
     const out: { id: string; from: string; to: string; owner: Line['owner'] }[] = [];
     for (const item of game.stack) {
       const owner = item.owner === HUMAN ? 'player' : 'opponent';
-      const targets = item.kind === 'attack' ? [item.target] : item.targets;
+      const targets = item.kind === 'attack' ? [item.target] : (item.targets ?? []);
       targets.forEach((t, i) =>
         out.push({ id: `${item.id}-${i}`, from: String(item.id), to: refKey(t), owner }),
       );
     }
+    const waiting = game.stack.find((i) => i.kind === 'ability' && i.targets === null);
+    if (pick?.kind === 'abilityTargets' && waiting)
+      pick.chosen.forEach((t, i) =>
+        out.push({ id: `a-${i}`, from: String(waiting.id), to: refKey(t), owner: 'pending' }),
+      );
     if (pick?.kind === 'spellTargets')
       pick.chosen.forEach((t, i) =>
         out.push({ id: `p-${i}`, from: 'pending', to: refKey(t), owner: 'pending' }),
