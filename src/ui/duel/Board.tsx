@@ -85,7 +85,7 @@ export function HeroBar() {
   const p = game.players[HUMAN];
   let label = "Opponent's turn";
   let enabled = false;
-  if (game.phase === 'main' && game.priority === HUMAN && !busy) {
+  if (game.phase === 'main' && game.priority === HUMAN && !busy && !game.pending?.length) {
     enabled = true;
     label = game.stack.length > 0 ? 'Resolve' : 'End Turn';
   } else if (busy && game.priority === HUMAN) label = '…';

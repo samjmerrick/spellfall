@@ -18,13 +18,23 @@ export function viewFor(s: GameState, viewer: PlayerId, opts: { seeHand?: boolea
   if (!opts.seeHand) opp.hand = opp.hand.map((c) => ({ uid: c.uid, cardId: HIDDEN }));
   opp.deck = opp.deck.map(() => HIDDEN);
   v.players[viewer].deck.sort();
+  // The other player's open Discover options are hidden too.
+  if (v.pending)
+    v.pending = v.pending.map((c) =>
+      c.player === viewer ? c : { ...c, options: c.options.map(() => HIDDEN) },
+    );
   v.rng = (0x9e3779b9 ^ (s.turn * 2654435761)) >>> 0;
   return v;
 }
 
 /** Events as `viewer` may see them: the opponent's draws and burns are hidden. */
 export function eventsFor(events: readonly GameEvent[], viewer: PlayerId): GameEvent[] {
-  return events.map((e) =>
-    (e.type === 'CardDrawn' || e.type === 'CardBurned') && e.player !== viewer ? { ...e, cardId: HIDDEN } : e,
-  );
+  return events.map((e) => {
+    if ((e.type === 'CardDrawn' || e.type === 'CardBurned') && e.player !== viewer)
+      return { ...e, cardId: HIDDEN };
+    if (e.type === 'ChoiceOffered' && e.player !== viewer)
+      return { ...e, options: e.options.map(() => HIDDEN) };
+    if (e.type === 'ChoiceMade' && e.player !== viewer) return { ...e, cardId: HIDDEN };
+    return e;
+  });
 }

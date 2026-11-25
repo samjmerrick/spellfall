@@ -53,21 +53,42 @@ export const UNIT_SELECTORS = [
 ] as const;
 export const HERO_SELECTORS = ['friendlyHero', 'enemyHero'] as const;
 
+/** What a "per" effect counts: damage, healing and buffs are `amount × count`. */
+export const COUNTS = ['friendlyUnits', 'enemyUnits', 'handSize', 'enemyHandSize', 'fallen'] as const;
+
+/** A filter over collectible cards, for conjure, fetch and discover. */
+export const CardFilterSchema = z.object({
+  type: z.enum(['unit', 'spell']).optional(),
+  faction: z.enum(FACTIONS).optional(),
+  minCost: z.number().int().min(0).optional(),
+  maxCost: z.number().int().min(0).optional(),
+  rarity: z.enum(['common', 'uncommon', 'rare', 'legendary']).optional(),
+  keyword: z.enum(KEYWORDS).optional(),
+});
+export type CardFilter = z.infer<typeof CardFilterSchema>;
+
 const UnitSelector = z.enum(UNIT_SELECTORS);
 /** Damage and heal may hit a chosen character (unit or hero) via `target`/`target2`. */
 const AnySelector = z.enum([...UNIT_SELECTORS, ...HERO_SELECTORS]);
 const Keyword = z.enum(KEYWORDS);
 const posInt = z.number().int().positive();
+const Count = z.enum(COUNTS);
 
 export const PrimitiveSchema = z.discriminatedUnion('op', [
-  z.object({ op: z.literal('damage'), target: AnySelector, amount: posInt }),
-  z.object({ op: z.literal('heal'), target: AnySelector, amount: z.union([posInt, z.literal('full')]) }),
+  z.object({ op: z.literal('damage'), target: AnySelector, amount: posInt, per: Count.optional() }),
+  z.object({
+    op: z.literal('heal'),
+    target: AnySelector,
+    amount: z.union([posInt, z.literal('full')]),
+    per: Count.optional(),
+  }),
   z.object({
     op: z.literal('buff'),
     target: UnitSelector,
     power: z.number().int(),
     health: z.number().int(),
     duration: z.enum(['permanent', 'turn']),
+    per: Count.optional(),
   }),
   z.object({ op: z.literal('draw'), count: posInt }),
   z.object({ op: z.literal('summon'), cardId: z.string(), count: posInt.default(1) }),
@@ -93,6 +114,20 @@ export const PrimitiveSchema = z.discriminatedUnion('op', [
   z.object({ op: z.literal('revive'), count: posInt }),
   /** Adds a copy of the spell that was just cast to your hand (whenCast / whenEnemyCast only). */
   z.object({ op: z.literal('copySpell') }),
+  /** Adds a specific card to your hand. */
+  z.object({ op: z.literal('conjure'), cardId: z.string(), count: posInt.default(1) }),
+  /** Adds a random collectible card that fits the filter to your hand. */
+  z.object({ op: z.literal('conjureRandom'), filter: CardFilterSchema, count: posInt.default(1) }),
+  /** Moves the first card in your deck that fits the filter to your hand (nothing if there is none). */
+  z.object({ op: z.literal('fetch'), filter: CardFilterSchema }),
+  /** Offers three random collectible cards that fit the filter; you choose one to add to your hand. */
+  z.object({ op: z.literal('discover'), filter: CardFilterSchema }),
+  /** The unit cannot attack during its owner's next turn. */
+  z.object({ op: z.literal('freeze'), target: UnitSelector }),
+  /** The enemy has this much less mana at the start of its next turn. */
+  z.object({ op: z.literal('drainMana'), amount: posInt }),
+  /** Summons a copy of a unit (a fresh one with its printed stats) for you. */
+  z.object({ op: z.literal('copyUnit'), target: UnitSelector }),
 ]);
 
 export const TRIGGERS = [
@@ -106,11 +141,31 @@ export const TRIGGERS = [
   'whenCast',
   /** Units only: whenever the enemy casts a spell (before it resolves). */
   'whenEnemyCast',
+  /** Units only: when this unit attacks (as the attack is declared). */
+  'onAttack',
+  /** Units only: whenever another friendly unit is played from your hand. */
+  'whenFriendlyPlay',
+  /** Units only: whenever another friendly unit dies. */
+  'whenFriendlyDies',
+  /** Units only: whenever this unit takes damage and survives. */
+  'whenDamaged',
 ] as const;
+
+/** When an effect does anything at all. Checked as the effect runs; `selfDamaged` needs a unit. */
+export const ConditionSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('hpAtMost'), amount: posInt }),
+  z.object({ kind: z.literal('enemyHpAtMost'), amount: posInt }),
+  z.object({ kind: z.literal('friendlyUnitsAtLeast'), amount: posInt }),
+  z.object({ kind: z.literal('enemyUnitsAtLeast'), amount: posInt }),
+  z.object({ kind: z.literal('handAtMost'), amount: z.number().int().min(0) }),
+  z.object({ kind: z.literal('selfDamaged') }),
+]);
+export type Condition = z.infer<typeof ConditionSchema>;
 
 export const EffectSchema = z.object({
   trigger: z.enum(TRIGGERS),
   action: PrimitiveSchema,
+  if: ConditionSchema.optional(),
 });
 
 const UNIT_ONLY = new Set(['enemyUnit', 'friendlyUnit', 'anyUnit']);
@@ -174,6 +229,12 @@ export const CardSchema = z
         !['otherFriendlyUnits', 'adjacentUnits', 'allEnemyUnits'].includes(sel)
       )
         issue('ongoing buffs apply to other friendly, adjacent or enemy units');
+      if (e.if?.kind === 'selfDamaged' && card.type === 'spell')
+        issue('spells have no selfDamaged condition');
+      if (e.trigger === 'ongoing' && e.if) issue('ongoing effects cannot have conditions');
+      if (e.trigger === 'ongoing' && 'per' in a && a.per) issue('ongoing effects cannot scale');
+      if (a.op === 'heal' && a.amount === 'full' && a.per) issue('a full heal cannot scale');
+      if (a.op === 'copyUnit' && sel === 'self') issue('copyUnit needs another unit');
       if (a.op === 'counter' && card.targets[0]?.kind !== 'stackItem')
         issue('counter needs a stackItem target');
       const cast = e.trigger === 'whenCast' || e.trigger === 'whenEnemyCast';
@@ -223,7 +284,12 @@ export const MatchModifierSchema = z
     if ('target' in m.action && !GLOBAL_SELECTORS.includes(m.action.target))
       ctx.addIssue({ code: 'custom', message: `turnStart cannot use the ${m.action.target} selector` });
     if (m.action.op === 'counter') ctx.addIssue({ code: 'custom', message: 'turnStart cannot counter' });
-    if (m.action.op === 'extraTurn' || m.action.op === 'copySpell')
+    if (
+      m.action.op === 'extraTurn' ||
+      m.action.op === 'copySpell' ||
+      m.action.op === 'discover' ||
+      m.action.op === 'copyUnit'
+    )
       ctx.addIssue({ code: 'custom', message: `turnStart cannot use ${m.action.op}` });
   });
 

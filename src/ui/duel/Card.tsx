@@ -20,9 +20,19 @@ const SPEED_LABEL = { burst: 'Burst', fast: 'Fast', slow: 'Slow' } as const;
 
 /** Keywords first, then non-spell trigger marks, in a fixed order. */
 function iconKinds(keywords: readonly Keyword[], effects: readonly Effect[]): string[] {
-  const marks = (['onPlay', 'ongoing', 'startOfTurn', 'endOfTurn', 'lastBreath'] as const).filter((t) =>
-    effects.some((e) => e.trigger === t),
-  );
+  const marks = (
+    [
+      'onPlay',
+      'ongoing',
+      'startOfTurn',
+      'endOfTurn',
+      'lastBreath',
+      'onAttack',
+      'whenFriendlyPlay',
+      'whenFriendlyDies',
+      'whenDamaged',
+    ] as const
+  ).filter((t) => effects.some((e) => e.trigger === t));
   return [...keywords, ...marks];
 }
 

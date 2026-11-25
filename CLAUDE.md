@@ -33,7 +33,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 
 - Public API is `src/rules/index.ts`: `initMatch`, `legalActions(state)` (for the player with priority, or both during the
   mulligan), `applyAction(state, action) → { state, events }`, `viewFor(state, player, { seeHand? })`, `eventsFor`.
-- Actions: `mulligan`, `playUnit` (with a board position and On Play targets), `castSpell`, `attack`, `pass` (empty stack: end
+- Actions: `mulligan`, `choose` (a Discover pick, see spec), `playUnit` (with a board position and On Play targets), `castSpell`, `attack`, `pass` (empty stack: end
   turn; otherwise resolve the whole stack). Burst resolves at once; Fast/Slow spells and attacks go on `state.stack`.
 - Card behaviour is data (`src/content/cards.json`, schema `src/rules/schema.ts`: `speed`, `targets[]`, `target`/`target2`
   selectors). Add a primitive in `src/rules/effects.ts` only when no combination of existing ones can express a card.

@@ -41,6 +41,34 @@ export function MulliganOverlay() {
   );
 }
 
+/** Discover: pick one of the offered cards to add to your hand. The AI's choices are made without this overlay. */
+export function DiscoverOverlay() {
+  const game = useDuel((s) => s.game)!;
+  const busy = useDuel((s) => s.busy);
+  const perform = useDuel((s) => s.perform);
+  const choice = game.pending?.[0];
+  if (!choice || choice.player !== HUMAN || game.phase !== 'main' || busy) return null;
+  return (
+    <div className="overlay" role="dialog" aria-label="Discover">
+      <h2>Choose a card</h2>
+      <p className="overlay__hint">It goes to your hand.</p>
+      <div className="mulligan mulligan--three">
+        {choice.options.map((id, index) => (
+          <button
+            key={id}
+            type="button"
+            className="mulligan__card"
+            aria-label={getCard(id).name}
+            onClick={() => void perform({ type: 'choose', player: HUMAN, index })}
+          >
+            <DuelCard cardId={id} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ResultOverlay() {
   const game = useDuel((s) => s.game)!;
   const busy = useDuel((s) => s.busy);

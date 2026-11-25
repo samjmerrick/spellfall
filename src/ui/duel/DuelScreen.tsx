@@ -19,7 +19,7 @@ import {
 import { OpponentTop, HeroBar, BoardSide } from './Board';
 import { StackStrip, Connectors, PlayReveal } from './Stack';
 import { HandRow, HoldReader, DragGhost } from './Hand';
-import { MulliganOverlay, ResultOverlay, ErrorToast } from './Overlays';
+import { DiscoverOverlay, MulliganOverlay, ResultOverlay, ErrorToast } from './Overlays';
 
 export function DuelScreen() {
   const game = useDuel((s) => s.game);
@@ -258,6 +258,7 @@ export function DuelScreen() {
       {drag?.moved && <DragGhost drag={drag} game={game} />}
       {reading && <HoldReader cardId={reading} />}
       <MulliganOverlay />
+      <DiscoverOverlay />
       <ResultOverlay />
       <ErrorToast />
     </main>

@@ -8,6 +8,10 @@ export const TRIGGER_NAME: Partial<Record<Effect['trigger'], string>> = {
   startOfTurn: 'Start of Turn',
   endOfTurn: 'End of Turn',
   lastBreath: 'Last Breath',
+  onAttack: 'Attack',
+  whenFriendlyPlay: 'Ally Played',
+  whenFriendlyDies: 'Ally Died',
+  whenDamaged: 'Damaged',
 };
 
 export const GLOSSARY: Record<string, string> = {
@@ -25,6 +29,12 @@ export const GLOSSARY: Record<string, string> = {
   'Last Breath': 'Effect resolves when the unit dies.',
   'Start of Turn': 'Effect resolves at the start of your turn.',
   'End of Turn': 'Effect resolves at the end of your turn.',
+  Attack: 'Effect resolves when this unit attacks.',
+  Discover: 'Choose one of three random cards that fit; it is added to your hand.',
+  Freeze: 'A frozen unit cannot attack until the end of its owner’s turn.',
+  'Ally Played': 'Effect resolves whenever you play another unit.',
+  'Ally Died': 'Effect resolves whenever another friendly unit dies.',
+  Damaged: 'Effect resolves whenever this unit takes damage and survives.',
   Burst: 'Resolves at once. You keep priority.',
   Fast: 'Can be cast any time you have priority. The opponent may respond.',
   Slow: 'Only in your main phase with an empty stack. The opponent may respond.',

@@ -41,8 +41,18 @@ function visible(a: Action): boolean {
 export function simulate(view: GameState, a: Action, resolve = true): GameState | null {
   try {
     let s = applyAction(view, a).state;
-    for (let i = 0; resolve && i < 8 && s.phase === 'main' && s.stack.length > 0; i++) {
-      s = applyAction(s, { type: 'pass', player: s.priority }).state;
+    for (
+      let i = 0;
+      resolve && i < 8 && s.phase === 'main' && (s.stack.length > 0 || s.pending?.length);
+      i++
+    ) {
+      // An open Discover choice is settled with its first option, so the rest of the plan can be judged.
+      s = applyAction(
+        s,
+        s.pending?.length
+          ? { type: 'choose', player: s.priority, index: 0 }
+          : { type: 'pass', player: s.priority },
+      ).state;
     }
     return s;
   } catch {
@@ -76,7 +86,9 @@ export function rankActions(view: PlayerView): { action: Action; value: number }
     }
     if (!visible(a)) continue;
     const s = simulate(view, a);
-    if (s) out.push({ action: a, value: score(s, player) + 0.01 });
+    // Between equal choices, a Discover pick prefers the more expensive card.
+    const bonus = a.type === 'choose' ? getCard(view.pending![0]!.options[a.index]!).cost * 0.001 : 0;
+    if (s) out.push({ action: a, value: score(s, player) + 0.01 + bonus });
   }
   // Pass first among equals, so a tie never acts for nothing.
   return out
@@ -112,6 +124,11 @@ function pruned(view: GameState, legal: Action[]): Action[] {
 export function actEasy(view: PlayerView, rng: RngState): ActResult {
   const player = view.viewer;
   if (view.phase === 'mulligan') return { action: mulligan(view, player), rng };
+  if (view.pending?.length) {
+    const picks = legalActions(view);
+    const [i, next] = nextInt(rng, 0, picks.length - 1);
+    return { action: picks[i]!, rng: next };
+  }
   const legal = pruned(view, legalActions(view));
   const pass = legal.find((a) => a.type === 'pass')!;
   const acts = legal.filter((a) => a.type !== 'pass');
