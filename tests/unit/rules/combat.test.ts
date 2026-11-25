@@ -6,15 +6,15 @@ describe('attacks', () => {
   it('an attack goes on the stack; on resolve both units deal damage at the same time', () => {
     let s = setup({ mana: 5 });
     const a = place(s, 0, 'bastion-wall-warden'); // 2/5
-    const d = place(s, 1, 'ember-ash-raider'); // 3/1
+    const d = place(s, 1, 'ember-cinder-scout'); // 2/1
     s = attack(s, a, unit(d.uid));
     expect(s.stack).toHaveLength(1);
     expect(s.priority).toBe(1);
     expect(onBoard(s, d.uid)).toBe(true);
     s = pass(s);
     expect(onBoard(s, d.uid)).toBe(false);
-    expect(u(s, a.uid).damage).toBe(3);
-    expect(events().find((e) => e.type === 'Combat')).toMatchObject({ dealt: 2, taken: 3, overwhelm: 0 });
+    expect(u(s, a.uid).damage).toBe(2);
+    expect(events().find((e) => e.type === 'Combat')).toMatchObject({ dealt: 2, taken: 2, overwhelm: 0 });
   });
 
   it('attacking the hero deals Power to it and takes nothing back', () => {
@@ -177,10 +177,10 @@ describe('keywords', () => {
 
   it('Quick units can attack the turn they enter', () => {
     let s = setup({ mana: 2 });
-    s = play(s, 0, 'ember-ash-raider');
+    s = play(s, 0, 'ember-cinder-scout');
     const r = s.boards[0][0]!;
     s = pass(attack(s, r, hero(1)));
-    expect(s.players[1].hp).toBe(17);
+    expect(s.players[1].hp).toBe(18);
   });
 
   it('Banner Knight (formerly Rally): On Play, other friendly units get +1 Power this turn', () => {
@@ -204,7 +204,7 @@ describe('keywords', () => {
 
   it('Regenerate: start of your turn, heal fully', () => {
     let s = setup();
-    const r = place(s, 1, 'bastion-militia', { keywords: ['regenerate'], damage: 2 });
+    const r = place(s, 1, 'bastion-cathedral-guard', { keywords: ['regenerate'], damage: 2 });
     s = pass(s);
     expect(u(s, r.uid).damage).toBe(0);
   });

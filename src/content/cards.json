@@ -25,10 +25,20 @@
     "faction": "ember",
     "type": "unit",
     "cost": 1,
-    "power": 2,
+    "power": 1,
     "health": 1,
-    "text": "",
-    "rarity": "common"
+    "text": "Attack: deal 1 damage to the enemy hero.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onAttack",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "ember-cinder-scout",
@@ -36,7 +46,7 @@
     "faction": "ember",
     "type": "unit",
     "cost": 1,
-    "power": 1,
+    "power": 2,
     "health": 1,
     "keywords": ["quick"],
     "text": "Quick.",
@@ -60,11 +70,23 @@
     "faction": "ember",
     "type": "unit",
     "cost": 2,
-    "power": 3,
+    "power": 2,
     "health": 1,
     "keywords": ["quick"],
-    "text": "Quick.",
-    "rarity": "common"
+    "text": "Quick. Whenever you play another unit: give this unit +1 Power.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenFriendlyPlay",
+        "action": {
+          "op": "buff",
+          "target": "self",
+          "power": 1,
+          "health": 0,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "ember-ember-hound",
@@ -75,8 +97,20 @@
     "power": 2,
     "health": 1,
     "keywords": ["overwhelm"],
-    "text": "Overwhelm.",
-    "rarity": "common"
+    "text": "Overwhelm. Whenever another friendly unit dies: give this unit +1 Power.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenFriendlyDies",
+        "action": {
+          "op": "buff",
+          "target": "self",
+          "power": 1,
+          "health": 0,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "ember-torchbearer",
@@ -157,11 +191,21 @@
     "faction": "ember",
     "type": "unit",
     "cost": 3,
-    "power": 5,
+    "power": 4,
     "health": 3,
     "keywords": ["quick", "ephemeral"],
-    "text": "Quick. Ephemeral.",
-    "rarity": "uncommon"
+    "text": "Quick. Ephemeral. On Play: deal 1 damage to the enemy hero.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "ember-magma-brute",
@@ -225,11 +269,21 @@
     "faction": "ember",
     "type": "unit",
     "cost": 6,
-    "power": 6,
-    "health": 5,
+    "power": 5,
+    "health": 4,
     "keywords": ["overwhelm"],
-    "text": "Overwhelm.",
-    "rarity": "rare"
+    "text": "Overwhelm. Last Breath: add two copies of Cinder Bolt to your hand.",
+    "rarity": "rare",
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "conjure",
+          "cardId": "ember-cinder-bolt",
+          "count": 2
+        }
+      }
+    ]
   },
   {
     "id": "ember-volcano-lord",
@@ -460,9 +514,21 @@
     "type": "unit",
     "cost": 2,
     "power": 2,
-    "health": 3,
-    "text": "",
-    "rarity": "common"
+    "health": 2,
+    "text": "Whenever you play another unit: give this unit +1 Health.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenFriendlyPlay",
+        "action": {
+          "op": "buff",
+          "target": "self",
+          "power": 0,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "bastion-banner-knight",
@@ -515,10 +581,22 @@
     "type": "unit",
     "cost": 3,
     "power": 2,
-    "health": 5,
+    "health": 4,
     "keywords": ["guard"],
-    "text": "Guard.",
-    "rarity": "common"
+    "text": "Guard. Last Breath: give all friendly units +1 Health.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "buff",
+          "target": "allFriendlyUnits",
+          "power": 0,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "bastion-muster-captain",
@@ -548,10 +626,20 @@
     "type": "unit",
     "cost": 3,
     "power": 3,
-    "health": 3,
+    "health": 2,
     "keywords": ["barrier"],
-    "text": "Barrier.",
-    "rarity": "uncommon"
+    "text": "Barrier. On Play: heal your hero by 3.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 3
+        }
+      }
+    ]
   },
   {
     "id": "bastion-standard-bearer",
@@ -583,10 +671,20 @@
     "type": "unit",
     "cost": 4,
     "power": 3,
-    "health": 5,
+    "health": 4,
     "keywords": ["guard"],
-    "text": "Guard.",
-    "rarity": "common"
+    "text": "Guard. Whenever this survives damage: summon a 1/1 Levy.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenDamaged",
+        "action": {
+          "op": "summon",
+          "cardId": "bastion-levy",
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "bastion-cathedral-guard",
@@ -595,10 +693,20 @@
     "type": "unit",
     "cost": 5,
     "power": 4,
-    "health": 6,
+    "health": 5,
     "keywords": ["guard"],
-    "text": "Guard.",
-    "rarity": "uncommon"
+    "text": "Guard. On Play: heal your hero by 4.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 4
+        }
+      }
+    ]
   },
   {
     "id": "bastion-high-cleric",
@@ -926,11 +1034,21 @@
     "faction": "ember",
     "type": "unit",
     "cost": 4,
-    "power": 4,
+    "power": 3,
     "health": 3,
     "keywords": ["overwhelm"],
-    "text": "Overwhelm.",
-    "rarity": "uncommon"
+    "text": "Overwhelm. Attack: deal 1 damage to a random enemy unit.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "onAttack",
+        "action": {
+          "op": "damage",
+          "target": "randomEnemyUnit",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "ember-wildfire",
@@ -966,11 +1084,21 @@
     "faction": "ember",
     "type": "unit",
     "cost": 5,
-    "power": 6,
-    "health": 5,
-    "text": "Guard.",
+    "power": 5,
+    "health": 4,
+    "text": "Guard. Last Breath: deal 2 damage to all enemy units.",
     "rarity": "common",
-    "keywords": ["guard"]
+    "keywords": ["guard"],
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "damage",
+          "target": "allEnemyUnits",
+          "amount": 2
+        }
+      }
+    ]
   },
   {
     "id": "ember-ember-witch",
@@ -1129,10 +1257,20 @@
     "type": "unit",
     "cost": 4,
     "power": 3,
-    "health": 4,
+    "health": 3,
     "keywords": ["guard", "barrier"],
-    "text": "Guard. Barrier.",
-    "rarity": "uncommon"
+    "text": "Guard. Barrier. Whenever you play another unit: heal your hero by 1.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "whenFriendlyPlay",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "bastion-reinforcements",
@@ -1204,10 +1342,25 @@
     "type": "unit",
     "cost": 5,
     "power": 4,
-    "health": 5,
+    "health": 4,
     "keywords": ["barrier"],
-    "text": "Barrier.",
-    "rarity": "common"
+    "text": "Barrier. On Play: deal 2 damage to an enemy unit.",
+    "rarity": "common",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "target",
+          "amount": 2
+        }
+      }
+    ]
   },
   {
     "id": "bastion-last-stand",
@@ -1278,9 +1431,22 @@
     "type": "unit",
     "cost": 1,
     "power": 1,
-    "health": 2,
-    "text": "",
-    "rarity": "common"
+    "health": 1,
+    "text": "On Play: Discover a Tide spell costing 2 or less.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "discover",
+          "filter": {
+            "type": "spell",
+            "faction": "tide",
+            "maxCost": 2
+          }
+        }
+      }
+    ]
   },
   {
     "id": "tide-mist-sprite",
@@ -1345,10 +1511,24 @@
     "type": "unit",
     "cost": 2,
     "power": 2,
-    "health": 2,
+    "health": 1,
     "keywords": ["barrier"],
-    "text": "Barrier.",
-    "rarity": "common"
+    "text": "Barrier. On Play: Freeze an enemy unit.",
+    "rarity": "common",
+    "targets": [
+      {
+        "kind": "enemyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "freeze",
+          "target": "target"
+        }
+      }
+    ]
   },
   {
     "id": "tide-current-rider",
@@ -1357,10 +1537,19 @@
     "type": "unit",
     "cost": 2,
     "power": 2,
-    "health": 3,
+    "health": 2,
     "keywords": ["elusive"],
-    "text": "Elusive.",
-    "rarity": "common"
+    "text": "Elusive. Attack: draw a card.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onAttack",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "tide-pearl-diver",
@@ -1460,10 +1649,22 @@
     "type": "unit",
     "cost": 3,
     "power": 2,
-    "health": 4,
+    "health": 3,
     "keywords": ["guard", "barrier"],
-    "text": "Guard. Barrier.",
-    "rarity": "common"
+    "text": "Guard. Barrier. Whenever you cast a spell: give this unit +1 Health.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenCast",
+        "action": {
+          "op": "buff",
+          "target": "self",
+          "power": 0,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "tide-storm-petrel",
@@ -1472,10 +1673,19 @@
     "type": "unit",
     "cost": 3,
     "power": 3,
-    "health": 4,
+    "health": 3,
     "keywords": ["elusive"],
-    "text": "Elusive.",
-    "rarity": "common"
+    "text": "Elusive. Attack: Freeze a random enemy unit.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onAttack",
+        "action": {
+          "op": "freeze",
+          "target": "randomEnemyUnit"
+        }
+      }
+    ]
   },
   {
     "id": "tide-riptide",
@@ -1570,10 +1780,25 @@
     "type": "unit",
     "cost": 4,
     "power": 3,
-    "health": 5,
+    "health": 4,
     "keywords": ["barrier"],
-    "text": "Barrier.",
-    "rarity": "common"
+    "text": "Barrier. On Play: give a friendly unit Barrier.",
+    "rarity": "common",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "grantKeyword",
+          "target": "target",
+          "keyword": "barrier"
+        }
+      }
+    ]
   },
   {
     "id": "tide-whirlpool",
@@ -1663,11 +1888,23 @@
     "faction": "tide",
     "type": "unit",
     "cost": 4,
-    "power": 4,
-    "health": 5,
-    "text": "Guard.",
+    "power": 3,
+    "health": 4,
+    "text": "Guard. Whenever the enemy casts a spell: give this unit +1/+1.",
     "rarity": "common",
-    "keywords": ["guard"]
+    "keywords": ["guard"],
+    "effects": [
+      {
+        "trigger": "whenEnemyCast",
+        "action": {
+          "op": "buff",
+          "target": "self",
+          "power": 1,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "tide-leviathan-spawn",
@@ -1675,11 +1912,24 @@
     "faction": "tide",
     "type": "unit",
     "cost": 5,
-    "power": 5,
-    "health": 6,
+    "power": 4,
+    "health": 5,
     "keywords": ["elusive"],
-    "text": "Elusive.",
-    "rarity": "common"
+    "text": "Elusive. On Play: add a random Tide spell to your hand.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "conjureRandom",
+          "filter": {
+            "type": "spell",
+            "faction": "tide"
+          },
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "tide-maelstrom",
@@ -1763,10 +2013,19 @@
     "faction": "tide",
     "type": "unit",
     "cost": 6,
-    "power": 6,
-    "health": 7,
-    "text": "",
-    "rarity": "common"
+    "power": 5,
+    "health": 6,
+    "text": "On Play: Freeze all enemy units.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "freeze",
+          "target": "allEnemyUnits"
+        }
+      }
+    ]
   },
   {
     "id": "tide-tsunami",
@@ -1801,11 +2060,21 @@
     "faction": "tide",
     "type": "unit",
     "cost": 6,
-    "power": 5,
-    "health": 6,
+    "power": 4,
+    "health": 5,
     "keywords": ["elusive", "barrier"],
-    "text": "Elusive. Barrier.",
-    "rarity": "uncommon"
+    "text": "Elusive. Barrier. Whenever you cast a spell: deal 1 damage to a random enemy unit.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "whenCast",
+        "action": {
+          "op": "damage",
+          "target": "randomEnemyUnit",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "tide-abyssal-titan",
@@ -1813,11 +2082,23 @@
     "faction": "tide",
     "type": "unit",
     "cost": 7,
-    "power": 6,
-    "health": 8,
+    "power": 5,
+    "health": 7,
     "keywords": ["barrier"],
-    "text": "Barrier.",
-    "rarity": "rare"
+    "text": "Barrier. On Play: Discover a Tide spell.",
+    "rarity": "rare",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "discover",
+          "filter": {
+            "type": "spell",
+            "faction": "tide"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "tide-sea-queen",
@@ -1866,10 +2147,20 @@
     "type": "unit",
     "cost": 1,
     "power": 1,
-    "health": 2,
-    "text": "Guard.",
+    "health": 1,
+    "text": "Guard. Last Breath: summon a 1/1 Sapling.",
     "rarity": "common",
-    "keywords": ["guard"]
+    "keywords": ["guard"],
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "summon",
+          "cardId": "grove-sapling",
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "grove-wild-growth",
@@ -1924,9 +2215,26 @@
     "type": "unit",
     "cost": 2,
     "power": 2,
-    "health": 3,
-    "text": "",
-    "rarity": "common"
+    "health": 2,
+    "text": "On Play: give a friendly unit +1/+1.",
+    "rarity": "common",
+    "targets": [
+      {
+        "kind": "friendlyUnit"
+      }
+    ],
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "buff",
+          "target": "target",
+          "power": 1,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "grove-druid-initiate",
@@ -1955,10 +2263,20 @@
     "type": "unit",
     "cost": 2,
     "power": 1,
-    "health": 3,
+    "health": 2,
     "keywords": ["growth"],
-    "text": "Growth.",
-    "rarity": "common"
+    "text": "Growth. Whenever you play another unit: heal your hero by 1.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenFriendlyPlay",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "grove-rejuvenate",
@@ -2056,10 +2374,20 @@
     "type": "unit",
     "cost": 3,
     "power": 2,
-    "health": 4,
+    "health": 3,
     "keywords": ["regenerate"],
-    "text": "Regenerate.",
-    "rarity": "common"
+    "text": "Regenerate. Whenever this survives damage: heal your hero by 2.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenDamaged",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 2
+        }
+      }
+    ]
   },
   {
     "id": "grove-wolf-pack",
@@ -2067,10 +2395,22 @@
     "faction": "grove",
     "type": "unit",
     "cost": 3,
-    "power": 4,
+    "power": 3,
     "health": 3,
-    "text": "",
-    "rarity": "common"
+    "text": "Attack: give other friendly units +1 Power this turn.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onAttack",
+        "action": {
+          "op": "buff",
+          "target": "otherFriendlyUnits",
+          "power": 1,
+          "health": 0,
+          "duration": "turn"
+        }
+      }
+    ]
   },
   {
     "id": "grove-overgrowth",
@@ -2160,7 +2500,7 @@
     "faction": "grove",
     "type": "unit",
     "cost": 4,
-    "power": 4,
+    "power": 5,
     "health": 5,
     "text": "",
     "rarity": "common"
@@ -2172,10 +2512,20 @@
     "type": "unit",
     "cost": 4,
     "power": 3,
-    "health": 5,
+    "health": 4,
     "keywords": ["guard", "regenerate"],
-    "text": "Guard. Regenerate.",
-    "rarity": "common"
+    "text": "Guard. Regenerate. Whenever this survives damage: deal 1 damage to a random enemy unit.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenDamaged",
+        "action": {
+          "op": "damage",
+          "target": "randomEnemyUnit",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "grove-giant-growth",
@@ -2232,10 +2582,20 @@
     "type": "unit",
     "cost": 4,
     "power": 1,
-    "health": 6,
+    "health": 5,
     "keywords": ["regenerate"],
-    "text": "Regenerate.",
-    "rarity": "common"
+    "text": "Regenerate. On Play: give other friendly units Regenerate.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "grantKeyword",
+          "target": "otherFriendlyUnits",
+          "keyword": "regenerate"
+        }
+      }
+    ]
   },
   {
     "id": "grove-ancient-oak",
@@ -2243,10 +2603,20 @@
     "faction": "grove",
     "type": "unit",
     "cost": 5,
-    "power": 5,
-    "health": 6,
-    "text": "",
-    "rarity": "common"
+    "power": 4,
+    "health": 5,
+    "text": "On Play: summon two 1/1 Saplings.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "summon",
+          "cardId": "grove-sapling",
+          "count": 2
+        }
+      }
+    ]
   },
   {
     "id": "grove-stampede",
@@ -2318,10 +2688,21 @@
     "faction": "grove",
     "type": "unit",
     "cost": 6,
-    "power": 7,
-    "health": 6,
-    "text": "",
-    "rarity": "common"
+    "power": 6,
+    "health": 5,
+    "text": "On Play: deal 1 damage to the enemy hero for each friendly unit.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 1,
+          "per": "friendlyUnits"
+        }
+      }
+    ]
   },
   {
     "id": "grove-worldroot",
@@ -2329,11 +2710,20 @@
     "faction": "grove",
     "type": "unit",
     "cost": 6,
-    "power": 4,
-    "health": 6,
+    "power": 3,
+    "health": 5,
     "keywords": ["growth", "regenerate"],
-    "text": "Growth. Regenerate.",
-    "rarity": "rare"
+    "text": "Growth. Regenerate. Start of Turn: draw a card.",
+    "rarity": "rare",
+    "effects": [
+      {
+        "trigger": "startOfTurn",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "grove-natures-wrath",
@@ -2367,9 +2757,18 @@
     "type": "unit",
     "cost": 8,
     "power": 7,
-    "health": 6,
-    "text": "",
-    "rarity": "rare"
+    "health": 7,
+    "text": "On Play: draw 2 cards.",
+    "rarity": "rare",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "draw",
+          "count": 2
+        }
+      }
+    ]
   },
   {
     "id": "grove-world-tree",
@@ -2442,10 +2841,27 @@
     "faction": "dusk",
     "type": "unit",
     "cost": 1,
-    "power": 2,
+    "power": 1,
     "health": 1,
-    "text": "",
-    "rarity": "common"
+    "text": "On Play: deal 1 damage to your hero and draw a card.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "friendlyHero",
+          "amount": 1
+        }
+      },
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "draw",
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "dusk-hex",
@@ -2508,7 +2924,7 @@
     "faction": "dusk",
     "type": "unit",
     "cost": 2,
-    "power": 1,
+    "power": 2,
     "health": 2,
     "keywords": ["lifesteal"],
     "text": "Lifesteal.",
@@ -2541,10 +2957,22 @@
     "faction": "dusk",
     "type": "unit",
     "cost": 2,
-    "power": 3,
+    "power": 2,
     "health": 2,
-    "text": "",
-    "rarity": "common"
+    "text": "Whenever another friendly unit dies: give this unit +1/+1.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenFriendlyDies",
+        "action": {
+          "op": "buff",
+          "target": "self",
+          "power": 1,
+          "health": 1,
+          "duration": "permanent"
+        }
+      }
+    ]
   },
   {
     "id": "dusk-drain-life",
@@ -2635,9 +3063,19 @@
     "type": "unit",
     "cost": 3,
     "power": 3,
-    "health": 3,
-    "text": "",
-    "rarity": "common"
+    "health": 2,
+    "text": "Last Breath: deal 1 damage to all enemy units.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "damage",
+          "target": "allEnemyUnits",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "dusk-vampire-thrall",
@@ -2646,10 +3084,20 @@
     "type": "unit",
     "cost": 3,
     "power": 2,
-    "health": 3,
+    "health": 2,
     "keywords": ["lifesteal"],
-    "text": "Lifesteal.",
-    "rarity": "common"
+    "text": "Lifesteal. Whenever you cast a spell: heal your hero by 1.",
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "whenCast",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "dusk-soul-reaper",
@@ -2746,8 +3194,18 @@
     "power": 3,
     "health": 3,
     "keywords": ["lifesteal"],
-    "text": "Lifesteal.",
-    "rarity": "uncommon"
+    "text": "Lifesteal. Whenever another friendly unit dies: deal 1 damage to the enemy hero.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "whenFriendlyDies",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 1
+        }
+      }
+    ]
   },
   {
     "id": "dusk-wraith",
@@ -2913,10 +3371,28 @@
     "type": "unit",
     "cost": 5,
     "power": 4,
-    "health": 5,
+    "health": 4,
     "keywords": ["lifesteal"],
-    "text": "Lifesteal.",
-    "rarity": "uncommon"
+    "text": "Lifesteal. On Play: deal 2 damage to the enemy hero and heal your hero by 2.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "damage",
+          "target": "enemyHero",
+          "amount": 2
+        }
+      },
+      {
+        "trigger": "onPlay",
+        "action": {
+          "op": "heal",
+          "target": "friendlyHero",
+          "amount": 2
+        }
+      }
+    ]
   },
   {
     "id": "dusk-bone-dragon",
@@ -2974,10 +3450,24 @@
     "type": "unit",
     "cost": 6,
     "power": 5,
-    "health": 5,
+    "health": 4,
     "keywords": ["lifesteal"],
-    "text": "Lifesteal.",
-    "rarity": "uncommon"
+    "text": "Lifesteal. Last Breath: add a random Dusk spell costing 3 or less to your hand.",
+    "rarity": "uncommon",
+    "effects": [
+      {
+        "trigger": "lastBreath",
+        "action": {
+          "op": "conjureRandom",
+          "filter": {
+            "type": "spell",
+            "faction": "dusk",
+            "maxCost": 3
+          },
+          "count": 1
+        }
+      }
+    ]
   },
   {
     "id": "dusk-death-lord",
