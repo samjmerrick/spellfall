@@ -14,7 +14,7 @@ const deck = Array.from({ length: 30 }, () => FILLER);
 
 /** Player 0's match with these modifiers: hands kept, a hurt Militia on each side, then 8 empty turns each. */
 function play(mods: MatchModifier[]): GameState[] {
-  let s = initMatch({ decks: [deck, deck], modifiers: [mods, []], firstPlayer: 0 }, 5);
+  let s = initMatch({ decks: [deck, deck], heroHp: 20, modifiers: [mods, []], firstPlayer: 0 }, 5);
   s = applyAction(s, { type: 'mulligan', player: 0, uids: [] }).state;
   s = applyAction(s, { type: 'mulligan', player: 1, uids: [] }).state;
   // Hurt heroes (for healing rules) and a hurt unit on each side (for unit-targeting rules).

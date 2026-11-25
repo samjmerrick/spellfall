@@ -4,7 +4,7 @@
 
 ## Overview
 
-Spellfall is a single-player, portrait-mode card battler for phones: an open board where you choose every attack's target (Hearthstone), spell speeds, priority and a stack that let the opponent answer on either turn (Legends of Runeterra), and five colour factions with a 20 HP life total.
+Spellfall is a single-player, portrait-mode card battler for phones: an open board where you choose every attack's target (Hearthstone), spell speeds, priority and a stack that let the opponent answer on either turn (Legends of Runeterra), and five colour factions with a 30 HP life total.
 
 Spellfall is a fork of Lanefall, a 3-lane simultaneous-reveal game. The Lanefall spec is kept in `docs/v1/spec.md` for reference; this document replaces it (see Transition from Lanefall).
 
@@ -26,7 +26,7 @@ Players take alternating turns. The active player plays units, casts spells and 
 
 **Setup**
 
-- Each hero starts on 20 HP.
+- Each hero starts on 30 HP.
 - Decks are 30 cards in Quick Play; run decks start at 12 and grow.
 - The match seed decides who goes first. The first player draws 3, the second draws 4. After both mulligans the second player also gets **the Spark** (a 0-cost Burst spell: gain 1 mana).
 - One mulligan: replace any number of your starting cards once.
@@ -175,7 +175,7 @@ There are no account levels, XP, unlocks or tutorial: every collectible card, ev
 
 ## Deck building
 
-As in Lanefall (`docs/v1/spec.md`, Deck building): 30-card decks from up to 2 factions, at most 3 copies (1 of a Legendary); up to 20 saved decks; one pre-built deck per faction pair; collection grid with filters (cost 1–7 and 8+; the type filter splits spells by speed: Burst, Fast, Slow); deck strip with count, factions and curve; share codes (Spellfall codes start `SD1-`).
+As in Lanefall (`docs/v1/spec.md`, Deck building): 30-card decks from up to 2 factions, at most 2 copies (1 of a Legendary); up to 20 saved decks; one pre-built deck per faction pair; collection grid with filters (cost 1–7 and 8+; the type filter splits spells by speed: Burst, Fast, Slow); deck strip with count, factions and curve; share codes (Spellfall codes start `SD1-`).
 
 ## Portrait UI and art
 

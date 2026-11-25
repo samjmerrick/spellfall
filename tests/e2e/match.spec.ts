@@ -35,7 +35,7 @@ test.describe('interaction', () => {
   }) => {
     test.setTimeout(120_000);
     const errors = watchErrors(page);
-    await startMatch(page, { seed: 11, speed: 0.02 });
+    await startMatch(page, { seed: 3, speed: 0.02 });
     await keepHand(page);
     await waitForPlayer(page);
     // Drag the first playable unit card (no speed label) onto your board.
@@ -86,7 +86,7 @@ test.describe('interaction', () => {
     page,
   }) => {
     const errors = watchErrors(page);
-    await startMatch(page, { seed: 11, speed: 0.02 });
+    await startMatch(page, { seed: 3, speed: 0.02 });
     await keepHand(page);
     await waitForPlayer(page);
     const card = page.locator('.hand__slot--playable').first();
@@ -136,7 +136,7 @@ test.describe('interaction', () => {
   }) => {
     test.setTimeout(120_000);
     const errors = watchErrors(page);
-    await startMatch(page, { seed: 11, speed: 0.02 });
+    await startMatch(page, { seed: 3, speed: 0.02 });
     await keepHand(page);
     await waitForPlayer(page);
     const spark = page.locator('.hand__slot:has([data-card-id="neutral-spark"])');

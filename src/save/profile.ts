@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { GameState } from '../rules';
 import { RunChoiceSchema, RunConfigSchema } from '../run/schema';
 
-export const CURRENT_SCHEMA = 8;
+export const CURRENT_SCHEMA = 9;
 export const MAX_SAVED_DECKS = 20;
 export const MAX_DECK_NAME = 24;
 
