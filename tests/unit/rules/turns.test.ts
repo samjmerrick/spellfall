@@ -59,9 +59,9 @@ describe('setup', () => {
       },
       1,
     );
-    expect(s.players[0].hp).toBe(25);
+    expect(s.players[0].hp).toBe(35);
     expect(s.players[0].hand).toHaveLength(4);
-    expect(s.players[1].hp).toBe(20);
+    expect(s.players[1].hp).toBe(30);
   });
 });
 

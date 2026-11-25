@@ -18,6 +18,7 @@ export const FILLER = 'bastion-recruit';
  * A match past the mulligan, in player 0's main phase on turn 1 (player 0 goes first), with both hands
  * emptied and both players on `mana` max mana. Tests add cards with `give` and units with `place`.
  */
+// Rule tests use a 20 HP hero so damage numbers stay small; the 30 HP default is tested in turns.test.ts.
 export function setup(
   opts: {
     seed?: number;
@@ -30,7 +31,7 @@ export function setup(
 ): GameState {
   const deck = opts.deck ?? Array.from({ length: 30 }, () => FILLER);
   let s = initMatch(
-    { decks: [deck, deck], heroHp: opts.heroHp, modifiers: opts.modifiers, firstPlayer: 0 },
+    { decks: [deck, deck], heroHp: opts.heroHp ?? 20, modifiers: opts.modifiers, firstPlayer: 0 },
     opts.seed ?? 1,
   );
   s = act(s, { type: 'mulligan', player: 0, uids: [] });

@@ -499,10 +499,10 @@ describe('Legendaries: one copy per deck', () => {
     for (const c of legendaries) {
       const filler = collectibleCards()
         .filter((x) => x.faction === c.faction && x.rarity !== 'legendary')
-        .slice(0, 10)
-        .flatMap((x) => [x.id, x.id, x.id]);
-      expect(canAddCard([...filler.slice(0, 26), c.id], c.id), c.id).toBe(false);
-      expect(canAddCard(filler.slice(0, 26), c.id), c.id).toBe(true);
+        .slice(0, 15)
+        .flatMap((x) => [x.id, x.id]);
+      expect(canAddCard([...filler.slice(0, 28), c.id], c.id), c.id).toBe(false);
+      expect(canAddCard(filler.slice(0, 28), c.id), c.id).toBe(true);
       const two = [...filler.slice(0, 28), c.id, c.id];
       expect(
         deckProblems(two).map((p) => p.rule),
