@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// GitHub Pages serves the site from /<repo>/; CI sets VITE_BASE accordingly.
+// Base path for `pnpm build` (default `/`). The hosted game is the claude.ai artifact from `pnpm build:preview`.
 const base = process.env.VITE_BASE ?? '/';
 
 export default defineConfig({
