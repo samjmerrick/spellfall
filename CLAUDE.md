@@ -16,8 +16,8 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm sim:run [n] [easy|normal|hard] [ascension]` — bot roguelike runs per hero, all cards, heroes and relics (win rate, nodes cleared)
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
-- `pnpm build` — production build (`VITE_BASE=/spellfall/` for GitHub Pages; CI sets it)
-- `pnpm build:preview` — self-contained test build in `dist-preview/` (assets inlined, no service worker) for the test artifact
+- `pnpm build` — standalone production build in `dist/` (PWA; not deployed anywhere)
+- `pnpm build:preview` — self-contained build in `dist-preview/` (assets inlined, no service worker) for the claude.ai artifacts
 
 ## Folder rules
 
@@ -59,14 +59,19 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 
 ## Preview vs live
 
-- **Preview** = the claude.ai test-build artifact (below). Built from the working branch after every batch of changes, before merge.
-- **Live** = GitHub Pages (`https://samjmerrick.github.io/spellfall/`). Updated only from `main`, by `pages.yml` after CI passes
-  (or by hand: Actions > Deploy live site > Run workflow). Never publish live from a branch.
+The game is hosted only as claude.ai artifacts. There is no GitHub Pages site and no deploy workflow.
+
+- **Preview** = the claude.ai test-build artifact (https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi). Built from the working
+  branch after every batch of changes, before merge.
+- **Live** = the claude.ai live artifact (https://claude.ai/artifact/DvQKZ9joECs21TLJm1JTAa). Published only from `main`: after a PR merges, check out the
+  latest `main`, run `pnpm build:preview`, and publish `dist-preview/` to the live artifact the same way as the preview (page
+  `spellfall.html`, `assets/*` and `icon.svg` as supporting files, root `dist-preview/`, previous build's hashed files removed).
+  Never publish live from a branch.
 
 ## Working rules
 
 - One milestone (V0–V8, see spec) per branch and PR; don't start the next until CI is green. CI runs on PRs and `main`
-  (jobs `check` and `e2e` in parallel). `.github/workflows/pages.yml` deploys the live site once CI succeeds on `main`.
+  (jobs `check` and `e2e` in parallel). Once a PR merges, republish the live artifact from `main` (see "Preview vs live").
 - Spec silent on something? Pick the simplest option and log it in `docs/decisions.md` (date, question, decision).
 - Any game-rule change updates `docs/spec.md` in the same PR.
 - After UI changes, run `pnpm e2e` and look at `test-results/screens/*.png` before committing.
