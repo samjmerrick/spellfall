@@ -1,7 +1,7 @@
 name: CI
 
 # PRs are checked once (not again for the branch push); main is checked. The game is hosted only as a claude.ai
-# artifact (see CLAUDE.md "Preview vs live"); nothing is deployed from here.
+# artifact (see CLAUDE.md "Hosting"); nothing is deployed from here.
 on:
   push:
     branches: [main]
