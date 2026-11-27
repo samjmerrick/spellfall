@@ -65,9 +65,9 @@ site, no deploy workflow and no separate preview artifact.
 To publish: run `pnpm build:preview` and publish `dist-preview/` to that artifact (page `spellfall.html`, `assets/*` and
 `icon.svg` as supporting files, root `dist-preview/`, previous build's hashed files removed). Never make a new artifact.
 
-- After every merge, republish it from the latest `main`.
-- When the owner needs to see a branch first (UI changes), publish the branch build to it, and republish from `main` once the
-  work merges or is dropped.
+- After every merge, republish it from the latest `main`. Only `main` is ever published to it.
+- Never publish a branch build to it. To show the owner a change before its PR (UI changes), send screenshots
+  (`pnpm screens` or `test-results/screens/*.png` from `pnpm e2e`) or a Claude Design mock-up instead.
 
 ## Working rules
 
@@ -77,6 +77,6 @@ To publish: run `pnpm build:preview` and publish `dist-preview/` to that artifac
 - Any game-rule change updates `docs/spec.md` in the same PR.
 - After UI changes, run `pnpm e2e` and look at `test-results/screens/*.png` before committing.
 - New dependency → one-line reason in the PR description.
-- **Test build every time.** After every batch of changes (each time you commit work for the owner), publish the build to the
-  artifact as described in "Hosting" and give the owner the link with a short list of what to try. If publishing fails, say
-  so; never skip it silently.
+- **Show changes every time.** After every batch of changes, show the owner screenshots (or a Claude Design mock-up) of what
+  changed, with a short list of what to look at. After a merge, republish the artifact from `main` (see "Hosting"). If
+  publishing fails, say so; never skip it silently.
