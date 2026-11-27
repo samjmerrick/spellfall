@@ -17,7 +17,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
 - `pnpm build` — standalone production build in `dist/` (PWA; not deployed anywhere)
-- `pnpm build:preview` — self-contained build in `dist-preview/` (assets inlined, no service worker) for the claude.ai artifacts
+- `pnpm build:preview` — self-contained build in `dist-preview/` (assets inlined, no service worker) for the claude.ai artifact
 
 ## Folder rules
 
@@ -57,28 +57,26 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
   `tests/sim/rules-bulk.test.ts` with the bots in `tools/sim/rules-bot.ts`. e2e: `tests/e2e/duel.ts` (`playCard`, `attackOnce`,
   `playDuel`) plays matches by tapping.
 
-## Preview vs live
+## Hosting
 
-The game is hosted only as claude.ai artifacts. There is no GitHub Pages site and no deploy workflow.
+The game is hosted only as one claude.ai artifact: https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi. There is no GitHub Pages
+site, no deploy workflow and no separate preview artifact.
 
-- **Preview** = the claude.ai test-build artifact (https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi). Built from the working
-  branch after every batch of changes, before merge.
-- **Live** = the claude.ai live artifact (https://claude.ai/artifact/DvQKZ9joECs21TLJm1JTAa). Published only from `main`: after a PR merges, check out the
-  latest `main`, run `pnpm build:preview`, and publish `dist-preview/` to the live artifact the same way as the preview (page
-  `spellfall.html`, `assets/*` and `icon.svg` as supporting files, root `dist-preview/`, previous build's hashed files removed).
-  Never publish live from a branch.
+To publish: run `pnpm build:preview` and publish `dist-preview/` to that artifact (page `spellfall.html`, `assets/*` and
+`icon.svg` as supporting files, root `dist-preview/`, previous build's hashed files removed). Never make a new artifact.
+
+- After every merge, republish it from the latest `main`. Only `main` is ever published to it.
+- Never publish a branch build to it. To show the owner a change before its PR (UI changes), send screenshots
+  (`pnpm screens` or `test-results/screens/*.png` from `pnpm e2e`) or a Claude Design mock-up instead.
 
 ## Working rules
 
 - One milestone (V0–V8, see spec) per branch and PR; don't start the next until CI is green. CI runs on PRs and `main`
-  (jobs `check` and `e2e` in parallel). Once a PR merges, republish the live artifact from `main` (see "Preview vs live").
+  (jobs `check` and `e2e` in parallel). Once a PR merges, republish the artifact from `main` (see "Hosting").
 - Spec silent on something? Pick the simplest option and log it in `docs/decisions.md` (date, question, decision).
 - Any game-rule change updates `docs/spec.md` in the same PR.
 - After UI changes, run `pnpm e2e` and look at `test-results/screens/*.png` before committing.
 - New dependency → one-line reason in the PR description.
-- **Test build every time.** After every batch of changes (each time you commit work for the owner), run
-  `pnpm build:preview` and publish `dist-preview/` as a claude.ai artifact: page `dist-preview/spellfall.html`, the
-  other files (`assets/*`, `icon.svg`) as its supporting files, with `dist-preview/` as the root. Update the existing
-  test-build artifact (https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi) rather than making a new one, removing the
-  previous build's hashed files, and give the owner the link with a short list of what to try. If publishing fails, say
-  so; never skip it silently.
+- **Show changes every time.** After every batch of changes, show the owner screenshots (or a Claude Design mock-up) of what
+  changed, with a short list of what to look at. After a merge, republish the artifact from `main` (see "Hosting"). If
+  publishing fails, say so; never skip it silently.
