@@ -229,7 +229,7 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 
 ## Tech stack and architecture
 
-Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Actions CI. The game is hosted at https://bee.samjmerrick.com/spellfall/, built and deployed from `main` after each merge, with optional PocketBase cloud saves. Changes are reviewed as screenshots.
+Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Actions CI. The game is hosted at https://apps.samjmerrick.com/spellfall/, built and deployed from `main` after each merge, with optional PocketBase cloud saves. Changes are reviewed as screenshots.
 
 **Folders**
 

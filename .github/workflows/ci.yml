@@ -1,7 +1,7 @@
 name: CI
 
 # PRs are checked once (not again for the branch push); main is checked. Nothing is deployed from here: bee
-# (https://bee.samjmerrick.com/spellfall/) builds and deploys main itself via ~/apps/bin/deploy (see AGENTS.md "Hosting").
+# (https://apps.samjmerrick.com/spellfall/) builds and deploys main itself via ~/apps/bin/deploy (see AGENTS.md "Hosting").
 on:
   push:
     branches: [main]
