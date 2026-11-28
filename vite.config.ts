@@ -3,15 +3,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Base path for `pnpm build` (default `/`). The primary host is bee.samjmerrick.com/spellfall/ (built with
-// `--base=/spellfall/` by ~/apps/bin/deploy); the claude.ai artifact comes from `pnpm build:preview`.
+// Base path for `pnpm build` (default `/`). The host is bee.samjmerrick.com/spellfall/ (built with
+// `--base=/spellfall/` by ~/apps/bin/deploy).
 const base = process.env.VITE_BASE ?? '/';
 
 export default defineConfig({
   base,
-  // Optional cloud saves need a PocketBase on the same origin (`/api`). The artifact build turns them off, which
-  // removes the PocketBase SDK from it (see tools/preview/vite.config.ts).
-  define: { __CLOUD_SYNC__: true },
   build: {
     // Card art stays as separate hashed files (cached by the service worker), never inlined into the JS.
     assetsInlineLimit: (file, content) =>

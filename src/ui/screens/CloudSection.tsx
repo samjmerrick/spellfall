@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { prepareCloud, signIn, signOut, syncNow, useCloud } from '../cloud';
 
-/** Optional Google sign-in for cloud saves. Not rendered in the artifact build or when the server is unreachable. */
+/** Optional Google sign-in for cloud saves. Not rendered when the server is unreachable. */
 export function CloudSection() {
   const { available, user, status, message } = useCloud();
   useEffect(() => {
-    if (__CLOUD_SYNC__) void prepareCloud();
+    void prepareCloud();
   }, []);
-  if (!__CLOUD_SYNC__ || !available) return null;
+  if (!available) return null;
   const busy = status === 'syncing';
   return (
     <>

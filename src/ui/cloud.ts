@@ -1,7 +1,6 @@
 // Optional cloud saves, UI side. The game never waits for this: it plays and saves locally exactly as when signed
 // out. When the player signs in (PocketBase Google OAuth2 popup) the profile is synced with `spellfall_saves` using
-// the rules in src/save/cloud.ts (newest change wins). Everything here is compiled out of the claude.ai artifact
-// build (`__CLOUD_SYNC__` is false there, so the PocketBase SDK is not bundled).
+// the rules in src/save/cloud.ts (newest change wins).
 import { create } from 'zustand';
 import { pocketBaseCloud, syncProfile } from '../save';
 import { getStore, persistProfile, flushSaves, useApp, type Screen } from './app';
@@ -12,7 +11,7 @@ export type CloudStatus =
   'idle' | 'syncing' | 'synced' | 'offline' | 'error' | 'remote-newer' | 'app-outdated';
 
 interface CloudState {
-  /** The build has cloud saves and the server answers (or the player is already signed in). */
+  /** The server answers (or the player is already signed in). */
   available: boolean;
   /** Email of the signed-in account, or null. */
   user: string | null;
@@ -67,7 +66,6 @@ async function serverReachable(): Promise<boolean> {
 
 /** Preloads the SDK (so the sign-in popup opens straight from the tap) and checks the server. */
 export async function prepareCloud() {
-  if (!__CLOUD_SYNC__) return;
   const pb = await client().catch(() => null);
   const user = pb?.authStore.isValid ? displayName(pb) : null;
   useCloud.setState({ available: user !== null || (await serverReachable()), user });
@@ -79,7 +77,6 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 
 /** One sync at a time; a request that arrives meanwhile runs afterwards. */
 export function syncNow(allowPull = true): Promise<void> {
-  if (!__CLOUD_SYNC__) return Promise.resolve();
   if (running) {
     again = { allowPull: allowPull || !!again?.allowPull };
     return running;
@@ -137,7 +134,6 @@ async function runSync(allowPull: boolean) {
 }
 
 export async function signIn() {
-  if (!__CLOUD_SYNC__) return;
   try {
     const pb = await client();
     await pb.collection('users').authWithOAuth2({ provider: 'google' });
@@ -155,10 +151,10 @@ export async function signOut() {
   useCloud.setState({ user: null, status: 'idle', message: 'Signed out. Your save stays on this device.' });
 }
 
-/** Call once after the game has booted. Does nothing for signed-out players and in the artifact build. */
+/** Call once after the game has booted. Does nothing for signed-out players. */
 let started = false;
 export function initCloud() {
-  if (!__CLOUD_SYNC__ || started) return;
+  if (started) return;
   started = true;
   // After a local change, push in the background (never pull: that is only at start-up or on Sync now).
   useApp.subscribe((state, prev) => {
