@@ -229,7 +229,7 @@ The layout is designed for a 390 × 844 viewport and must work from 360 × 740 u
 
 ## Tech stack and architecture
 
-Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Actions CI. The game is hosted only as one claude.ai artifact, republished from `main` after each merge. Changes are reviewed as screenshots or Claude Design mock-ups, never by publishing a branch build.
+Unchanged from Lanefall: strict TypeScript, Vite and pnpm, React with Zustand and Motion, vite-plugin-pwa, idb-keyval over IndexedDB, Zod for content, Vitest and Playwright, ESLint and Prettier, GitHub Actions CI. The game is hosted at https://bee.samjmerrick.com/spellfall/, built and deployed from `main` after each merge, with optional PocketBase cloud saves. Changes are reviewed as screenshots.
 
 **Folders**
 
@@ -303,7 +303,7 @@ Spellfall started as a copy of Lanefall with its full history. The new rules wer
 
 _The milestone list below is history. The tutorial (V7) and the level/XP/unlock track (V6) were later removed; see the Meta progression section above and `docs/decisions.md` (2026-11-22)._
 
-Build in 9 milestones, V0 to V8, in order. Each ends in checks that Claude Code runs itself; a milestone is done only when every check passes in CI.
+Build in 9 milestones, V0 to V8, in order. Each ends in checks that the coding agent runs itself; a milestone is done only when every check passes in CI.
 
 ### V0: Fork
 
@@ -371,7 +371,7 @@ Run the simulator at scale and tune cards, hero HP and AI weights; tag version 1
 - `pnpm sim:balance` writes `docs/balance.md`: win rate per faction pair, first-player win rate and win rate when played per card. A draw counts as a loss.
 - Targets: every faction wins 45–55% of Normal-vs-Normal matches; the first player wins 47–53%; no card's win rate when played is above 60%; the median match lasts 14–22 turns. Any exception is listed in the report with a reason.
 
-## Working rules for Claude Code
+## Working rules
 
 - **One milestone per branch and pull request.** Do not start the next milestone until the current one's checks all pass in CI.
 - **Ambiguity:** when the spec doesn't decide something, choose the simplest option, record it in `docs/decisions.md` (date, question, decision), and carry on.

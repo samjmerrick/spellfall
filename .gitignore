@@ -7,4 +7,3 @@ playwright-report
 *.tsbuildinfo
 .DS_Store
 art-sheets/
-dist-preview
