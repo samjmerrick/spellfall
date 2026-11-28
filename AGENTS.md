@@ -59,7 +59,7 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 
 ## Hosting
 
-**Host: https://bee.samjmerrick.com/spellfall/** (Sam's home server "bee", the apps platform in `~/apps`). Every
+**Host: https://apps.samjmerrick.com/spellfall/** (Sam's home server "bee", the apps platform in `~/apps`). Every
 push to `main` is built and deployed there by `~/apps/bin/deploy` (a GitHub webhook, with a 15-minute poll as a
 fallback): `pnpm install --frozen-lockfile && pnpm exec tsc -b && pnpm exec vite build --base=/spellfall/`, served by Caddy
 from `/spellfall/` with deep links falling back to `index.html`. Merging to `main` is the release; there is nothing to
@@ -90,5 +90,5 @@ publish by hand. The `spellfall` entry in `~/apps/apps.json` holds the build com
 - New dependency → one-line reason in the PR description.
 - **Show changes every time.** After every batch of changes, show the owner screenshots (`pnpm screens`, or
   `test-results/screens/*.png` from `pnpm e2e`) of what changed, with a short list of what to look at; UI changes are shown
-  before their PR. After a merge, check the bee deploy went through (https://bee.samjmerrick.com/spellfall/). If it failed,
+  before their PR. After a merge, check the bee deploy went through (https://apps.samjmerrick.com/spellfall/). If it failed,
   say so; never skip it silently.

@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Base path for `pnpm build` (default `/`). The host is bee.samjmerrick.com/spellfall/ (built with
+// Base path for `pnpm build` (default `/`). The host is apps.samjmerrick.com/spellfall/ (built with
 // `--base=/spellfall/` by ~/apps/bin/deploy).
 const base = process.env.VITE_BASE ?? '/';
 
