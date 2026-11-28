@@ -16,21 +16,24 @@ export interface SlotRecord {
   seq: number;
   checksum: string;
   json: string;
+  /** When this profile was last changed on this device (ms since epoch). Cloud sync compares it with the cloud copy. Absent in older saves. */
+  savedAt?: number;
 }
 
 export type LoadResult =
-  | { status: 'ok'; profile: Profile; slot: 0 | 1; seq: number; fellBack: boolean }
+  | { status: 'ok'; profile: Profile; slot: 0 | 1; seq: number; fellBack: boolean; savedAt: number }
   | { status: 'empty' }
   | { status: 'corrupt'; raw: [unknown, unknown] };
 
-function readSlot(value: unknown): { seq: number; profile: Profile } | null {
+function readSlot(value: unknown): { seq: number; profile: Profile; savedAt: number } | null {
   if (typeof value !== 'object' || value === null) return null;
   const rec = value as Partial<SlotRecord>;
   if (typeof rec.seq !== 'number' || typeof rec.json !== 'string' || typeof rec.checksum !== 'string')
     return null;
   if (checksum(rec.json) !== rec.checksum) return null;
   try {
-    return { seq: rec.seq, profile: migrate(JSON.parse(rec.json)) };
+    const savedAt = typeof rec.savedAt === 'number' && Number.isFinite(rec.savedAt) ? rec.savedAt : 0;
+    return { seq: rec.seq, profile: migrate(JSON.parse(rec.json)), savedAt };
   } catch {
     return null;
   }
@@ -53,21 +56,26 @@ export async function loadProfile(store: KeyValueStore): Promise<LoadResult> {
     profile: slots[best]!.profile,
     slot: best,
     seq: slots[best]!.seq,
+    savedAt: slots[best]!.savedAt,
     fellBack: slots[best]!.seq < newestSeq || valid.length < raw.filter((r) => r !== undefined).length,
   };
 }
 
-/** Writes the profile to the older (or invalid) slot with the next sequence number. */
+/**
+ * Writes the profile to the older (or invalid) slot with the next sequence number. `savedAt` is the change time
+ * kept for cloud sync: now for a local change, or the cloud copy's time when a pulled profile is stored.
+ */
 export async function saveProfile(
   store: KeyValueStore,
   profile: Profile,
+  savedAt: number = Date.now(),
 ): Promise<{ slot: 0 | 1; seq: number }> {
   const slots = [readSlot(await store.get(SLOT_KEYS[0])), readSlot(await store.get(SLOT_KEYS[1]))];
   const seqs = slots.map((s) => s?.seq ?? -1);
   const slot: 0 | 1 = seqs[0]! <= seqs[1]! ? 0 : 1;
   const seq = Math.max(...seqs) + 1;
   const json = JSON.stringify(profile);
-  const record: SlotRecord = { seq, checksum: checksum(json), json };
+  const record: SlotRecord = { seq, checksum: checksum(json), json, savedAt };
   await store.set(SLOT_KEYS[slot], record);
   return { slot, seq };
 }

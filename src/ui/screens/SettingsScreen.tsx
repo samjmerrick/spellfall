@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { exportSaveCode } from '../../save';
 import { useApp } from '../app';
+import { CloudSection } from './CloudSection';
 import { ScreenFrame } from './common';
 
 const PERSIST_TEXT = {
@@ -119,6 +120,8 @@ export function SettingsScreen() {
             ? PERSIST_TEXT[persist]
             : 'Checking…'}
       </p>
+
+      <CloudSection />
 
       <h2 className="label">Backup</h2>
       <button type="button" className="secondary wide" onClick={() => void copy()}>

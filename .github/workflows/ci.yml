@@ -1,7 +1,7 @@
 name: CI
 
-# PRs are checked once (not again for the branch push); main is checked. The game is hosted only as a claude.ai
-# artifact (see CLAUDE.md "Hosting"); nothing is deployed from here.
+# PRs are checked once (not again for the branch push); main is checked. Nothing is deployed from here: bee
+# (https://bee.samjmerrick.com/spellfall/) builds and deploys main itself via ~/apps/bin/deploy (see CLAUDE.md "Hosting").
 on:
   push:
     branches: [main]

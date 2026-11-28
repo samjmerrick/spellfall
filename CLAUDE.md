@@ -16,8 +16,8 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 - `pnpm sim:run [n] [easy|normal|hard] [ascension]` — bot roguelike runs per hero, all cards, heroes and relics (win rate, nodes cleared)
 - `pnpm content:text` — rewrite every card's `text` in `cards.json` from its data (`src/rules/text.ts`)
 - `pnpm content:paths` — regenerate `tests/fixtures/run-paths.json` (e2e run paths) after run or content changes
-- `pnpm build` — standalone production build in `dist/` (PWA; not deployed anywhere)
-- `pnpm build:preview` — self-contained build in `dist-preview/` (assets inlined, no service worker) for the claude.ai artifact
+- `pnpm build` — production build in `dist/` (PWA, cloud sync included). Bee builds it with `vite build --base=/spellfall/` (see Hosting)
+- `pnpm build:preview` — self-contained build in `dist-preview/` (assets inlined, no service worker, no cloud sync) for the secondary claude.ai artifact
 
 ## Folder rules
 
@@ -25,7 +25,8 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
   and `src/ai/`: all randomness comes from the seeded RNG in game state.
 - `src/content/` — JSON content, validated by Zod schemas.
 - `src/run/`, `src/ai/` — roguelike run and meta progression (Ascension, stats); opponent planners.
-- `src/save/` — profile schema (Zod), two-slot saves over IndexedDB, migrations (`tests/fixtures/save-v*.json`), save codes.
+- `src/save/` — profile schema (Zod), two-slot saves over IndexedDB, migrations (`tests/fixtures/save-v*.json`), save codes,
+  and cloud sync (`cloud.ts`, `pocketbase.ts`; see Hosting).
 - `src/ui/` — React screens. Only sends actions to the rules and animates returned events; never computes results.
 - `tools/sim/` — CLI simulators. `tests/unit`, `tests/sim`, `tests/e2e` — tests.
 
@@ -59,24 +60,43 @@ Portrait-mode, single-player card battler (PWA): open board with chosen targets,
 
 ## Hosting
 
-The game is hosted only as one claude.ai artifact: https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi. There is no GitHub Pages
-site, no deploy workflow and no separate preview artifact.
+**Primary host: https://bee.samjmerrick.com/spellfall/** (Sam's home server "bee", the apps platform in `~/apps`). Every
+push to `main` is built and deployed there by `~/apps/bin/deploy` (a GitHub webhook, with a 15-minute poll as a
+fallback): `pnpm install --frozen-lockfile && pnpm exec tsc -b && pnpm exec vite build --base=/spellfall/`, served by Caddy
+from `/spellfall/` with deep links falling back to `index.html`. Merging to `main` is the release; there is nothing to
+publish by hand. The `spellfall` entry in `~/apps/apps.json` holds the build command, so keep `pnpm build` and the
+`--base` flag working. The app must keep working under any base path: use `import.meta.env.BASE_URL`, never a hard-coded `/`.
 
-To publish: run `pnpm build:preview` and publish `dist-preview/` to that artifact (page `spellfall.html`, `assets/*` and
-`icon.svg` as supporting files, root `dist-preview/`, previous build's hashed files removed). Never make a new artifact.
-
-- After every merge, republish it from the latest `main`. Only `main` is ever published to it.
-- Never publish a branch build to it. To show the owner a change before its PR (UI changes), send screenshots
-  (`pnpm screens` or `test-results/screens/*.png` from `pnpm e2e`) or a Claude Design mock-up instead.
+- **PWA under the prefix:** the manifest `scope` and `start_url` and the service worker scope follow the Vite base
+  (`/spellfall/`). The service worker auto-updates (a new build installs and reloads the page); the host sends
+  `Cache-Control: no-cache` so `sw.js`, `index.html` and the manifest are always revalidated.
+- **Cloud saves (optional):** PocketBase on the same origin (`/api`, `/_/`) with Google sign-in. The game is local-first:
+  signed out it works exactly as before, offline included. Signed in, the profile syncs to the `spellfall_saves`
+  collection (`pocketbase/migrations/`, copied to the platform's PocketBase by `bin/deploy`; owner-only API rules). Sync logic is
+  `src/save/cloud.ts` (newest change time wins, anything pulled is checked by `migrate`/Zod), the PocketBase adapter is
+  `src/save/pocketbase.ts`, the UI is `src/ui/cloud.ts` and the Cloud save section in Settings. A profile change bumps
+  nothing in the schema: the change time lives beside the save (`savedAt` in the slot record). The collection name and
+  slots are a contract with the migration: change both together, with a new migration file, never by editing the old one.
+- **Secondary: the claude.ai artifact** https://claude.ai/artifact/P4mBQyJP7jCRK8QyQJhoCi, a self-contained build for
+  quick sharing. Run `pnpm build:preview` and publish `dist-preview/` to that artifact (page `spellfall.html`,
+  `assets/*` and `icon.svg` as supporting files, root `dist-preview/`, previous build's hashed files removed). Never make
+  a new artifact. The artifact build has no PocketBase origin, so cloud sync is compiled out of it (`__CLOUD_SYNC__` is
+  false in `tools/preview/vite.config.ts`) and it saves locally only.
+  - Republish it from the latest `main` after merges that change the game. Only `main` is ever published to it; never a branch build.
+  - To show the owner a change before its PR (UI changes), send screenshots (`pnpm screens` or `test-results/screens/*.png`
+    from `pnpm e2e`) or a Claude Design mock-up.
+- To try a branch on bee without touching the live game, add a temporary entry to `~/apps/apps.json` with `"ref": "<branch>"`
+  and a different name and base (for example `spellfall-test` and `--base=/spellfall-test/`), run `bin/deploy <name>`,
+  then remove the entry, its `sites/<name>` and its Caddy snippet.
 
 ## Working rules
 
 - One milestone (V0–V8, see spec) per branch and PR; don't start the next until CI is green. CI runs on PRs and `main`
-  (jobs `check` and `e2e` in parallel). Once a PR merges, republish the artifact from `main` (see "Hosting").
+  (jobs `check` and `e2e` in parallel). Merging a PR deploys it to bee (see "Hosting"); the artifact is republished by hand afterwards.
 - Spec silent on something? Pick the simplest option and log it in `docs/decisions.md` (date, question, decision).
 - Any game-rule change updates `docs/spec.md` in the same PR.
 - After UI changes, run `pnpm e2e` and look at `test-results/screens/*.png` before committing.
 - New dependency → one-line reason in the PR description.
 - **Show changes every time.** After every batch of changes, show the owner screenshots (or a Claude Design mock-up) of what
-  changed, with a short list of what to look at. After a merge, republish the artifact from `main` (see "Hosting"). If
-  publishing fails, say so; never skip it silently.
+  changed, with a short list of what to look at. After a merge, check the bee deploy went through (https://bee.samjmerrick.com/spellfall/) and
+  republish the secondary artifact from `main` (see "Hosting"). If either fails, say so; never skip it silently.

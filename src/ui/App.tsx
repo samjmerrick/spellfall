@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useApp } from './app';
+import { initCloud } from './cloud';
 import { DuelScreen } from './duel/DuelScreen';
 import { DetailOverlay } from './duel/Overlays';
 import { RotateNotice } from './RotateNotice';
@@ -51,7 +52,7 @@ function CurrentScreen() {
 export function App() {
   const boot = useApp((s) => s.boot);
   useEffect(() => {
-    void boot();
+    void boot().then(initCloud);
   }, [boot]);
   // CSS animations follow the same switch as the motion components (see the `.reduce-motion` rules).
   const reduce = useReduceMotion();
