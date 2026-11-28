@@ -5,5 +5,7 @@ import base from '../../vite.config';
 
 export default mergeConfig(base, {
   base: './',
+  // No PocketBase origin in an artifact: cloud sync is compiled out.
+  define: { __CLOUD_SYNC__: false },
   build: { assetsInlineLimit: 1e9, outDir: 'dist-preview', emptyOutDir: true },
 });

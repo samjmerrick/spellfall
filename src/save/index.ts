@@ -4,6 +4,8 @@ import type { KeyValueStore } from './slots';
 export * from './profile';
 export * from './slots';
 export * from './code';
+export * from './cloud';
+export * from './pocketbase';
 export { migrate } from './migrations';
 
 /**

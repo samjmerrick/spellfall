@@ -80,10 +80,16 @@ interface AppStore {
 let store: KeyValueStore = idbStore;
 let writing: Promise<unknown> = Promise.resolve();
 
-/** Serialises writes so two autosaves never interleave. */
-function persistProfile(profile: Profile) {
+/** The store the profile is saved in (IndexedDB, or memory when that is unavailable). Cloud sync reads it. */
+export const getStore = () => store;
+
+/**
+ * Serialises writes so two autosaves never interleave. `savedAt` is the change time for cloud sync: left out it is
+ * now; a profile pulled from the cloud passes the cloud copy's time.
+ */
+export function persistProfile(profile: Profile, savedAt?: number) {
   writing = writing
-    .then(() => saveProfile(store, profile))
+    .then(() => saveProfile(store, profile, savedAt))
     .catch((err: unknown) => console.warn('Save failed', err));
   return writing;
 }
